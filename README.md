@@ -1,1 +1,1 @@
-![AceDroids banner](Bild-URL "media/images/banner.jpg")
+![AceDroids banner]("/media/images/banner.jpg")
