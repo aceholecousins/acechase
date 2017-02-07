@@ -7,6 +7,7 @@ __AceDroids__ is a Massive Multiplayer Couch Vehicular Combat Game. Hard facts:
 * free and open source so Richard Stallman is proud of us
 * up to 129 local players (technically your PC can handle 127 USB gamepads plus keyboard plus mouse (if not also connected via USB (then only 127 players, sorry)))
 * runs in the browser (seems to run better in Chrome than in Firefox)
+* sneaky thought inception during loading time that makes our gamers better people and the world a better place
 
 Awesome, right? Wait til you see our
 
@@ -27,6 +28,10 @@ buggies / tanks / ... and many more probably maybe
 ### A shirtload of special weapons
 
 mines / homing missiles / time warp / ram boost thing / wall-reflecting death ray / oh so many more!
+
+### Crazy awesome music
+
+in the spirit of the current music, just less midi-ish.
 
 Thus, we need your
 
