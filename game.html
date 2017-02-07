@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>HoverBattle</title>
+		<style>
+			body {
+				margin: 0px;
+				background-color: #000000;
+				overflow: hidden;
+			}
+			td {
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<table id ="splashscreen" style="position:absolute;
+			top:20%; left:20%; width:60%; height:60%; zIndex:1000;">
+		<tr><td style="color:black; background-color:white; font-size:30pt;
+			vertical-align:middle; text-align:center; padding:5%;
+			border-radius:15px 50px; background: url(media/images/quotebg.jpg);
+			-webkit-background-size: cover;	-moz-background-size: cover;
+			-o-background-size: cover; background-size: cover;">
+		<span id="splashscreentext"></span>
+		</td></tr></table>	
+
+		<div id="leveldrawing" style="height:0; width:0"></div> <!-- graphics container for the SVG library -->
+		<canvas id="canvasbuffer" width=100 height=100 style="display:none"></canvas> <!-- buffer canvas for pixel access in images -->
+
+		<script src="config.js"></script> <!-- configuration file -->		
+		<script src="src/quotes.js"></script> <!-- quotes to nicen loading time -->
+
+		<script type="text/javascript">
+
+			document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
+				+ "</b><br><br><i>loading...</i>";
+
+			var PARAMS = location.hash;
+			if(PARAMS == ""){
+				PARAMS = "#debug:1;player:Dani,keyboard,pink;player:Mirko,mouse,lime;player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
+			}
+			PARAMS = PARAMS.slice(1).split(';');
+
+			var NUM_PLAYERS = 0;
+			
+			for(var i=0; i<PARAMS.length; i++){
+				var key = PARAMS[i].split(':')[0];
+				var value = PARAMS[i].split(':')[1];
+
+				if(key == "debug"){
+					DEBUG = 1*value;
+				}
+				if(key == "player"){
+					NUM_PLAYERS++;
+				}
+				if(key == "music"){
+					MUSIC_VOLUME = 1*value;
+				}
+			}
+		</script>
+
+		<script src="src/jslibs/three.js"></script> <!-- WebGL wrapper, main framework (http://threejs.org) -->
+		<script src="src/jslibs/OrbitControls.js"></script> <!-- camera orbit controls, part of three.js -->
+		<script src="src/jslibs/p2.js"></script> <!-- p2 physics engine (https://schteppe.github.io/p2.js) -->
+		<script src="src/jslibs/stats.min.js"></script> <!-- framerate display -->
+		<script src="src/jslibs/DDSLoader.js"></script> <!-- file loader, part of three.js -->
+		<script src="src/jslibs/OBJLoader.js"></script> <!-- file loader, part of three.js -->
+		<script src="src/jslibs/MTLLoader.js"></script> <!-- file loader, part of three.js -->
+		<script src="src/jslibs/svg.js"></script> <!-- svg library (http://svgjs.com) -->
+		<script src="src/jslibs/svg.parser.js"></script> <!-- svg parser, needed by svg.import.js -->
+		<script src="src/jslibs/svg.import.js"></script> <!-- plugin for importing raw svg into svg.js (https://github.com/wout/svg.import.js)-->
+		<script src="src/jslibs/distancetf.js"></script> <!-- distance transform for boolean images (extracted from https://parmanoir.com/distance) -->
+		<script src="src/jslibs/buffer-loader.js"></script> <!-- loader that was used by the sound tutorial page http://www.html5rocks.com/en/tutorials/webaudio/intro/ -->
+		<script src="src/jslibs/GPUComputationRenderer.js"></script> <!-- for water cellular automata https://github.com/mrdoob/three.js/blob/dev/examples/js/GPUComputationRenderer.js -->
+		<script src="src/jslibs/THREE.MeshLine.js"></script> <!-- for trails https://github.com/spite/THREE.MeshLine -->
+
+		<script src="src/Checklist.js"></script>
+		<script src="src/mechanics.js"></script>
+		<script src="src/scene.js"></script>
+		<script src="src/Trail.js"></script>
+		<script src="src/Control.js"></script>
+		<script src="src/Sound.js"></script>
+		<script src="src/HBObject.js"></script>
+		<script src="src/Effect.js"></script>
+		<script src="src/explosion.js"></script>
+		<script src="src/Flame.js"></script>
+		<script src="src/Hovercraft.js"></script>
+		<script src="src/Phaser.js"></script>
+		<script src="src/Level.js"></script>
+		<script src="src/Water.js"></script>
+
+		<script type="text/javascript">
+
+			var PAUSED = true;
+
+			var hovers=[];
+			var level;
+
+			level = new Level(MAP);
+
+			function start() {
+
+				document.getElementById("splashscreen").style.visibility = "hidden";
+
+				var iPlayer=0;
+
+				for(var i=0; i<PARAMS.length; i++){
+					var key = PARAMS[i].split(':')[0];
+					var value = PARAMS[i].split(':')[1];
+
+					if(key=="player"){
+						hovers[iPlayer] = new Hovercraft(new THREE.Color(value.split(',')[2]));
+						hovers[iPlayer].playerName = value.split(',')[0];
+						var startPos = findAccessiblePosition(2);
+						hovers[iPlayer].body.position[0] = startPos.x;
+						hovers[iPlayer].body.position[1] = startPos.y;
+						hovers[iPlayer].beamed = true;
+						hovers[iPlayer].body.angle = Math.random()*2*Math.PI;
+						hovers[iPlayer].control = new Control(value.split(',')[1]);
+						hovers[iPlayer].control.direction = hovers[iPlayer].body.angle;
+						iPlayer++;
+					}
+
+				}
+				
+				PAUSED = false;
+				ingameTimeout(ROUND_TIME, function(){endRound();});				
+				animate();
+			}
+			LOADING_LIST.setCallback(start);
+
+			function animate() {
+				//setTimeout(function(){ requestAnimationFrame( animate ); }, 100);
+				
+				if(PAUSED){return;}
+
+				requestAnimationFrame( animate );
+
+				updateIngameTimeouts();
+
+				PHYSICS_WORLD.step(DT);
+
+				updateAllHBObjects();
+				updateAllEffects();
+
+				updateWater();
+
+				RENDERER.render( GRAPHICS_SCENE, CAMERA );
+				if(DEBUG>=1){STATS.update()};
+
+				FRAME_COUNTER++;
+				INGAME_TIME += DT;
+
+				/*if(FRAME_COUNTER% 6  == 5){
+					explosion(new THREE.Vector3(Math.random()*40-20, Math.random()*30-15, 0), new THREE.Color(Math.floor(Math.random()*0x1000000)));
+				}*/
+				
+			}
+
+			function endRound(){
+
+				PAUSED = true;
+
+				var html = "<center><table width=60% style='font-weight:bold'>"
+					+ "<tr><td>Player</td><td>Points</td><td>Kills</td><td>Deaths</td></tr>";
+				hovers.sort(function(a, b){return (b.kills*1.001-b.deaths) - (a.kills*1.001-a.deaths);});
+				// not sure if it is a good idea to shuffle this array, lets see
+
+				for(var i=0; i<hovers.length; i++){
+					var h = 0.3*hovers[i].color.r + 0.6*hovers[i].color.g + 0.1*hovers[i].color.b;
+					var shadow = "";
+					if(h>0.5){shadow = " text-shadow: -1px -1px black, -1px 1px black, 1px -1px black, 1px 1px black; ";}
+
+					html += "<tr style='color:#" + hovers[i].color.getHexString() + "; "
+						+ shadow + "'><td>" + hovers[i].playerName + "</td>";
+					html += "<td>" + (hovers[i].kills-hovers[i].deaths) + "</td>";
+					html += "<td>" + hovers[i].kills + "</td>";
+					html += "<td>" + hovers[i].deaths + "</td></tr>";				
+				}
+				html += "</table></center>";
+
+				document.getElementById("splashscreentext").style.fontSize = "12pt";
+				document.getElementById("splashscreentext").innerHTML = html;
+				document.getElementById("splashscreen").style.visibility = "visible";
+				
+				setTimeout(function(){newRound();}, PAUSE_TIME*1000);
+			}
+
+			function newRound(){
+				for(var i=0; i<hovers.length; i++){
+					hovers[i].kills = 0;
+					hovers[i].deaths = 0;
+					hovers[i].hitpoints = HITPOINTS;
+
+					var startPos = findAccessiblePosition(2);
+					hovers[i].body.position[0] = startPos.x;
+					hovers[i].body.position[1] = startPos.y;
+					hovers[i].beamed = true;
+					hovers[i].body.angle = Math.random()*2*Math.PI;
+					hovers[i].control.direction = hovers[i].body.angle;
+					if(hovers[i].hidden){hovers[i].unhide();}
+					hovers[i].update();
+				}
+
+				for(var i=0; i<EFFECT_LIST.length; i++){
+					EFFECT_LIST[i].despawn();
+				}
+				updateAllEffects();
+
+				for(var i=0; i<HBO_LIST.length; i++){
+					if(HBO_LIST[i].type != 'hover'){
+						HBO_LIST[i].despawn();
+					}
+				}
+				updateAllHBObjects();				
+
+				TIMEOUT_LIST = [];
+				document.getElementById("splashscreen").style.visibility = "hidden";
+				PAUSED = false;
+				ingameTimeout(ROUND_TIME, function(){endRound();});
+				animate();		
+
+			}
+
+		</script>
+	</body>
+</html>
