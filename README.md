@@ -1,1 +1,1 @@
-![AceDroids banner]("/media/images/banner.jpg")
+![AceDroids banner]("https://raw.githubusercontent.com/mqnc/acedroids/master/media/images/banner.jpg")
