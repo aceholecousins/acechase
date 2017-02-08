@@ -43,4 +43,4 @@ Ah yeah, almost forgot. If you want to play, check out the
 
 # Installation
 
-because there is none since it runs in the browser! Just [click here!](https://mqnc.github.io/acedroids/)
+because there is none since it runs in the browser! Just [click here!](https://AceholeCousins.github.io/acedroids/)
