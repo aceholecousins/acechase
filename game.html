@@ -89,6 +89,7 @@
 		<script src="src/Phaser.js"></script>
 		<script src="src/Level.js"></script>
 		<script src="src/Water.js"></script>
+		<script src="src/camera.js"></script>
 
 		<script type="text/javascript">
 
@@ -100,7 +101,7 @@
 			level = new Level(MAP);
 
 			function start() {
-
+				onWindowResize(); // call to initially adjust camera
 				document.getElementById("splashscreen").style.visibility = "hidden";
 
 				var iPlayer=0;
@@ -145,6 +146,7 @@
 				updateAllEffects();
 
 				updateWater();
+				updateCam();
 
 				RENDERER.render( GRAPHICS_SCENE, CAMERA );
 				if(DEBUG>=1){STATS.update()};
