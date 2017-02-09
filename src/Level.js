@@ -271,15 +271,28 @@ function Level(filename){
 		var geometry = new THREE.PlaneGeometry( LEVEL_MAXDIM*2, LEVEL_MAXDIM*2, w, h);
 
 		for(var iv=0; iv<geometry.vertices.length; iv++){
-			geometry.vertices[iv].x += Math.random()*0.2-0.1;
-			geometry.vertices[iv].y += Math.random()*0.2-0.1;
+			geometry.vertices[iv].x += (Math.random()-0.5)*LEVEL_MAXDIM/w*3;
+			geometry.vertices[iv].y += (Math.random()-0.5)*LEVEL_MAXDIM/h*3;
 			geometry.vertices[iv].z = -3.0*Math.atan(0.5*coastDistance(geometry.vertices[iv].x, geometry.vertices[iv].y));
 		}
 		geometry.computeFaceNormals();
 		geometry.computeVertexNormals();
+		console.log(geometry);
+
+		var difblob = store.get('diffusetexture');
+		var diftex;
+		if(typeof(difblob) == "undefined"){
+			diftex = loadTexture('media/textures/rocktex.jpg'); // source: https://jwhigham.files.wordpress.com/2010/05/synthtilingsynthesised.jpg
+		}
+		else{
+			var difimg = new Image();
+			difimg.src = difblob.src;
+			diftex = new THREE.Texture(difimg);
+			diftex.needsUpdate = true;
+		}
 
 		var material = new THREE.MeshLambertMaterial({
-			map:loadTexture('media/textures/rocktex.jpg'), // source: https://jwhigham.files.wordpress.com/2010/05/synthtilingsynthesised.jpg
+			map:diftex,
 			wireframe:false
 		});
 
