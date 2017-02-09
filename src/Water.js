@@ -92,6 +92,7 @@ var waterFragmentShader = `
 			wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);
 		}
 
+
 		vec4 cAmbient = vec4(0.0,0.0,0.0,0.8);
 		//vec4 cDiffuse = vec4(0.0,0.4,0.8,0.8); // WATER COLOR
 		vec4 cDiffuse = vec4(0.0,0.25,0.5,0.8); // WATER COLOR

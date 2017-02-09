@@ -19,7 +19,7 @@ However, we want to add
 
 ### Other game modes
 
-team deathmatch / race / asteroids / capture the flag / Davids vs. Goliath / carball / who knows what else
+team deathmatch / race / asteroids / capture the flag / Davids vs. Goliath / carball / maybe a single player campaing (maybe even for the phone) / who knows what else
 
 ### Other vehicles
 
