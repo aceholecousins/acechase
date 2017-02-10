@@ -161,64 +161,77 @@ var WATER_UNIFORMS;
 
 function initWater() {
 
-	var geometry = new THREE.PlaneBufferGeometry( LEVEL_MAXDIM, LEVEL_MAXDIM, WATER_CA_WIDTH - 1, WATER_CA_WIDTH -1 );
+	if(FANCY_WATER){
+		var geometry = new THREE.PlaneBufferGeometry( LEVEL_MAXDIM, LEVEL_MAXDIM, WATER_CA_WIDTH - 1, WATER_CA_WIDTH -1 );
 
-	// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
-	var material = new THREE.ShaderMaterial( {
-		uniforms: {
-			heightmap: { type: 't', value: null },
-			lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
-			// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
-			// that doesn't hurt now because it comes from (-1,1,1) but still!
-			// update: could be the orientation of the triangle split of the water tiles but that does
-			// not explain why there is zero corneriness in the WATERTEST4
-			waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
-			// make sure water color is set by level loader
-		},
-		vertexShader: waterVertexShader,
-		fragmentShader: waterFragmentShader,
-		transparent: true
-	} );
+		// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
+		var material = new THREE.ShaderMaterial( {
+			uniforms: {
+				heightmap: { type: 't', value: null },
+				lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
+				// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
+				// that doesn't hurt now because it comes from (-1,1,1) but still!
+				// update: could be the orientation of the triangle split of the water tiles but that does
+				// not explain why there is zero corneriness in the WATERTEST4
+				waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
+				// make sure water color is set by level loader
+			},
+			vertexShader: waterVertexShader,
+			fragmentShader: waterFragmentShader,
+			transparent: true
+		} );
 
-	// Defines
-	material.defines.WATER_CA_WIDTH = WATER_CA_WIDTH.toFixed( 1 );
-	material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
+		// Defines
+		material.defines.WATER_CA_WIDTH = WATER_CA_WIDTH.toFixed( 1 );
+		material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
 
-	WATER_UNIFORMS = material.uniforms;
+		WATER_UNIFORMS = material.uniforms;
 
-	var waterMesh = new THREE.Mesh( geometry, material );
-	//waterMesh.rotation.x = - Math.PI / 2;
-	waterMesh.matrixAutoUpdate = false;
-	waterMesh.updateMatrix();
+		var waterMesh = new THREE.Mesh( geometry, material );
+		//waterMesh.rotation.x = - Math.PI / 2;
+		waterMesh.matrixAutoUpdate = false;
+		waterMesh.updateMatrix();
 
-	GRAPHICS_SCENE.add( waterMesh );
+		GRAPHICS_SCENE.add( waterMesh );
 
-	// Creates the gpu computation class and sets it up
+		// Creates the gpu computation class and sets it up
 
-	WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
+		WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
 
-	var heightmap0 = WATER_CA_GPU.createTexture();
+		var heightmap0 = WATER_CA_GPU.createTexture();
 
-	fillWaterTexture( heightmap0 );
+		fillWaterTexture( heightmap0 );
 
-	WATER_HM_VAR = WATER_CA_GPU.addVariable( "heightmap", heightmapFragmentShader, heightmap0 );
+		WATER_HM_VAR = WATER_CA_GPU.addVariable( "heightmap", heightmapFragmentShader, heightmap0 );
 
-	WATER_CA_GPU.setVariableDependencies( WATER_HM_VAR, [ WATER_HM_VAR ] );
+		WATER_CA_GPU.setVariableDependencies( WATER_HM_VAR, [ WATER_HM_VAR ] );
 
-	var disturbs = [];
-	for(var i=0; i<NUM_PLAYERS; i++){
-		disturbs[i] = new THREE.Vector4( 1000, 1000, 3, 50 );
+		var disturbs = [];
+		for(var i=0; i<NUM_PLAYERS; i++){
+			disturbs[i] = new THREE.Vector4( 1000, 1000, 3, 50 );
+		}
+
+		WATER_HM_VAR.material.uniforms.viscosityConstant = { type: "f", value: 0.03 };
+		WATER_HM_VAR.material.uniforms.disturbances = { type: "v4v", value: disturbs};
+		WATER_HM_VAR.material.uniforms.time = { type: "f", value: 0.0 };
+		WATER_HM_VAR.material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
+		WATER_HM_VAR.material.defines.NDISTURBS = NUM_PLAYERS;
+
+		var error = WATER_CA_GPU.init();
+		if ( error !== null ) {
+		    console.error( error );
+		}
 	}
-
-	WATER_HM_VAR.material.uniforms.viscosityConstant = { type: "f", value: 0.03 };
-	WATER_HM_VAR.material.uniforms.disturbances = { type: "v4v", value: disturbs};
-	WATER_HM_VAR.material.uniforms.time = { type: "f", value: 0.0 };
-	WATER_HM_VAR.material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
-	WATER_HM_VAR.material.defines.NDISTURBS = NUM_PLAYERS;
-
-	var error = WATER_CA_GPU.init();
-	if ( error !== null ) {
-	    console.error( error );
+	else{
+		var geometry = new THREE.PlaneGeometry( LEVEL_WIDTH, LEVEL_HEIGHT, 1, 1);
+		var material = new THREE.MeshBasicMaterial({
+			color:WATER_COLOR,
+			opacity:WATER_OPACITY,
+			transparent:true});
+		var water = new THREE.Mesh(geometry, material );
+		water.renderOrder = RENDER_ORDER.water;
+		water.position.z = 0;
+		GRAPHICS_SCENE.add(water);
 	}
 }
 
@@ -255,26 +268,26 @@ function fillWaterTexture( texture ) {
 }
 
 function updateWater(){
+	if(FANCY_WATER){
+		//WATER_HM_VAR.material.uniforms.disturbances.value[1].x -=0.01;
+		WATER_HM_VAR.material.uniforms.time.value += DT;
 
-	//WATER_HM_VAR.material.uniforms.disturbances.value[1].x -=0.01;
-	WATER_HM_VAR.material.uniforms.time.value += DT;
+		for(i=0; i<hovers.length; i++){
+			WATER_HM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/LEVEL_MAXDIM+0.5;
+			WATER_HM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/LEVEL_MAXDIM+0.5;
+			if(!hovers[i].hidden){
+				WATER_HM_VAR.material.uniforms.disturbances.value[i].z =
+					Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
+			}
+			else{
+				WATER_HM_VAR.material.uniforms.disturbances.value[i].z = 0;
+			}
+		}
 
-	for(i=0; i<hovers.length; i++){
-		WATER_HM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/LEVEL_MAXDIM+0.5;
-		WATER_HM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/LEVEL_MAXDIM+0.5;
-		if(!hovers[i].hidden){
-			WATER_HM_VAR.material.uniforms.disturbances.value[i].z =
-				Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
-		}
-		else{
-			WATER_HM_VAR.material.uniforms.disturbances.value[i].z = 0;
-		}
+		// Do the gpu computation
+		WATER_CA_GPU.compute();
+
+		// Get compute output in custom uniform
+		WATER_UNIFORMS.heightmap.value = WATER_CA_GPU.getCurrentRenderTarget( WATER_HM_VAR ).texture;
 	}
-
-	// Do the gpu computation
-	WATER_CA_GPU.compute();
-
-	// Get compute output in custom uniform
-	WATER_UNIFORMS.heightmap.value = WATER_CA_GPU.getCurrentRenderTarget( WATER_HM_VAR ).texture;
-
 }

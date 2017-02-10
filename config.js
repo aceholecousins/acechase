@@ -14,3 +14,6 @@ var MUSIC_VOLUME = 0.2;
 
 var ROUND_TIME = 120;
 var PAUSE_TIME = 10;
+
+var TERRAIN_BUMP_MAPPING = false;
+var FANCY_WATER = false;

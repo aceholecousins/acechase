@@ -404,36 +404,31 @@ function Level(filename){
 		WATER_COLOR = new THREE.Color(store.get('outline').node.style.fill);
 		WATER_OPACITY = store.get('outline').node.style.fillOpacity;
 
-		/*var material = new THREE.MeshLambertMaterial({
-			map:diftex,
-			wireframe:false
-		});*/
-
-		var material = new THREE.ShaderMaterial( {
-			uniforms: {
-				diftex: { type: 't', value: diftex },
-				bumptex: { type: 't', value: bumptex },
-				spectex: { type: 't', value: spectex },
-				terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
-				lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
-				fogColor: { type: 'c', value: FOG_COLOR}
-			},
-			vertexShader: terrainVertexShader,
-			fragmentShader: terrainFragmentShader
-		} );
+		var material;
+		if(TERRAIN_BUMP_MAPPING){
+			material = new THREE.ShaderMaterial( {
+				uniforms: {
+					diftex: { type: 't', value: diftex },
+					bumptex: { type: 't', value: bumptex },
+					spectex: { type: 't', value: spectex },
+					terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
+					lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
+					fogColor: { type: 'c', value: FOG_COLOR}
+				},
+				vertexShader: terrainVertexShader,
+				fragmentShader: terrainFragmentShader
+			} );
+		}
+		else{
+			material = new THREE.MeshLambertMaterial({
+				map:diftex,
+				wireframe:false
+			});
+		}
 
 		this.mesh = new THREE.Mesh(geometry, material );
 		GRAPHICS_SCENE.add( this.mesh );
 
-		/*var geometry = new THREE.PlaneGeometry( LEVEL_WIDTH, LEVEL_HEIGHT, 1, 1);
-		var material = new THREE.MeshBasicMaterial({
-			color:0x0080ff,
-			opacity:0.5,
-			transparent:true});
-		var water = new THREE.Mesh(geometry, material );
-		water.renderOrder = RENDER_ORDER.water;
-		water.position.z = 0;
-		GRAPHICS_SCENE.add(water);*/
 		initWater();
 
 		LOADING_LIST.checkItem('level');
