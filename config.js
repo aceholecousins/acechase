@@ -2,7 +2,7 @@
 
 var DEBUG = 0; // debug level
 
-var MAP = 'maps/islandisle_tex.svg';
+var MAP = 'maps/islandisle.svg';
 
 var HITPOINTS = 10;
 var SHIELD = 6;

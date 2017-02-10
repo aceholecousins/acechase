@@ -86,16 +86,9 @@ var waterFragmentShader = `
 	
 		float specStart = 0.96;
 		float specFull = 0.98;
-
-		if(wSpecular<specStart){
-			wSpecular = 0.0;
-		}
-		else if(wSpecular>specFull){
-			wSpecular = 1.0;
-		}
-		else{
-			wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);
-		}
+		if(wSpecular<specStart){wSpecular = 0.0;}
+		else if(wSpecular>specFull){wSpecular = 1.0;}
+		else{wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);}
 
 
 		vec4 cAmbient = vec4(0.0,0.0,0.0,waterColor.w);

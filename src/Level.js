@@ -16,10 +16,13 @@ var terrainVertexShader = `
 
 	varying vec3 nml;
 	varying vec3 pos;
+	varying vec3 cam;
+
 
 	void main() {
 		pos = position;
 		nml = normal;
+		cam = cameraPosition;
 
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 	}`;
@@ -30,33 +33,63 @@ var terrainFragmentShader = `
 	uniform vec2 terraindims;
 	varying vec3 nml;
 	varying vec3 pos;
+	varying vec3 cam;
 	uniform sampler2D diftex;
+	uniform sampler2D bumptex;
+	uniform sampler2D spectex;
 	uniform vec3 fogColor;
 
 	void main()	{
 
-		vec3 n = normalize(nml);
 		vec3 light = normalize(lightvec); // direction TOWARDS light
+		vec3 n = normalize(nml);
 
 		vec2 uv;
 		uv.x = pos.x/terraindims.x+0.5;
 		uv.y = pos.y/terraindims.y+0.5;
 
-		float qFog = 0.0;
-		if( uv.x > 0.8 ){ qFog = (uv.x-0.8)/0.2; }
-		if( uv.x < 0.2 ){ qFog = 1.0-uv.x/0.2; }
-		if( uv.y > 0.8 ){ qFog+= (uv.y-0.8)/0.2; }
-		if( uv.y < 0.2 ){ qFog+= 1.0-uv.y/0.2; }
-		if( qFog > 1.0 ){ qFog = 1.0; }		
+		// fog at level edge:
+		float wFog = 0.0;
+		if( uv.x > 0.8 ){ wFog = (uv.x-0.8)/0.2; }
+		if( uv.x < 0.2 ){ wFog = 1.0-uv.x/0.2; }
+		if( uv.y > 0.8 ){ wFog+= (uv.y-0.8)/0.2; }
+		if( uv.y < 0.2 ){ wFog+= 1.0-uv.y/0.2; }
+		if( wFog > 1.0 ){ wFog = 1.0; }
+	
+		// determine new normal from bump map:
+		float bumpheight = 0.3;
+		float delta = 1.0/2048.0;
+		float dhdx = (texture2D( bumptex, vec2(uv.x+delta, uv.y) ).r - texture2D( diftex, vec2(uv.x-delta, uv.y) ).r)
+				/2.0/delta/terraindims.x*bumpheight;
+		float dhdy = (texture2D( bumptex, vec2(uv.x, uv.y+delta) ).r - texture2D( diftex, vec2(uv.x, uv.y-delta) ).r)
+				/2.0/delta/terraindims.y*bumpheight;
 
-		float qDif = dot(n, light)*0.5+0.5;
-		vec4 cDif = texture2D( diftex, uv );
-		cDif.xyz *= qDif;
+		vec3 tangx = normalize(cross(vec3(0.0,1.0,0.0), n)); // tangent vectors along terrain surface (not orthogonal)
+		vec3 tangy = normalize(cross(n, vec3(1.0,0.0,0.0)));
 		
-		vec4 cSum = cDif;
-		cSum.xyz = qFog*fogColor + (1.0-qFog)*cDif.xyz;
+		vec3 finalnml = normalize(n -dhdx*tangx -dhdy*tangy);
 
-		gl_FragColor = cSum;
+		// determine specularity:
+		vec3 view = pos-cam;
+		vec3 reflectedView = normalize(view - 2.0*dot(view, finalnml)*finalnml);
+		float wSpecular = dot(reflectedView, light);
+		float specStart = 0.96;
+		float specFull = 0.98;
+		if(wSpecular<specStart){wSpecular = 0.0;}
+		else if(wSpecular>specFull){wSpecular = 1.0;}
+		else{wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);}
+		wSpecular *= texture2D( spectex, uv ).r;
+
+		// mix colors:
+		float wDif = dot(finalnml, light)*0.5+0.5;
+		vec4 cDif = texture2D( diftex, uv );
+		cDif.xyz *= wDif; // diffuse color
+		
+		vec4 cDifSpec = wSpecular*vec4(1.0,1.0,1.0,1.0) + (1.0-wSpecular)*cDif;
+
+		vec4 cDifSpecFog = wFog*vec4(fogColor,1.0) + (1.0-wFog)*cDifSpec;
+
+		gl_FragColor = cDifSpecFog;
 
 	}`;
 
@@ -329,7 +362,7 @@ function Level(filename){
 		geometry.computeFaceNormals();
 		geometry.computeVertexNormals();
 
-		var difblob = store.get('diffusetexture');
+		var difblob = store.get('pigmentmap');
 		var diftex;
 		if(typeof(difblob) == "undefined"){
 			diftex = loadTexture('media/textures/rocktex.jpg'); // source: https://jwhigham.files.wordpress.com/2010/05/synthtilingsynthesised.jpg
@@ -339,6 +372,30 @@ function Level(filename){
 			difimg.src = difblob.src;
 			diftex = new THREE.Texture(difimg);
 			diftex.needsUpdate = true;
+		}
+
+		var bumpblob = store.get('bumpmap');
+		var bumptex;
+		if(typeof(bumpblob) == "undefined"){
+			bumptex = loadTexture('media/textures/rocktex.jpg');
+		}
+		else{
+			var bumpimg = new Image();
+			bumpimg.src = bumpblob.src;
+			bumptex = new THREE.Texture(bumpimg);
+			bumptex.needsUpdate = true;
+		}
+
+		var specblob = store.get('specularmap');
+		var spectex;
+		if(typeof(specblob) == "undefined"){
+			spectex = loadTexture('media/textures/rocktex.jpg');
+		}
+		else{
+			var specimg = new Image();
+			specimg.src = specblob.src;
+			spectex = new THREE.Texture(specimg);
+			spectex.needsUpdate = true;
 		}
 
 		if(typeof(store.get('fog')) != "undefined"){
@@ -355,6 +412,8 @@ function Level(filename){
 		var material = new THREE.ShaderMaterial( {
 			uniforms: {
 				diftex: { type: 't', value: diftex },
+				bumptex: { type: 't', value: bumptex },
+				spectex: { type: 't', value: spectex },
 				terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
 				lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
 				fogColor: { type: 'c', value: FOG_COLOR}
