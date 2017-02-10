@@ -57,7 +57,7 @@ var terrainFragmentShader = `
 		if( wFog > 1.0 ){ wFog = 1.0; }
 	
 		// determine new normal from bump map:
-		float bumpheight = 0.3;
+		float bumpheight = 0.04;
 		float delta = 1.0/2048.0;
 		float dhdx = (texture2D( bumptex, vec2(uv.x+delta, uv.y) ).r - texture2D( diftex, vec2(uv.x-delta, uv.y) ).r)
 				/2.0/delta/terraindims.x*bumpheight;

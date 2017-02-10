@@ -2,6 +2,8 @@
 var WATER_COLOR = new THREE.Color(0x1080ff); // will be overwritten by background color of outline in map svg
 var WATER_OPACITY = 0.75; // so will this
 
+
+
 // This is the 'compute shader' for the water heightmap:
 var heightmapFragmentShader = `
 
@@ -50,9 +52,17 @@ var heightmapFragmentShader = `
 		float ct=0.7;
 
 		heightmapValue.z =
-				0.65*(sin(time*3.0*ct + uv.x*50.0*cx + uv.y*13.0*cx)
-				+ 0.3*sin(time*4.0*ct + uv.x*21.0*cx - uv.y*45.0*cx)
-				+ 0.2*sin(time*5.0*ct - uv.x*25.0*cx - uv.y*40.0*cx));
+			+ 0.30118*sin(3.8006*time + -87.019*uv.x + -120.67*uv.y)
+			+ 0.31303*sin(3.1302*time + -68.387*uv.x + 47.969*uv.y)
+			+ 0.36896*sin(3.8314*time + 73.017*uv.x + -139.85*uv.y)
+			+ 0.35293*sin(3.7046*time + 57.837*uv.x + -86.63*uv.y)
+			+ 0.34859*sin(3.8219*time + -97.666*uv.x + 99.891*uv.y)
+			+ 0.32156*sin(3.1244*time + 3.2101*uv.x + 18.612*uv.y)
+			+ 0.34801*sin(3.5123*time + 4.7301*uv.x + -13.318*uv.y)
+			+ 0.35282*sin(3.1819*time + 132.07*uv.x + -30.798*uv.y)
+			+ 0.38279*sin(3.3018*time + -118.34*uv.x + 10.955*uv.y)
+			+ 0.38524*sin(3.3936*time + -0.54873*uv.x + 7.6717*uv.y);
+		heightmapValue.z*=0.2;
 
 		for(int i=0; i<NDISTURBS; i++){
 			heightmapValue.z -= disturbances[i].z*exp(-pow(distance(uv,disturbances[i].xy)*disturbances[i].w, 2.0));
