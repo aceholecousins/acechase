@@ -1,3 +1,7 @@
+
+var WATER_COLOR = new THREE.Color(0x1080ff); // will be overwritten by background color of outline in map svg
+var WATER_OPACITY = 0.75; // so will this
+
 // This is the 'compute shader' for the water heightmap:
 var heightmapFragmentShader = `
 
@@ -66,6 +70,7 @@ var waterFragmentShader = `
 	varying vec3 pCam;
 	varying vec3 pSurf;
 	varying vec4 hmap;
+	uniform vec4 waterColor;
 
 	void main()	{
 
@@ -93,12 +98,15 @@ var waterFragmentShader = `
 		}
 
 
-		vec4 cAmbient = vec4(0.0,0.0,0.0,0.8);
-		//vec4 cDiffuse = vec4(0.0,0.4,0.8,0.8); // WATER COLOR
-		vec4 cDiffuse = vec4(0.0,0.25,0.5,0.8); // WATER COLOR
-		//vec4 cDiffuse = vec4(1.0,0.0,0.0,0.8); // WATER COLOR		
-		//vec4 cSpecular = vec4(1.0,1.0,1.0,1.0); // looks good but super confusing during gameplay
-		vec4 cSpecular = vec4(0.4,0.5,0.6,0.9);
+		vec4 cAmbient = vec4(0.0,0.0,0.0,waterColor.w);
+		vec4 cDiffuse = waterColor;
+		vec4 cSpecular = waterColor;
+		cSpecular.x += 0.25;
+		if(cSpecular.x > 1.0){cSpecular.x = 1.0;}
+		cSpecular.y += 0.25;
+		if(cSpecular.y > 1.0){cSpecular.y = 1.0;}
+		cSpecular.z += 0.25;
+		if(cSpecular.z > 1.0){cSpecular.z = 1.0;}
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
@@ -156,11 +164,13 @@ function initWater() {
 	var material = new THREE.ShaderMaterial( {
 		uniforms: {
 			heightmap: { type: 't', value: null },
-			lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) } // direction TOWARDS light
+			lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
 			// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
 			// that doesn't hurt now because it comes from (-1,1,1) but still!
 			// update: could be the orientation of the triangle split of the water tiles but that does
 			// not explain why there is zero corneriness in the WATERTEST4
+			waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
+			// make sure water color is set by level loader
 		},
 		vertexShader: waterVertexShader,
 		fragmentShader: waterFragmentShader,

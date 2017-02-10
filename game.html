@@ -104,6 +104,7 @@
 			function start() {
 				onWindowResize(); // call to initially adjust camera
 				document.getElementById("splashscreen").style.visibility = "hidden";
+				RENDERER.setClearColor( FOG_COLOR );
 
 				var iPlayer=0;
 

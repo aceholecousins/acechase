@@ -10,6 +10,57 @@ var LEVEL_MAXDIM;
 // used for collision detection with the coast and to see where objects
 // can spawn randomly
 var DISTANCE_MAP = {};
+var FOG_COLOR = new THREE.Color(0x808080);
+
+var terrainVertexShader = `
+
+	varying vec3 nml;
+	varying vec3 pos;
+
+	void main() {
+		pos = position;
+		nml = normal;
+
+		gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+	}`;
+
+var terrainFragmentShader = `
+
+	uniform vec3 lightvec;
+	uniform vec2 terraindims;
+	varying vec3 nml;
+	varying vec3 pos;
+	uniform sampler2D diftex;
+	uniform vec3 fogColor;
+
+	void main()	{
+
+		vec3 n = normalize(nml);
+		vec3 light = normalize(lightvec); // direction TOWARDS light
+
+		vec2 uv;
+		uv.x = pos.x/terraindims.x+0.5;
+		uv.y = pos.y/terraindims.y+0.5;
+
+		float qFog = 0.0;
+		if( uv.x > 0.8 ){ qFog = (uv.x-0.8)/0.2; }
+		if( uv.x < 0.2 ){ qFog = 1.0-uv.x/0.2; }
+		if( uv.y > 0.8 ){ qFog+= (uv.y-0.8)/0.2; }
+		if( uv.y < 0.2 ){ qFog+= 1.0-uv.y/0.2; }
+		if( qFog > 1.0 ){ qFog = 1.0; }		
+
+		float qDif = dot(n, light)*0.5+0.5;
+		vec4 cDif = texture2D( diftex, uv );
+		cDif.xyz *= qDif;
+		
+		vec4 cSum = cDif;
+		cSum.xyz = qFog*fogColor + (1.0-qFog)*cDif.xyz;
+
+		gl_FragColor = cSum;
+
+	}`;
+
+
 
 // returns the distance from the coast (bilinear interpolation on distance map)
 function coastDistance(x,y){ // map center at (0,0)
@@ -271,13 +322,12 @@ function Level(filename){
 		var geometry = new THREE.PlaneGeometry( LEVEL_MAXDIM*2, LEVEL_MAXDIM*2, w, h);
 
 		for(var iv=0; iv<geometry.vertices.length; iv++){
-			geometry.vertices[iv].x += (Math.random()-0.5)*LEVEL_MAXDIM/w*3;
-			geometry.vertices[iv].y += (Math.random()-0.5)*LEVEL_MAXDIM/h*3;
+			geometry.vertices[iv].x += (Math.random()-0.5)*LEVEL_MAXDIM/w*2;
+			geometry.vertices[iv].y += (Math.random()-0.5)*LEVEL_MAXDIM/h*2;
 			geometry.vertices[iv].z = -3.0*Math.atan(0.5*coastDistance(geometry.vertices[iv].x, geometry.vertices[iv].y));
 		}
 		geometry.computeFaceNormals();
 		geometry.computeVertexNormals();
-		console.log(geometry);
 
 		var difblob = store.get('diffusetexture');
 		var diftex;
@@ -291,10 +341,27 @@ function Level(filename){
 			diftex.needsUpdate = true;
 		}
 
-		var material = new THREE.MeshLambertMaterial({
+		if(typeof(store.get('fog')) != "undefined"){
+			FOG_COLOR = new THREE.Color(store.get('fog').node.style.fill);
+		}
+		WATER_COLOR = new THREE.Color(store.get('outline').node.style.fill);
+		WATER_OPACITY = store.get('outline').node.style.fillOpacity;
+
+		/*var material = new THREE.MeshLambertMaterial({
 			map:diftex,
 			wireframe:false
-		});
+		});*/
+
+		var material = new THREE.ShaderMaterial( {
+			uniforms: {
+				diftex: { type: 't', value: diftex },
+				terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
+				lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
+				fogColor: { type: 'c', value: FOG_COLOR}
+			},
+			vertexShader: terrainVertexShader,
+			fragmentShader: terrainFragmentShader
+		} );
 
 		this.mesh = new THREE.Mesh(geometry, material );
 		GRAPHICS_SCENE.add( this.mesh );
