@@ -3,7 +3,7 @@
 
 var HOVERCRAFT_MESH;
 LOADING_LIST.addItem('hovercraftmesh');
-loadObjMtl( 'media/objects/hover.obj', 'media/objects/hover.mtl', function (object) {
+loadObjMtl( 'media/objects/glider.obj', 'media/objects/glider.mtl', function (object) {
 	HOVERCRAFT_MESH = object;
 	LOADING_LIST.checkItem('hovercraftmesh');
 });
