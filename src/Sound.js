@@ -27,9 +27,9 @@ function playSound(buffer, volume, pitch, loop){
 
 bufferLoader = new BufferLoader(
     AUDIO_CONTEXT, [
-        'media/sound/phaser.wav',
-        'media/sound/216277__rsilveira-88__synthesized-explosion-02.wav',
-	'media/sound/110393__soundscalpel-com__water-splash.wav',
+        'media/sound/phaser.ogg',
+        'media/sound/216277__rsilveira-88__synthesized-explosion-02.ogg',
+	'media/sound/110393__soundscalpel-com__water-splash.ogg',
 	'media/music/nutcracker.mp3'],
     soundsLoadedCallback);
 
