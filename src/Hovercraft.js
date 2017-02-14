@@ -188,24 +188,21 @@ Hovercraft.prototype.update = function(){
 		var tau = 0.1;
 		var q = 1.0 - Math.exp(-DT/tau);
 
-		if(this.control.turn){
-			// old scheme:
-			/*var deltaDir = this.control.direction - this.body.angle;
-			while(deltaDir < -Math.PI){deltaDir += 2* Math.PI;}
-			while(deltaDir >= Math.PI){deltaDir -= 2* Math.PI;}
-			this.body.angularForce = deltaDir*30*this.body.inertia*this.control.turn;*/
+		while(this.control.direction > Math.PI){this.direction -= 2*Math.PI;}
+		while(this.control.direction <-Math.PI){this.direction += 2*Math.PI;}
+		while(this.body.angle - this.control.direction > Math.PI){this.body.angle -= 2*Math.PI;}
+		while(this.control.direction - this.body.angle > Math.PI){this.body.angle += 2*Math.PI;}
 
-			// new scheme, simple PT1:
-			this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
-			//this.body.angle = this.control.direction;
-		}
+		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
+		//this.body.angle = this.control.direction;
+		
 
 		if(this.control.thrust){
 			this.body.force[0] = Math.cos(this.body.angle)*17*this.body.mass * this.control.thrust;
 			this.body.force[1] = Math.sin(this.body.angle)*17*this.body.mass * this.control.thrust;
 		}
 
-		if(this.control.fire1){
+		if(this.control.fire){
 			this.shootPhaser();
 		}
 	}

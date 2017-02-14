@@ -33,14 +33,24 @@
 
 		<script type="text/javascript">
 
+			var CFGVERSION = 1; // version of the config string pattern
+
 			document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 				+ "</b><br><br><i>loading...</i>";
 
 			var PARAMS = location.hash;
 			if(PARAMS == ""){
-				PARAMS = "#debug:1;player:Dani,keyboard,pink;player:Mirko,mouse,lime;player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
+				PARAMS = "#adcfgv:" + CFGVERSION
+					+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
+					+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
 			}
 			PARAMS = PARAMS.slice(1).split(';');
+			if(PARAMS[0] != 'adcfgv:' + CFGVERSION){
+				alert("Link contains invalid or outdated game configuration!");
+				PARAMS = "#adcfgv:" + CFGVERSION
+					+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
+					+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
+			}
 
 			var NUM_PLAYERS = 0;
 			
@@ -75,7 +85,6 @@
 		<script src="src/jslibs/buffer-loader.js"></script> <!-- loader that was used by the sound tutorial page http://www.html5rocks.com/en/tutorials/webaudio/intro/ -->
 		<script src="src/jslibs/GPUComputationRenderer.js"></script> <!-- for water cellular automata https://github.com/mrdoob/three.js/blob/dev/examples/js/GPUComputationRenderer.js -->
 		<script src="src/jslibs/THREE.MeshLine.js"></script> <!-- for trails https://github.com/spite/THREE.MeshLine -->
-		<script src="src/jslibs/perlin.js"></script> <!-- https://github.com/josephg/noisejs -->
 
 		<script src="src/Checklist.js"></script>
 		<script src="src/mechanics.js"></script>
@@ -114,14 +123,14 @@
 					var value = PARAMS[i].split(':')[1];
 
 					if(key=="player"){
-						hovers[iPlayer] = new Hovercraft(new THREE.Color(value.split(',')[2]));
+						hovers[iPlayer] = new Hovercraft(new THREE.Color(value.split(',')[1]));
 						hovers[iPlayer].playerName = value.split(',')[0];
 						var startPos = findAccessiblePosition(2);
 						hovers[iPlayer].body.position[0] = startPos.x;
 						hovers[iPlayer].body.position[1] = startPos.y;
 						hovers[iPlayer].beamed = true;
 						hovers[iPlayer].body.angle = Math.random()*2*Math.PI;
-						hovers[iPlayer].control = new Control(value.split(',')[1]);
+						hovers[iPlayer].control = new Control(value);
 						hovers[iPlayer].control.direction = hovers[iPlayer].body.angle;
 						iPlayer++;
 					}
@@ -147,6 +156,9 @@
 
 				updateAllHBObjects();
 				updateAllEffects();
+
+				MOUSE.scrolled = false;
+				MOUSE.lr = false;
 
 				updateWater();
 				updateCam();
@@ -193,6 +205,8 @@
 			}
 
 			function newRound(){
+				INGAME_TIME = 0;
+
 				for(var i=0; i<hovers.length; i++){
 					hovers[i].kills = 0;
 					hovers[i].deaths = 0;

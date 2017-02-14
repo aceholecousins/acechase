@@ -1,135 +1,143 @@
 
 // depends on scene.js
 
-function Control(device){
-	this.device = device; // 'mouse' or 'keyboard' or 'gamepad0' .. 'gamepad127'
-	this.direction = 0; // target direction, 0=left, pi/2=up, -pi/2=down
-	this.turn = 0; // whether the hover should turn or not (and how fast)
+function Control(configvalues){ // player config string including name and color
+	
+	var params = configvalues.split(',');
+
+	// parameters read by the rest of the game:
+	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
 	this.thrust = 0;
-	this.fire1 = 0; // primary fire (phaser)
-	this.fire2 = 0; // secondary fire (collected item)
+	this.fire = 0; // primary fire (phaser)
+	this.special = 0; // secondary fire (collected item)
+
+	// control input:
+	this.device = params[2]; // 'ms' or 'kb' or 'gp' for mouse/keyboard/gamepad
+
+	if(this.device == "gp"){
+		this.gpindex = params[3]-1; // so the configuration can say 1 and we understand 0
+		this.relative = params[4] == "rel"; // false for absolute direction control
+		this.lraxis = params[5].slice(2,3);
+		this.lrsign = 1;
+		if(params[5].slice(1,2) == "-"){this.lrsign=-1;}
+		this.udaxis = params[6].slice(2,3);
+		this.udsign = 1;
+		if(params[6].slice(1,2) == "-"){this.udsign=-1;}
+		this.thrustIsAxis = params[7].slice(0,1) == "a"; // false for button
+		if(this.thrustIsAxis){
+			this.thrustsign = 1;
+			if(params[7].slice(1,2) == "-"){this.thrustsign=-1;}
+			this.thrustaxis = params[7].slice(2,3)*1;
+		}
+		else{
+			this.thrustbutton = params[7].slice(1,3)*1;
+		}
+		this.firebutton = params[8].slice(1,3)*1;
+		this.spclbutton = params[9].slice(1,3)*1;
+	}
+
+	if(this.device == "kb"){
+		this.relative = params[3] == "rel"; // false for absolute direction control
+		this.lkey = params[4]*1; // *1 for string to int
+		this.rkey = params[5]*1;
+		this.ukey = params[6]*1;
+		this.dkey = params[7]*1;
+		this.thrustkey = params[8]*1;
+		this.firekey = params[9]*1;
+		this.spclkey = params[10]*1;
+	}
+
+	if(this.device == "ms"){
+		this.relative = params[3] == "rel"; // false for absolute direction control
+		this.thrustbutton = 2;
+		this.firebutton = 0;
+		if(params[4] == "lr"){
+			this.thrustbutton = 2;
+			this.firebutton = 0;
+		}
+		this.spcltrigger = params[5];
+	}
 }
 
 // new control scheme, relative direction control, auto fire:
-Control.prototype.update = function(){
+Control.prototype.update = function(){ // TODO: test all the control modalities
 
-	if(this.device == "keyboard"){
-		this.direction += (KEYDOWN[65]-KEYDOWN[68]) * 5.0 * DT; // wasd
-		this.turn = 1;
-		this.thrust = KEYDOWN[87]; // w
-		//this.thrust = KEYDOWN[17]; // ctrl
-		this.fire1 = KEYDOWN[32]; // auto phaser
-		this.fire2 = KEYDOWN[32]; // space
+	if(this.device == "kb"){
+		if(this.relative){
+			this.direction += (KEYDOWN[this.lkey]-KEYDOWN[this.rkey]) * 5.0 * DT;		
+		}
+		else{ // absolute direction control
+			if(KEYDOWN[this.lkey]-KEYDOWN[this.rkey]!=0 || KEYDOWN[this.ukey]-KEYDOWN[this.dkey]!=0){
+				this.direction = Math.atan2(KEYDOWN[this.ukey]-KEYDOWN[this.dkey], KEYDOWN[this.lkey]-KEYDOWN[this.rkey]);
+			}
+		}
+		this.thrust = KEYDOWN[this.thrustkey];
+		this.fire = KEYDOWN[this.firekey];
+		this.special = KEYDOWN[this.specialkey];
 	}
 
-	else if(this.device == "mouse"){
+	else if(this.device == "ms"){
 		
 		// TODO: when spinning mouse player fast, the frame rate goes down which makes no sense
 
 		var mousevx = MOUSE.vx;	
 		var mousevy = MOUSE.vy;
 		var mousev = Math.sqrt(mousevx*mousevx + mousevy*mousevy);
-		if(mousev > 10){
-			mousevx = mousevx/mousev*10;
-			mousevy = mousevy/mousev*10;
+
+		if(this.relative){
+			if(mousev > 10){
+				mousevx = mousevx/mousev*10;
+				mousevy = mousevy/mousev*10;
+			}
+			this.direction += (Math.cos(this.direction) * mousevy - Math.sin(this.direction) * mousevx) * DT;
 		}
-		this.direction += (Math.cos(this.direction) * mousevy - Math.sin(this.direction) * mousevx) * DT;
+		else{ //absolute direction control
+			if(mousev >5){ //TODO: tweak this parameter
+				this.direction = Math.atan2(mousevy, mousevx);
+			}
+		}
 		
-		this.turn = 1;
-		//this.fire1 = 1;
+		this.thrust = MOUSE.button[this.thrustbutton];
+		this.fire = MOUSE.button[this.firebutton];
+		this.special = false;
+		if(this.spcltrigger == "ws" && MOUSE.scrolled){ // wheel scroll
+			this.special = true;
+		}
+		if(this.spcltrigger == "wp" && MOUSE.button[1]){ // wheel press
+			this.special = true;
+		}
+		if(this.spcltrigger == "lr" && MOUSE.lr){ // simultaneous left+right click
+			this.special = true;
+		}
 
-		if(MOUSE.buttonL){this.fire1 = 1;} 
-		else{this.fire1 = 0;}
-
-		if(MOUSE.buttonR){this.thrust = 1;}
-		else{this.thrust = 0;}
 	}
 
-	else if(this.device.slice(0,7) == "gamepad"){ // TODO: gamepad different under Windows/Linux
-		var igp = parseInt(this.device.slice(7));
-		igp--; // so we start at 1
-		var gp = navigator.getGamepads()[igp];
+	else if(this.device == "gp"){
+
+		var gp = navigator.getGamepads()[this.gpindex];
 
 		if(gp){
-
-			if(Math.abs(gp.axes[0]) > 0.2){
-				this.direction -= gp.axes[0] * 5.0 * DT;
+			if(this.relative){
+				if(Math.abs(gp.axes[this.lraxis]) > 0.2){
+					this.direction -= this.lrsign * gp.axes[this.lraxis] * 5.0 * DT;
+				}
 			}
-			
-			this.turn = 1;
-
-			
-			if(gp.buttons[0].value){this.fire1 = 1;}
-			else{this.fire1 = 0;}
-
-			//this.fire1 = 1;
-			
-			shouldervalue = 0.5 * (gp.axes[4] + 1);
-			this.thrust = shouldervalue > 0.1 ? shouldervalue : 0;
-
-			this.thrust += gp.buttons[5].value;
-			if(this.thrust>1){this.thrust = 1;}
-
-			//for(var i=0; i<gp.buttons.length; i++){if(gp.buttons[i].value >0){console.log(i);}}
-		}
-	}
-}
-
-// old control scheme, absolute direction control
-Control.prototype.update2 = function(){
-
-	if(this.device == "keyboard"){
-		this.direction = Math.atan2(KEYDOWN[87]-KEYDOWN[83], KEYDOWN[68]-KEYDOWN[65]); // wasd
-		this.turn = KEYDOWN[65] || KEYDOWN[68] || KEYDOWN[83] || KEYDOWN[87];
-		this.thrust = KEYDOWN[65] || KEYDOWN[68] || KEYDOWN[83] || KEYDOWN[87];
-		//this.thrust = KEYDOWN[17]; // ctrl
-		this.fire1 = KEYDOWN[32]; // space
-		this.fire2 = KEYDOWN[18]; // alt
-	}
-
-	else if(this.device == "mouse"){
-		this.direction = Math.atan2(MOUSE.vy, MOUSE.vx);
-		var abs = Math.sqrt(Math.pow(MOUSE.vx,2) + Math.pow(MOUSE.vy,2));
-
-		if(abs > 1){
-			this.turn = (abs-1)*0.4;
-			if(this.turn > 1){this.turn = 1;}
-		}
-		else{this.turn = 0;}
-
-		if(abs > 7){this.thrust = 1;}
-		else{this.thrust = 0;}
-
-		if(MOUSE.buttonL){this.fire1 = 1;}
-		else{this.fire1 = 0;}
-
-		if(MOUSE.buttonR){this.fire2 = 1;}
-		else{this.fire2 = 0;}
-	}
-
-	else if(this.device.slice(0,7) == "gamepad"){
-		var igp = parseInt(this.device.slice(7));
-		var gp = navigator.getGamepads()[igp];
-
-		if(gp){
-
-			this.direction = Math.atan2(-gp.axes[1], gp.axes[0]);
-			var abs = Math.sqrt(Math.pow(gp.axes[0],2) + Math.pow(gp.axes[1],2));
-
-			if(abs > 0.2){
-				this.turn = (abs-0.2)*2;
-				if(this.turn > 1){this.turn = 1;}
+			else{ //absolute direction control
+				if(gp.axes[this.lraxis]*gp.axes[this.lraxis] + gp.axes[this.udaxis]*gp.axes[this.udaxis] > 0.6*0.6){
+					this.direction = Math.atan2(this.udsign * gp.axes[this.udaxis], this.lrsign * gp.axes[this.lraxis]);
+				}
 			}
-			else{this.turn = 0;}
 
-			if(abs > 0.9){this.thrust = 1;}
-			else{this.thrust = 0;}
-
-			if(gp.buttons[0].value){this.fire1 = 1;}
-			else{this.fire1 = 0;}
-
-			if(gp.buttons[1].value){this.fire2 = 1;}
-			else{this.fire2 = 0;}
+			if(this.thrustIsAxis){
+				this.thrust = this.thrustsign * gp.axes[this.thrustaxis];
+				if(this.thrust<0){this.thrust=0;}
+			}
+			else{
+				this.thrust = gp.buttons[this.thrustbutton].value;
+			}
+	
+			this.fire = gp.buttons[this.firebutton].value;
+			this.special = gp.buttons[this.spclbutton].value;
 		}
 	}
 }
@@ -139,9 +147,11 @@ Control.prototype.update2 = function(){
 var MOUSE = {
 	vx:0,
 	vy:0,
-	buttonL:false,
-	buttonM:false,
-	buttonR:false
+	button:[false,false,false], // L M R
+	lr:false, // simultaneous click, reset in global update function
+	scrolled:false, // reset in global update function
+	lastLdown:-1000, // for detecting LR click
+	lastRdown:-1000
 }
 
 RENDERER.domElement.requestPointerLock =
@@ -175,28 +185,44 @@ document.addEventListener("mousemove", function(event){
 }, true);
 
 document.addEventListener("mousedown", function(event){
-
 	if(MOUSE_LOCKED()){
-		if(event.button == 0){MOUSE.buttonL = true;}
-		else if(event.button == 1){MOUSE.buttonM = true;}
-		else if(event.button == 2){MOUSE.buttonR = true;}
+		MOUSE.button[event.button] = true;
+		if(event.button==0){
+			MOUSE.lastLdown = INGAME_TIME;
+			if(MOUSE.lastLdown-MOUSE.lastRdown < 0.1){ //TODO: tweak this parameter
+				MOUSE.lr = true;
+			}
+		}
+		if(event.button==2){
+			MOUSE.lastRdown = INGAME_TIME;
+			if(MOUSE.lastRdown-MOUSE.lastLdown < 0.1){
+				MOUSE.lr = true;
+			}
+		}
 	}
 	else{
-		MOUSE.buttonL = MOUSE.buttonM = MOUSE.buttonR = false;
+		for(var i=0; i<MOUSE.button.length; i++){
+			MOUSE.button[i] = false;
+		}
 	}
 }, true);
-
 document.addEventListener("mouseup", function(event){
-
 	if(MOUSE_LOCKED()){
-		if(event.button == 0){MOUSE.buttonL = false;}
-		else if(event.button == 1){MOUSE.buttonM = false;}
-		else if(event.button == 2){MOUSE.buttonR = false;}
+		MOUSE.button[event.button] = false;
 	}
 	else{
-		MOUSE.buttonL = MOUSE.buttonM = MOUSE.buttonR = false;
+		for(var i=0; i<MOUSE.button.length; i++){
+			MOUSE.button[i] = false;
+		}
 	}
-
+}, true);
+document.addEventListener("onscroll", function(event){
+	if(MOUSE_LOCKED()){
+		MOUSE.scrolled = true;
+	}
+	else{
+		MOUSE.scrolled = false;
+	}
 }, true);
 
 // keyboard
@@ -209,7 +235,6 @@ for(var i=0; i<256; i++){
 document.addEventListener('keydown', function(event) {
 	KEYDOWN[event.keyCode] = true;
 });
-
 document.addEventListener('keyup', function(event) {
 	KEYDOWN[event.keyCode] = false;
 });

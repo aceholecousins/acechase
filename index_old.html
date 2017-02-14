@@ -1,0 +1,129 @@
+<html>
+<body>
+
+<button onClick="javascript:addplayer()">Add Player</button>
+<button onClick="javascript:startgame()">Start Game</button>
+
+<div id="playerlist">
+
+</div>
+
+<script type="text/javascript">
+NAMES = ["Hydo", "Helia", "Lithia", "Bery", "Bora", "Carbo", "Nitra", "Oxyver", "Fluory", "Neo",
+		"Natrima", "Magnus", "Aluminna", "Sily", "Phoskov", "Sulphus", "Chloria", "Argova", "Kali", "Calcipher"];
+COLORS = ["RoyalBlue", "Yellow", "Red", "Lime", "BlueViolet", "DarkOrange", "Black", "White", "Magenta", "MediumTurquoise",
+		"LightSlateGray", "Pink", "Aquamarine", "Navy", "Olive", "DarkRed", "Teal", "Indigo", "SaddleBrown", "DarkMagenta"];
+CONTROLS = ["gamepad1", "gamepad2", "keyboard", "mouse", "gamepad3", "gamepad4", "gamepad5", "gamepad6", "gamepad7", "gamepad8",
+		"gamepad9", "gamepad10", "gamepad11", "gamepad12", "gamepad13", "gamepad14", "gamepad15", "gamepad16", "gamepad17", "gamepad18", "gamepad19", "gamepad20"];
+
+var PLAYERLIST = document.getElementById("playerlist");
+
+function addplayer(){
+	var div = document.createElement("div");
+	div.style.display = "inline-block";
+	div.style.padding = "10px";
+	div.style.borderWidth = "1px";
+	div.style.borderStyle = "solid";
+	div.style.margin = "2px";
+
+	var nameinput = document.createElement("input");
+	nameinput.style.width = 100;
+	for(var i=0; i<NAMES.length; i++){ // pick first unused name
+		var taken = false;
+		for(var j=1; j<PLAYERLIST.childNodes.length; j++){
+			if(PLAYERLIST.childNodes[j].childNodes[0].value == NAMES[i]){
+				taken = true;
+				break;
+			}
+		}
+		if(taken == false){
+			nameinput.value = NAMES[i];
+			break;
+		}
+	}
+	
+	var controlcombo = document.createElement("select");
+	controlcombo.style.width = 100;
+	var chosen = false; 
+	for(var i=0; i<CONTROLS.length; i++){
+		var taken = false;
+		for(var j=1; j<PLAYERLIST.childNodes.length; j++){ // pick first unused control
+			if(PLAYERLIST.childNodes[j].childNodes[2].selectedIndex == i){
+				taken = true;
+				break;
+			}
+		}
+		option = document.createElement("option");
+		item = document.createTextNode(CONTROLS[i]);
+		option.appendChild(item);
+		controlcombo.appendChild(option);
+		if(!taken && !chosen){
+			option.selected="selected";
+			chosen = true;
+		}
+	}
+	
+	var colorcombo = document.createElement("select");
+	colorcombo.style.width = 100;
+	colorcombo.onchange = function(){this.parentNode.style.backgroundColor = this.value;};
+	chosen = false;
+	for(var i=0; i<COLORS.length; i++){
+		var taken = false;
+		for(var j=1; j<PLAYERLIST.childNodes.length; j++){ // pick first unused color
+			if(PLAYERLIST.childNodes[j].childNodes[4].selectedIndex == i){
+				taken = true;
+				break;
+			}
+		}
+		option = document.createElement("option");
+		option.style.backgroundColor = COLORS[i];
+		if(i==0 || i==4 || i==6 || i>12){option.style.color = "White";}
+		item = document.createTextNode(COLORS[i]);
+		option.appendChild(item);
+		colorcombo.appendChild(option);
+		if(!taken && !chosen){
+			option.selected="selected";
+			chosen = true;
+			div.style.backgroundColor = COLORS[i];
+		}		
+	}
+	
+	var removebutton = document.createElement("button");
+	removebutton.style.width = 100;
+	removebutton.onclick = function(){document.getElementById("playerlist").removeChild(this.parentNode)};
+	var caption = document.createTextNode("Remove");
+	removebutton.appendChild(caption);
+	
+	div.appendChild(nameinput);
+	div.appendChild(document.createElement("br"));
+	div.appendChild(controlcombo);	
+	div.appendChild(document.createElement("br"));
+	div.appendChild(colorcombo);
+	div.appendChild(document.createElement("br"));
+	div.appendChild(removebutton);	
+	PLAYERLIST.appendChild(div);
+}
+
+function startgame(){
+
+	var urltail = "#";
+
+	for(var j=1; j<PLAYERLIST.childNodes.length; j++){
+		urltail += "player:";
+		urltail += PLAYERLIST.childNodes[j].childNodes[0].value + ",";
+		urltail += PLAYERLIST.childNodes[j].childNodes[2].value + ",";
+		urltail += PLAYERLIST.childNodes[j].childNodes[4].value.toLowerCase() + ";";
+	}
+
+	var url = window.location.href.replace("index.html", "");
+	while(url.slice(-1) == "/"){url = url.substring(0, url.length-1);}
+
+	url = url + "/game.html" + urltail;
+	
+	window.location.href = url;
+	
+}
+</script>
+
+</body>
+</html>
