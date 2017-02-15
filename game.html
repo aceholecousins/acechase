@@ -58,15 +58,18 @@
 				var key = PARAMS[i].split(':')[0];
 				var value = PARAMS[i].split(':')[1];
 
-				if(key == "debug"){
-					DEBUG = 1*value;
-				}
-				if(key == "player"){
-					NUM_PLAYERS++;
-				}
-				if(key == "music"){
-					MUSIC_VOLUME = 1*value;
-				}
+				if(key == "player"){NUM_PLAYERS++;} // players are read later
+				if(key == "debug"){DEBUG = 1*value;}
+				if(key == "map"){MAP = value;}
+				if(key == "hp"){HITPOINTS = value;}
+				if(key == "shld"){SHIELD = value;}
+				if(key == "shldreg"){SHIELD_REGEN = value;}
+				if(key == "ammo"){PHASER_AMMO = value;}
+				if(key == "ammoreg"){PHASER_REGEN = value;}
+				if(key == "time"){ROUND_TIME = value;}
+				if(key == "bump"){TERRAIN_BUMP_MAPPING = value=="1";}
+				if(key == "h2o"){FANCY_WATER = value=="1";}
+				if(key == "vol"){MUSIC_VOLUME = 0.01*value; alert(MUSIC_VOLUME)}
 			}
 		</script>
 
