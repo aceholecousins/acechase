@@ -68,7 +68,7 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 		}
 		else{ // absolute direction control
 			if(KEYDOWN[this.lkey]-KEYDOWN[this.rkey]!=0 || KEYDOWN[this.ukey]-KEYDOWN[this.dkey]!=0){
-				this.direction = Math.atan2(KEYDOWN[this.ukey]-KEYDOWN[this.dkey], KEYDOWN[this.lkey]-KEYDOWN[this.rkey]);
+				this.direction = Math.atan2(KEYDOWN[this.ukey]-KEYDOWN[this.dkey], KEYDOWN[this.rkey]-KEYDOWN[this.lkey]);
 			}
 		}
 		this.thrust = KEYDOWN[this.thrustkey];
@@ -85,7 +85,7 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 		var mousev = Math.sqrt(mousevx*mousevx + mousevy*mousevy);
 
 		if(this.relative){
-			if(mousev > 10){
+			if(mousev > 30){
 				mousevx = mousevx/mousev*10;
 				mousevy = mousevy/mousev*10;
 			}

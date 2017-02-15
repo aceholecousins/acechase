@@ -182,16 +182,23 @@ Hovercraft.prototype.update = function(){
 		}.bind(this));
 	}
 
-	if(typeof this.control != "undefined"){
+	
+
+	if(typeof(this.control) != "undefined"){
 		this.control.update();
 
 		var tau = 0.1;
 		var q = 1.0 - Math.exp(-DT/tau);
 
-		while(this.control.direction > Math.PI){this.direction -= 2*Math.PI;}
-		while(this.control.direction <-Math.PI){this.direction += 2*Math.PI;}
-		while(this.body.angle - this.control.direction > Math.PI){this.body.angle -= 2*Math.PI;}
-		while(this.control.direction - this.body.angle > Math.PI){this.body.angle += 2*Math.PI;}
+		var watchdog = 0;
+		while(this.control.direction > Math.PI && watchdog<10){this.control.direction -= 2*Math.PI; watchdog++;}
+		while(this.control.direction <-Math.PI && watchdog<10){this.control.direction += 2*Math.PI; watchdog++;}
+		while(this.body.angle - this.control.direction > Math.PI && watchdog<10){this.body.angle -= 2*Math.PI; watchdog++;}
+		while(this.control.direction - this.body.angle > Math.PI && watchdog<10){this.body.angle += 2*Math.PI; watchdog++;}
+
+		if(watchdog>6){
+			console.log("This should not have happened. Sorry.")
+		}
 
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
