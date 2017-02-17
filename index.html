@@ -67,7 +67,9 @@ var playerDisplayTemplate = `
    <img id="ctlkb_$" class="std" src="media/images/keyboard.png" style="width:60px;"
 	onclick="ctlSelect(idx(this), 'kb')"><br>
    <img id="ctlms_$" class="std" src="media/images/mouse.png" style="width:60px;"
-	onclick="ctlSelect(idx(this), 'ms')"><br><br>
+	onclick="ctlSelect(idx(this), 'ms')">
+   <img id="ctlmd_$" class="std" src="media/images/mobile.png" style="width:60px;"
+	onclick="ctlSelect(idx(this), 'md')"><br><br>
    <button id="remove_$" class="std" style="background-color:#ff9977"
         onclick="get('disparea').removeChild(get('playerbox_' + idx(this)))">Remove Player
    </button>
@@ -119,6 +121,8 @@ var playerDisplayTemplate = `
 	 <option data-code="wp">Wheel press</option>
 	 <option data-code="ws">Wheel scroll</option>
 	</select><br>
+   </div>
+    <div id="mdoptions_$">        
    </div>
   </td>
  </tr>
@@ -207,15 +211,17 @@ function fillOptions(select, options, code){
 	}
 }
 
-function ctlSelect(index, element){ // takes the player index and "gp/ms/kb"
+function ctlSelect(index, element){ // takes the player index and "gp/ms/kb/md"
 	get("gpoptions_" + index).style.display = "none";
 	get("msoptions_" + index).style.display = "none";
 	get("kboptions_" + index).style.display = "none";
+        get("mdoptions_" + index).style.display = "none";
 	get(element + "options_" + index).style.display = "inline";
 	
 	get("ctlgp_" + index).style.backgroundColor = "#f0f8ff";
 	get("ctlms_" + index).style.backgroundColor = "#f0f8ff";
 	get("ctlkb_" + index).style.backgroundColor = "#f0f8ff";
+        get("ctlmd_" + index).style.backgroundColor = "#f0f8ff";
 	get("ctl" + element + "_" + index).style.backgroundColor = "skyblue";
 
 	get("ctltype_" + index).dataset.selected = element;
@@ -476,6 +482,7 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 <img src="media/images/gamepad.png" style="display:none">
 <img src="media/images/keyboard.png" style="display:none">
 <img src="media/images/mouse.png" style="display:none">
+<img src="media/images/mobile.png" style="display:none">
 
 <img src="media/images/addplr.png" title="add player" onclick="addPlayer()" class="std" style="background-color:#77ff99; width:80px">
 <img src="media/images/settings.png" title="settings" onclick="flipOptions()" class="std" style="background-color:#3355ff; width:80px">
