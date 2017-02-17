@@ -57,6 +57,16 @@ function Control(configvalues){ // player config string including name and color
 		}
 		this.spcltrigger = params[5];
 	}
+        
+        calculateRotationMatrixFromCurrentOrientation();
+}
+
+function calculateRotationMatrixFromCurrentOrientation() {
+    var zVector = new THREE.Vector3(0, 0, 1);
+    var initial = SENSORS.gravityVector.clone();
+    var angle = zVector.angleTo(initial);
+    initial.cross(zVector).normalize();
+    SENSORS.deviceRotationMatrix.makeRotationAxis(initial, angle);
 }
 
 // new control scheme, relative direction control, auto fire:
@@ -144,12 +154,13 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
         else if(this.device == 'md') {
             this.fire = SENSORS.touch;
             
-            var x = SENSORS.ay;
-            var y = SENSORS.az;
+            var thrustVector3D = SENSORS.gravityVector.clone();
+            thrustVector3D.applyMatrix4(SENSORS.deviceRotationMatrix);            
+            var thrustVector2D = new THREE.Vector2(thrustVector3D.y, -thrustVector3D.x);
             
-            var gravityVector = Math.sqrt(x*x + y*y);
-            this.thrust = Math.min(gravityVector * 3, 1);
-            this.direction = Math.atan2(y, x);            
+            var length = thrustVector2D.length();
+            this.thrust = Math.min(length * 3, 1);
+            this.direction = thrustVector2D.angle();
         }
 }
 
@@ -253,9 +264,8 @@ document.addEventListener('keyup', function(event) {
 // mobile device
 
 var SENSORS = {
-    ax:0,
-    ay:0,
-    az:0,
+    deviceRotationMatrix:new THREE.Matrix4(),
+    gravityVector:new THREE.Vector3(),
     touch:false    
 };
 
@@ -269,7 +279,8 @@ document.addEventListener('touchend', function(event) {
 window.addEventListener('devicemotion', function(event) {
     var acc = event.accelerationIncludingGravity;
     const gravity = 9.807;
-    SENSORS.ax = acc.x / gravity;
-    SENSORS.ay = acc.y / gravity;
-    SENSORS.az = acc.z / gravity;
+    SENSORS.gravityVector.setX(acc.x);
+    SENSORS.gravityVector.setY(acc.y);
+    SENSORS.gravityVector.setZ(acc.z);
+    SENSORS.gravityVector.divideScalar(gravity);
 });
