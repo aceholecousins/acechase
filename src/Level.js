@@ -18,7 +18,6 @@ var terrainVertexShader = `
 	varying vec3 pos;
 	varying vec3 cam;
 
-
 	void main() {
 		pos = position;
 		nml = normal;
@@ -27,6 +26,7 @@ var terrainVertexShader = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 	}`;
 
+// new fragment shader using precomputed normal map with specular information in alpha channel
 var terrainFragmentShader = `
 
 	uniform vec3 lightvec;
@@ -35,8 +35,7 @@ var terrainFragmentShader = `
 	varying vec3 pos;
 	varying vec3 cam;
 	uniform sampler2D diftex;
-	uniform sampler2D bumptex;
-	uniform sampler2D spectex;
+	uniform sampler2D nmlspectex;
 	uniform vec3 fogColor;
 
 	void main()	{
@@ -57,31 +56,24 @@ var terrainFragmentShader = `
 		if( wFog > 1.0 ){ wFog = 1.0; }
 	
 		// determine new normal from bump map:
-		float bumpheight = 0.04;
-		float delta = 1.0/2048.0;
-		float dhdx = (texture2D( bumptex, vec2(uv.x+delta, uv.y) ).r - texture2D( diftex, vec2(uv.x-delta, uv.y) ).r)
-				/2.0/delta/terraindims.x*bumpheight;
-		float dhdy = (texture2D( bumptex, vec2(uv.x, uv.y+delta) ).r - texture2D( diftex, vec2(uv.x, uv.y-delta) ).r)
-				/2.0/delta/terraindims.y*bumpheight;
 
-		vec3 tangx = normalize(cross(vec3(0.0,1.0,0.0), n)); // tangent vectors along terrain surface (not orthogonal)
-		vec3 tangy = normalize(cross(n, vec3(1.0,0.0,0.0)));
-		
-		vec3 finalnml = normalize(n -dhdx*tangx -dhdy*tangy);
+		vec4 nmlspec = texture2D( nmlspectex, uv );
+
+		vec3 texnml = normalize(nmlspec.xyz*2.0-1.0);
 
 		// determine specularity:
 		vec3 view = pos-cam;
-		vec3 reflectedView = normalize(view - 2.0*dot(view, finalnml)*finalnml);
+		vec3 reflectedView = normalize(view - 2.0*dot(view, texnml)*texnml);
 		float wSpecular = dot(reflectedView, light);
 		float specStart = 0.96;
 		float specFull = 0.98;
 		if(wSpecular<specStart){wSpecular = 0.0;}
 		else if(wSpecular>specFull){wSpecular = 1.0;}
 		else{wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);}
-		wSpecular *= texture2D( spectex, uv ).r;
+		wSpecular *= nmlspec.w;
 
 		// mix colors:
-		float wDif = dot(finalnml, light)*0.5+0.5;
+		float wDif = dot(texnml, light)*0.5+0.5;
 		vec4 cDif = texture2D( diftex, uv );
 		cDif.xyz *= wDif; // diffuse color
 		
@@ -93,7 +85,66 @@ var terrainFragmentShader = `
 
 	}`;
 
+var terrainNormalComputationShader = `
 
+	uniform sampler2D heighttex;
+	uniform float heighttexdim;
+	uniform sampler2D bumptex;
+	uniform float bumptexdim;
+	uniform sampler2D spectex;
+	uniform float terraindim;
+
+	void main() {
+		vec2 cellSize = 1.0 / resolution.xy;
+		vec2 uv = gl_FragCoord.xy * cellSize;
+
+		float dhm = 8.0/heighttexdim;
+		float dbm = 0.01/bumptexdim;
+
+		vec4 buf = texture2D( heighttex, vec2(uv.x+dhm, uv.y) );
+		float hE = buf.x*256.0 + buf.y + buf.z/256.0; // east neighbor pixel
+		buf = texture2D( heighttex, vec2(uv.x-dhm, uv.y) );
+		float hW = buf.x*256.0 + buf.y + buf.z/256.0; // west neighbor pixel
+		buf = texture2D( heighttex, vec2(uv.x, uv.y+dhm) );
+		float hN = buf.x*256.0 + buf.y + buf.z/256.0; // north neighbor pixel
+		buf = texture2D( heighttex, vec2(uv.x, uv.y-dhm) );
+		float hS = buf.x*256.0 + buf.y + buf.z/256.0; // south neighbor pixel
+
+		vec3 hnml = normalize(vec3(
+			-(hE-hW)/(2.0*dhm*terraindim),
+			-(hN-hS)/(2.0*dhm*terraindim), // no minus cause image was flipped somewhere
+			1.0));
+
+		vec3 tangx = normalize(cross(vec3(0.0,1.0,0.0), hnml)); // tangent vectors along terrain surface (not orthogonal)
+		vec3 tangy = normalize(cross(hnml, vec3(1.0,0.0,0.0)));
+
+		vec3 tangx2 = normalize(cross(tangy, hnml));
+		vec3 tangy2 = normalize(cross(hnml, tangx));
+
+		// those should be orthogonal:
+		vec3 tangx3 = normalize(tangx + tangx2);
+		vec3 tangy3 = normalize(tangy + tangy2);
+
+		buf = texture2D( bumptex, vec2(uv.x+dbm, uv.y) );
+		hE = buf.x; // east neighbor pixel
+		buf = texture2D( bumptex, vec2(uv.x-dbm, uv.y) );
+		hW = buf.x; // west neighbor pixel
+		buf = texture2D( bumptex, vec2(uv.x, uv.y+dbm) );
+		hN = buf.x; // north neighbor pixel
+		buf = texture2D( bumptex, vec2(uv.x, uv.y-dbm) );
+		hS = buf.x; // south neighbor pixel
+
+		vec3 bnml = normalize(vec3(
+			-(hE-hW)/(2.0*dbm*terraindim),
+			-(hN-hS)/(2.0*dbm*terraindim), // no minus cause image was flipped somewhere
+			1.0));
+
+		vec3 combinednml = normalize(hnml + bnml.x*tangx3 + bnml.y*tangy3);
+
+		float spec = texture2D( spectex, uv ).x;
+
+		gl_FragColor = vec4(combinednml*0.5+0.5, spec);
+	}`;
 
 // returns the distance from the coast (bilinear interpolation on distance map)
 function coastDistance(x,y){ // map center at (0,0)
@@ -219,44 +270,6 @@ function Level(filename){
 			else{break;}
 		}
 
-		// draw level into canvas for distance transform
-
-		// distance map exactly for the level:
-		/*DISTANCE_MAP.f = 5; // resolution factor
-		DISTANCE_MAP.w = LEVEL_WIDTH*DISTANCE_MAP.f;
-		DISTANCE_MAP.h = LEVEL_HEIGHT*DISTANCE_MAP.f;
-
-		CANVAS_BUFFER.width = DISTANCE_MAP.w;
-		CANVAS_BUFFER.height = DISTANCE_MAP.h;
-
-		BUFFER_CONTEXT.fillStyle="#ffffff";
-		BUFFER_CONTEXT.rect(0,0,DISTANCE_MAP.w,DISTANCE_MAP.h);
-		BUFFER_CONTEXT.fill();
-		BUFFER_CONTEXT.fillStyle = '#000000';
-		for(var iil=0; iil<levelPolygons.length; iil++){
-			BUFFER_CONTEXT.beginPath();
-			BUFFER_CONTEXT.moveTo(
-					(LEVEL_WIDTH/2 +levelPolygons[iil][0][0])*DISTANCE_MAP.f,
-					(LEVEL_HEIGHT/2-levelPolygons[iil][0][1])*DISTANCE_MAP.f);
-			for(var ipt=1; ipt<levelPolygons[iil].length; ipt++){
-				BUFFER_CONTEXT.lineTo(
-						(LEVEL_WIDTH/2 +levelPolygons[iil][ipt][0])*DISTANCE_MAP.f,
-						(LEVEL_HEIGHT/2-levelPolygons[iil][ipt][1])*DISTANCE_MAP.f);
-			}
-			BUFFER_CONTEXT.closePath();
-			BUFFER_CONTEXT.fill();
-		}
-		var booleanImage = booleanImageFromCanvas(CANVAS_BUFFER, 128, false);
-		var mapOutside = distanceFromBooleanImage(booleanImage, DISTANCE_MAP.w, DISTANCE_MAP.h, 'EDT');
-		booleanImage = booleanImageFromCanvas(CANVAS_BUFFER, 128, true);
-		var mapInside = distanceFromBooleanImage(booleanImage, DISTANCE_MAP.w, DISTANCE_MAP.h, 'EDT');
-		DISTANCE_MAP.map = mapOutside;
-		for(var ipx=0; ipx<DISTANCE_MAP.w*DISTANCE_MAP.h; ipx++){
-			if(mapInside[ipx]>mapOutside[ipx]){
-				DISTANCE_MAP.map[ipx] = -mapInside[ipx];
-			}
-		}*/
-
 		// distance map much bigger so the level looks good when the cam zooms out:
 		DISTANCE_MAP.f = 5; // resolution factor
 		DISTANCE_MAP.w = LEVEL_MAXDIM*2*DISTANCE_MAP.f;
@@ -292,6 +305,7 @@ function Level(filename){
 		booleanImage = booleanImageFromCanvas(CANVAS_BUFFER, 128, true);
 		var mapInside = distanceFromBooleanImage(booleanImage, DISTANCE_MAP.w, DISTANCE_MAP.h, 'EDT');
 		DISTANCE_MAP.map = mapOutside;
+
 		for(var ipx=0; ipx<DISTANCE_MAP.w*DISTANCE_MAP.h; ipx++){
 			if(mapInside[ipx]>mapOutside[ipx]){
 				DISTANCE_MAP.map[ipx] = -mapInside[ipx];
@@ -377,7 +391,7 @@ function Level(filename){
 		var bumpblob = store.get('bumpmap');
 		var bumptex;
 		if(typeof(bumpblob) == "undefined"){
-			bumptex = loadTexture('media/textures/rocktex.jpg');
+			bumptex = loadTexture('media/textures/rocktex.jpg'); // TODO: the computation of the normal map must wait for this
 		}
 		else{
 			var bumpimg = new Image();
@@ -406,11 +420,57 @@ function Level(filename){
 
 		var material;
 		if(TERRAIN_BUMP_MAPPING){
+
+			// create height map texture
+			var heightMapDim = 512;
+			CANVAS_BUFFER.width = heightMapDim;
+			CANVAS_BUFFER.height = heightMapDim;
+			var arrayBuffer = new Uint8ClampedArray(heightMapDim * heightMapDim * 4);
+			
+			for(var y = 0; y < heightMapDim; y++) {
+			    for(var x = 0; x < heightMapDim; x++) {
+				var pos = (y * heightMapDim + x) * 4; // position in buffer based on x and y
+				var c = coastDistance((x/heightMapDim*2-1)*LEVEL_MAXDIM,-(y/heightMapDim*2-1)*LEVEL_MAXDIM);
+				var h = -3.0*Math.atan(0.5*c) + 127.5;
+				var r = Math.floor(h);
+				var g = Math.floor((h-r)*256);
+				var b = Math.floor(((h-r)*256-g)*256);
+				arrayBuffer[pos  ] = r;
+				arrayBuffer[pos+1] = g;
+				arrayBuffer[pos+2] = b;
+				arrayBuffer[pos+3] = 255;
+			    }
+			}
+
+			var idata = BUFFER_CONTEXT.createImageData(heightMapDim, heightMapDim);
+			idata.data.set(arrayBuffer);
+			BUFFER_CONTEXT.putImageData(idata, 0, 0);
+			var heighttex = new THREE.Texture(CANVAS_BUFFER);
+			heighttex.needsUpdate = true;
+			bumptex.needsUpdate = true;
+
+			// convert bumpmap and terrain height map into normal map
+			var terrainGPU = new GPUComputationRenderer( 1024, 1024, RENDERER );
+			var terrainGPUmat = terrainGPU.createShaderMaterial( terrainNormalComputationShader,{
+				heighttex: {type:'t', value: heighttex},
+				heighttexdim: {type:'f', value: heightMapDim},
+				bumptex: {type:'t', value: bumptex}, // TODO: this must wait until the bump map is loaded (in case the std bumpmap is used)
+				bumptexdim: {type:'f', value: bumptex.image.width},
+				spectex: {type:'t', value: spectex}, // TODO: this must wait until the spec map is loaded (in case the std bumpmap is used)
+				terraindim: {type: 'f', value: 2*LEVEL_MAXDIM}
+				 } );
+			
+			//( sizeXTexture, sizeYTexture, wrapS, wrapT, minFilter, magFilter, textureType )
+			var outputRenderTarget = terrainGPU.createRenderTarget(
+				undefined, undefined, undefined, undefined, THREE.LinearMipMapLinearFilter, THREE.LinearFilter, THREE.UnsignedByteType);
+			var nmlspectex = outputRenderTarget.texture;
+ 			terrainGPU.doRenderTarget( terrainGPUmat, outputRenderTarget );
+
+			//use the new texture
 			material = new THREE.ShaderMaterial( {
 				uniforms: {
 					diftex: { type: 't', value: diftex },
-					bumptex: { type: 't', value: bumptex },
-					spectex: { type: 't', value: spectex },
+					nmlspectex: { type: 't', value: nmlspectex },
 					terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
 					lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
 					fogColor: { type: 'c', value: FOG_COLOR}
