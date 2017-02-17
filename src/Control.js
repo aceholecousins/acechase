@@ -12,7 +12,7 @@ function Control(configvalues){ // player config string including name and color
 	this.special = 0; // secondary fire (collected item)
 
 	// control input:
-	this.device = 'md';//params[2]; // 'ms' or 'kb' or 'gp' for mouse/keyboard/gamepad
+	this.device = params[2]; // 'ms' or 'kb' or 'gp' for mouse/keyboard/gamepad
 
 	if(this.device == "gp"){
 		this.gpindex = params[3]-1; // so the configuration can say 1 and we understand 0
