@@ -159,8 +159,15 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
             var thrustVector2D = new THREE.Vector2(thrustVector3D.y, -thrustVector3D.x);
             
             var length = thrustVector2D.length();
-            this.thrust = Math.min(length * 3, 1);
-            this.direction = thrustVector2D.angle();
+            if(length > 0.1) {
+                this.thrust = Math.min(length * 3, 1);
+            } else {
+                this.thrust = 0;
+            }
+            
+            if(length > 0.05) {
+                this.direction = thrustVector2D.angle();
+            }
         }
 }
 
