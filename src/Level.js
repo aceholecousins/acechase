@@ -26,7 +26,7 @@ var terrainVertexShader = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 	}`;
 
-// new fragment shader using precomputed normal map with specular information in alpha channel
+// fragment shader using precomputed normal map with specular information in alpha channel
 var terrainFragmentShader = `
 
 	uniform vec3 lightvec;
@@ -37,6 +37,8 @@ var terrainFragmentShader = `
 	uniform sampler2D diftex;
 	uniform sampler2D nmlspectex;
 	uniform vec3 fogColor;
+	uniform sampler2D heighttex;
+	uniform vec3 waterColor;
 
 	void main()	{
 
@@ -55,11 +57,17 @@ var terrainFragmentShader = `
 		if( uv.y < 0.2 ){ wFog+= 1.0-uv.y/0.2; }
 		if( wFog > 1.0 ){ wFog = 1.0; }
 	
+		// fog under water:
+		vec4 hmap = texture2D(heighttex, uv);
+		float h = hmap.x*256.0 + hmap.y + hmap.z/256.0 - 127.5; // from abt. -4.7 to 4.7, water level at 0
+		float wTurbid = 0.0;
+		if(h<0.0){wTurbid = h/-3.0;}
+		if(wTurbid>1.0){wTurbid=1.0;}
+
 		// determine new normal from bump map:
 
 		vec4 nmlspec = texture2D( nmlspectex, uv );
-
-		vec3 texnml = normalize(nmlspec.xyz*2.0-1.0);
+		vec3 texnml = nmlspec.xyz*2.0-1.0;
 
 		// determine specularity:
 		vec3 view = pos-cam;
@@ -79,7 +87,7 @@ var terrainFragmentShader = `
 		
 		vec4 cDifSpec = wSpecular*vec4(1.0,1.0,1.0,1.0) + (1.0-wSpecular)*cDif;
 
-		vec4 cDifSpecFog = wFog*vec4(fogColor,1.0) + (1.0-wFog)*cDifSpec;
+		vec4 cDifSpecFog = wFog*vec4(fogColor,1.0) + wTurbid*vec4(waterColor,1.0) + (1.0-wFog-wTurbid)*cDifSpec;
 
 		gl_FragColor = cDifSpecFog;
 
@@ -473,7 +481,9 @@ function Level(filename){
 					nmlspectex: { type: 't', value: nmlspectex },
 					terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
 					lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
-					fogColor: { type: 'c', value: FOG_COLOR}
+					fogColor: { type: 'c', value: FOG_COLOR},
+					heighttex: {type:'t', value: heighttex},
+					waterColor: {type: 'c', value: WATER_COLOR}
 				},
 				vertexShader: terrainVertexShader,
 				fragmentShader: terrainFragmentShader
