@@ -12,7 +12,7 @@ function Control(configvalues){ // player config string including name and color
 	this.special = 0; // secondary fire (collected item)
 
 	// control input:
-	this.device = params[2]; // 'ms' or 'kb' or 'gp' for mouse/keyboard/gamepad
+	this.device = 'md';//params[2]; // 'ms' or 'kb' or 'gp' for mouse/keyboard/gamepad
 
 	if(this.device == "gp"){
 		this.gpindex = params[3]-1; // so the configuration can say 1 and we understand 0
@@ -140,6 +140,17 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 			this.special = gp.buttons[this.spclbutton].value;
 		}
 	}
+        
+        else if(this.device == 'md') {
+            this.fire = SENSORS.touch;
+            
+            var x = SENSORS.ay;
+            var y = SENSORS.az;
+            
+            var gravityVector = Math.sqrt(x*x + y*y);
+            this.thrust = Math.min(gravityVector * 3, 1);
+            this.direction = Math.atan2(y, x);            
+        }
 }
 
 // mouse
@@ -237,4 +248,28 @@ document.addEventListener('keydown', function(event) {
 });
 document.addEventListener('keyup', function(event) {
 	KEYDOWN[event.keyCode] = false;
+});
+
+// mobile device
+
+var SENSORS = {
+    ax:0,
+    ay:0,
+    az:0,
+    touch:false    
+};
+
+document.addEventListener('touchstart', function(event) {
+    SENSORS.touch = true; 
+});
+document.addEventListener('touchend', function(event) {
+    SENSORS.touch = false;
+});
+
+window.addEventListener('devicemotion', function(event) {
+    var acc = event.accelerationIncludingGravity;
+    const gravity = 9.807;
+    SENSORS.ax = acc.x / gravity;
+    SENSORS.ay = acc.y / gravity;
+    SENSORS.az = acc.z / gravity;
 });
