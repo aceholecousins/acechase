@@ -28,8 +28,16 @@ MobileDevice.prototype.update = function() {
     this.fire = this.touch;
             
     var thrustVector3D = this.gravityVector.clone();
-    thrustVector3D.applyMatrix4(this.deviceRotationMatrix);            
-    var thrustVector2D = new THREE.Vector2(thrustVector3D.y, -thrustVector3D.x);
+    
+    //Equalize device rotation
+    // TODO: Make upside down working
+    thrustVector3D.applyMatrix4(this.deviceRotationMatrix);
+    
+    //Use 2D components only
+    var thrustVector2D = new THREE.Vector2(-thrustVector3D.x, -thrustVector3D.y);
+    
+    //Equalize device orientation (landscape/portrait)
+    thrustVector2D.rotateAround(new THREE.Vector2(), window.orientation * Math.PI / 180);
 
     var length = thrustVector2D.length();
     if(length > 0.1) {
@@ -59,7 +67,7 @@ MobileDevice.prototype.handleDeviceMotion = function(event) {
     this.gravityVector.setZ(acc.z);
     this.gravityVector.divideScalar(gravity);
     
-    if(!this.rotationMatrixCaptured) {
+    if(!this.rotationMatrixCaptured) {        
         this.captureRotationMatrix();
         this.rotationMatrixCaptured = true;
     }
