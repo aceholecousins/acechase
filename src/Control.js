@@ -43,29 +43,17 @@ function Control(params){
 		this.firekey = params[9]*1;
 		this.spclkey = params[10]*1;
 	}
-
-	if(this.device == "ms"){
-		this.relative = params[3] == "rel"; // false for absolute direction control
-		this.thrustbutton = 2;
-		this.firebutton = 0;
-		if(params[4] == "lr"){
-			this.thrustbutton = 2;
-			this.firebutton = 0;
-		}
-		this.spcltrigger = params[5];
-	}
 }
 
 Control.createControl = function(configValues) { // player config string including name and color
     var params = configValues.split(',');
     switch (params[2]) {
         case 'md':
-            return new MobileDevice(params);
-            break;
-            
+            return new MobileDevice(params);                        
+        case 'ms':
+            return new Mouse(params);            
         default:
-            return new Control(params);
-            break;
+            return new Control(params);            
     }
 }
 
@@ -84,44 +72,7 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 		this.thrust = KEYDOWN[this.thrustkey];
 		this.fire = KEYDOWN[this.firekey];
 		this.special = KEYDOWN[this.specialkey];
-	}
-
-	else if(this.device == "ms"){
-		
-		// TODO: when spinning mouse player fast, the frame rate goes down which makes no sense
-
-		var mousevx = MOUSE.vx;	
-		var mousevy = MOUSE.vy;
-		var mousev = Math.sqrt(mousevx*mousevx + mousevy*mousevy);
-
-		if(this.relative){
-			if(mousev > 30){
-				mousevx = mousevx/mousev*10;
-				mousevy = mousevy/mousev*10;
-			}
-			this.direction += (Math.cos(this.direction) * mousevy - Math.sin(this.direction) * mousevx) * DT;
-		}
-		else{ //absolute direction control
-			if(mousev >5){ //TODO: tweak this parameter
-				this.direction = Math.atan2(mousevy, mousevx);
-			}
-		}
-		
-		this.thrust = MOUSE.button[this.thrustbutton];
-		this.fire = MOUSE.button[this.firebutton];
-		this.special = false;
-		if(this.spcltrigger == "ws" && MOUSE.scrolled){ // wheel scroll
-			this.special = true;
-		}
-		if(this.spcltrigger == "wp" && MOUSE.button[1]){ // wheel press
-			this.special = true;
-		}
-		if(this.spcltrigger == "lr" && MOUSE.lr){ // simultaneous left+right click
-			this.special = true;
-		}
-
-	}
-
+	}	
 	else if(this.device == "gp"){
 
 		var gp = navigator.getGamepads()[this.gpindex];
@@ -151,89 +102,6 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 		}
 	}        
 }
-
-// mouse
-
-var MOUSE = {
-	vx:0,
-	vy:0,
-	button:[false,false,false], // L M R
-	lr:false, // simultaneous click, reset in global update function
-	scrolled:false, // reset in global update function
-	lastLdown:-1000, // for detecting LR click
-	lastRdown:-1000
-}
-
-RENDERER.domElement.requestPointerLock =
-	RENDERER.domElement.requestPointerLock ||
-	RENDERER.domElement.mozRequestPointerLock ||
-	RENDERER.domElement.webkitRequestPointerLock;
-
-RENDERER.domElement.onclick = function() {
-	if(DEBUG<2){
-		RENDERER.domElement.requestPointerLock();
-	}
-}
-
-MOUSE_LOCKED = function(){
-	return document.pointerLockElement === RENDERER.domElement ||
-  		document.mozPointerLockElement === RENDERER.domElement ||
-  		document.webkitPointerLockElement === RENDERER.domElement;
-}
-
-document.addEventListener("mousemove", function(event){
-
-	if(MOUSE_LOCKED()){
-		MOUSE.vx =   event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-		MOUSE.vy = -(event.movementY || event.mozMovementY || event.webkitMovementY || 0);
-	}
-	else{
-		MOUSE.vx = 0;
-		MOUSE.vy = 0;
-	}
-
-}, true);
-
-document.addEventListener("mousedown", function(event){
-	if(MOUSE_LOCKED()){
-		MOUSE.button[event.button] = true;
-		if(event.button==0){
-			MOUSE.lastLdown = INGAME_TIME;
-			if(MOUSE.lastLdown-MOUSE.lastRdown < 0.1){ //TODO: tweak this parameter
-				MOUSE.lr = true;
-			}
-		}
-		if(event.button==2){
-			MOUSE.lastRdown = INGAME_TIME;
-			if(MOUSE.lastRdown-MOUSE.lastLdown < 0.1){
-				MOUSE.lr = true;
-			}
-		}
-	}
-	else{
-		for(var i=0; i<MOUSE.button.length; i++){
-			MOUSE.button[i] = false;
-		}
-	}
-}, true);
-document.addEventListener("mouseup", function(event){
-	if(MOUSE_LOCKED()){
-		MOUSE.button[event.button] = false;
-	}
-	else{
-		for(var i=0; i<MOUSE.button.length; i++){
-			MOUSE.button[i] = false;
-		}
-	}
-}, true);
-document.addEventListener("onscroll", function(event){
-	if(MOUSE_LOCKED()){
-		MOUSE.scrolled = true;
-	}
-	else{
-		MOUSE.scrolled = false;
-	}
-}, true);
 
 // keyboard
 
