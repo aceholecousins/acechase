@@ -162,7 +162,7 @@ var WATER_UNIFORMS;
 function initWater() {
 
 	if(FANCY_WATER){
-		var geometry = new THREE.PlaneBufferGeometry( LEVEL_MAXDIM, LEVEL_MAXDIM, WATER_CA_WIDTH - 1, WATER_CA_WIDTH -1 );
+		var geometry = new THREE.PlaneBufferGeometry( MAP_MAXDIM, MAP_MAXDIM, WATER_CA_WIDTH - 1, WATER_CA_WIDTH -1 );
 
 		// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
 		var material = new THREE.ShaderMaterial( {
@@ -174,7 +174,7 @@ function initWater() {
 				// update: could be the orientation of the triangle split of the water tiles but that does
 				// not explain why there is zero corneriness in the WATERTEST4
 				waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
-				// make sure water color is set by level loader
+				// make sure water color is set by arena loader
 			},
 			vertexShader: waterVertexShader,
 			fragmentShader: waterFragmentShader,
@@ -223,7 +223,7 @@ function initWater() {
 		}
 	}
 	else{
-		var geometry = new THREE.PlaneGeometry( LEVEL_WIDTH, LEVEL_HEIGHT, 1, 1);
+		var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, 1, 1);
 		var material = new THREE.MeshBasicMaterial({
 			color:WATER_COLOR,
 			opacity:WATER_OPACITY,
@@ -245,8 +245,8 @@ function fillWaterTexture( texture ) {
 	for ( var j = 0; j < WATER_CA_WIDTH; j++ ) {
 		for ( var i = 0; i < WATER_CA_WIDTH; i++ ) {
 
-			var x = (i/WATER_CA_WIDTH-0.5) * LEVEL_MAXDIM;
-			var y = (j/WATER_CA_WIDTH-0.5) * LEVEL_MAXDIM;
+			var x = (i/WATER_CA_WIDTH-0.5) * MAP_MAXDIM;
+			var y = (j/WATER_CA_WIDTH-0.5) * MAP_MAXDIM;
 
 			var x2 = x*2.6-1.3;
 			var y2 = y*2.6-1.3;
@@ -273,8 +273,8 @@ function updateWater(){
 		WATER_HM_VAR.material.uniforms.time.value += DT;
 
 		for(i=0; i<hovers.length; i++){
-			WATER_HM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/LEVEL_MAXDIM+0.5;
-			WATER_HM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/LEVEL_MAXDIM+0.5;
+			WATER_HM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/MAP_MAXDIM+0.5;
+			WATER_HM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/MAP_MAXDIM+0.5;
 			if(!hovers[i].hidden){
 				WATER_HM_VAR.material.uniforms.disturbances.value[i].z =
 					Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;

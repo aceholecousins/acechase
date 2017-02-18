@@ -44,9 +44,9 @@ var INGAME_TIME = 0; // seconds since start of the current game
 // PHYSICS
 
 // broadphase is a pre collision check done by the physics engine to find potential collisions
-var BROADPHASE = new p2.GridBroadphase(); // filled in when level is loaded
+var BROADPHASE = new p2.GridBroadphase(); // filled in when arena is loaded
 
-// the distance map is created when the level is loaded and stores the distance
+// the distance map is created when the arena is loaded and stores the distance
 // to the coast for each pixel in it (positive in water and negative on land)
 // it is used here to pre-check collisions between objects and the coast much
 // faster and much more accurate than the standard broadphase does
@@ -89,14 +89,14 @@ PHYSICS_WORLD.solver.frictionIterations = 1;
 
 // definition of the collision behavior between different object classes
 var HOVER_MATERIAL = new p2.Material();
-var LEVEL_MATERIAL = new p2.Material();
+var MAP_MATERIAL = new p2.Material();
 var PHASER_MATERIAL = new p2.Material();
 
-PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, LEVEL_MATERIAL, {
+PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, MAP_MATERIAL, {
 		restitution : 0.5, stiffness : 1e5, friction : 0.1}));
 PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, HOVER_MATERIAL, {
 		restitution : 0.8, stiffness : 1e5, friction : 0.1}));
-PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(PHASER_MATERIAL, LEVEL_MATERIAL, {
+PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(PHASER_MATERIAL, MAP_MATERIAL, {
 		restitution : 0.7, stiffness : 1e5, friction : 0.1}));
 
 // collisions (including phaser hits)

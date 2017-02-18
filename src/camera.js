@@ -1,5 +1,5 @@
 
-// needs to know LEVEL_WIDTH and LEVEL_HEIGHT
+// needs to know MAP_WIDTH and MAP_HEIGHT
 var CAMERA = new THREE.PerspectiveCamera(53, window.innerWidth / window.innerHeight, 1.0, 300.0); // angle, aspect, near, far
 CAMERA.position.set(0,0,30);
 
@@ -68,7 +68,7 @@ function updateCam(){
 	
 	// p are points, e are planes (makes sense in German) (the normals)
 
-	var dir = new THREE.Vector3(-snapx, -snapy, -LEVEL_MAXDIM).normalize(); // camera direction
+	var dir = new THREE.Vector3(-snapx, -snapy, -MAP_MAXDIM).normalize(); // camera direction
 	var eh = new THREE.Vector3().crossVectors(dir, CAMERA.up).normalize(); // horizon vector (horizontal cam direction)
 	var ev = new THREE.Vector3().crossVectors(eh, dir).normalize(); // vertical cam direction
 
@@ -86,10 +86,10 @@ function updateCam(){
 	var eE = new THREE.Vector3().addVectors(dir_, eh); // eastern ...
 	var eW = new THREE.Vector3().subVectors(dir_, eh); // western ...
 
-	pSW = new THREE.Vector3(-LEVEL_WIDTH/2, -LEVEL_HEIGHT/2, 0); // map corners
-	pSE = new THREE.Vector3( LEVEL_WIDTH/2, -LEVEL_HEIGHT/2, 0); 
-	pNW = new THREE.Vector3(-LEVEL_WIDTH/2,  LEVEL_HEIGHT/2, 0); 
-	pNE = new THREE.Vector3( LEVEL_WIDTH/2,  LEVEL_HEIGHT/2, 0); 
+	pSW = new THREE.Vector3(-MAP_WIDTH/2, -MAP_HEIGHT/2, 0); // map corners
+	pSE = new THREE.Vector3( MAP_WIDTH/2, -MAP_HEIGHT/2, 0); 
+	pNW = new THREE.Vector3(-MAP_WIDTH/2,  MAP_HEIGHT/2, 0); 
+	pNE = new THREE.Vector3( MAP_WIDTH/2,  MAP_HEIGHT/2, 0); 
 	
 	var pN = pNE.clone(); // northest map corner in the camera view
 	if(pNW.dot(eN) > pNE.dot(eN)){pN.copy(pNW);}

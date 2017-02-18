@@ -1,9 +1,9 @@
 
 // depends on HBObject.js
 
-var LEVEL_WIDTH;
-var LEVEL_HEIGHT;
-var LEVEL_MAXDIM;
+var MAP_WIDTH;
+var MAP_HEIGHT;
+var MAP_MAXDIM;
 
 // the distance map stores the distance to the coast for each pixel in it
 // (positive in water and negative on land)
@@ -49,7 +49,7 @@ var terrainFragmentShader = `
 		uv.x = pos.x/terraindims.x+0.5;
 		uv.y = pos.y/terraindims.y+0.5;
 
-		// fog at level edge:
+		// fog at terrain edge:
 		float wFog = 0.0;
 		if( uv.x > 0.8 ){ wFog = (uv.x-0.8)/0.2; }
 		if( uv.x < 0.2 ){ wFog = 1.0-uv.x/0.2; }
@@ -182,8 +182,8 @@ function findAccessiblePosition(minCoastDistance){
 	var found = false;
 
 	while(!found){ // could in a very unlikely scenario run forever...
-		x = (Math.random()-0.5)*LEVEL_WIDTH;
-		y = (Math.random()-0.5)*LEVEL_HEIGHT;
+		x = (Math.random()-0.5)*MAP_WIDTH;
+		y = (Math.random()-0.5)*MAP_HEIGHT;
 		if(coastDistance(x,y) >= minCoastDistance){
 			found = true;
 		}
@@ -192,45 +192,45 @@ function findAccessiblePosition(minCoastDistance){
 	return new THREE.Vector2(x,y);
 }
 
-function Level(filename){
+function Arena(filename){
 	HBObject.call(this); // inheritance
 
-	this.type = 'level';
+	this.type = 'arena';
 
 	// load SVG for contour
 
-	LOADING_LIST.addItem('level');
+	LOADING_LIST.addItem('arena');
 	var loader = new THREE.FileLoader();
 
 	loader.load(filename, function(text){ // to be executed when the svg is loaded:
 
-		var draw = SVG('leveldrawing');
+		var draw = SVG('arenadrawing');
 		var store = draw.svg(text);
 
 		var points = store.get('outline').node.points;
-		var levelPolygons = new Array(1);
-		levelPolygons[0] = new Array(points.length);
+		var arenaPolygons = new Array(1);
+		arenaPolygons[0] = new Array(points.length);
 
-		LEVEL_WIDTH = store.get('hbmap').node.width.baseVal.value;
-		LEVEL_HEIGHT = store.get('hbmap').node.height.baseVal.value;
+		MAP_WIDTH = store.get('acedroidsarena').node.width.baseVal.value;
+		MAP_HEIGHT = store.get('acedroidsarena').node.height.baseVal.value;
 		
-		LEVEL_MAXDIM = LEVEL_WIDTH;
-		if(LEVEL_HEIGHT>LEVEL_WIDTH){LEVEL_MAXDIM = LEVEL_HEIGHT;}
+		MAP_MAXDIM = MAP_WIDTH;
+		if(MAP_HEIGHT>MAP_WIDTH){MAP_MAXDIM = MAP_HEIGHT;}
 
-		BROADPHASE.xmin = -LEVEL_WIDTH/2;
-		BROADPHASE.xmax = LEVEL_WIDTH/2;
-		BROADPHASE.ymin = -LEVEL_HEIGHT/2;
-		BROADPHASE.ymax = LEVEL_HEIGHT/2;
+		BROADPHASE.xmin = -MAP_WIDTH/2;
+		BROADPHASE.xmax = MAP_WIDTH/2;
+		BROADPHASE.ymin = -MAP_HEIGHT/2;
+		BROADPHASE.ymax = MAP_HEIGHT/2;
 		BROADPHASE.nx = 20;
 		BROADPHASE.ny = 20;
-		BROADPHASE.binsizeX = LEVEL_WIDTH/20;
-		BROADPHASE.binsizeY = LEVEL_HEIGHT/20;
+		BROADPHASE.binsizeX = MAP_WIDTH/20;
+		BROADPHASE.binsizeY = MAP_HEIGHT/20;
 
-		var smallestx = LEVEL_WIDTH;
+		var smallestx = MAP_WIDTH;
 		var ismallestx = -1;
 
 		for(var ipt=0; ipt<points.length; ipt++){
-			levelPolygons[0][ipt] = [points[ipt].x, points[ipt].y];
+			arenaPolygons[0][ipt] = [points[ipt].x, points[ipt].y];
 			if(points[ipt].x < smallestx){
 				smallestx = points[ipt].x;
 				ismallestx = ipt;
@@ -240,48 +240,48 @@ function Level(filename){
 		var ybefore;
 		var yafter;
 		if(ismallestx == 0){
-			ybefore = levelPolygons[0][levelPolygons[0].length-1][1];
-			yafter  = levelPolygons[0][1][1];}
-		else if(ismallestx == levelPolygons[0].length-1){
-			ybefore = levelPolygons[0][ismallestx-1][1];
-			yafter  = levelPolygons[0][0][1];}
+			ybefore = arenaPolygons[0][arenaPolygons[0].length-1][1];
+			yafter  = arenaPolygons[0][1][1];}
+		else if(ismallestx == arenaPolygons[0].length-1){
+			ybefore = arenaPolygons[0][ismallestx-1][1];
+			yafter  = arenaPolygons[0][0][1];}
 		else{
-			ybefore = levelPolygons[0][ismallestx-1][1];
-			yafter  = levelPolygons[0][ismallestx+1][1];}
+			ybefore = arenaPolygons[0][ismallestx-1][1];
+			yafter  = arenaPolygons[0][ismallestx+1][1];}
 
 		var dir = Math.sign(yafter-ybefore)>0;
 
-		levelPolygons[0].splice(ismallestx+1, 0,
+		arenaPolygons[0].splice(ismallestx+1, 0,
 			[0, points[ismallestx].y],
-			[0, dir?0:LEVEL_HEIGHT],
-			[LEVEL_WIDTH, dir?0:LEVEL_HEIGHT],
-			[LEVEL_WIDTH, dir?LEVEL_HEIGHT:0],
-			[0, dir?LEVEL_HEIGHT:0],
+			[0, dir?0:MAP_HEIGHT],
+			[MAP_WIDTH, dir?0:MAP_HEIGHT],
+			[MAP_WIDTH, dir?MAP_HEIGHT:0],
+			[0, dir?MAP_HEIGHT:0],
 			[0, points[ismallestx].y+(dir?1:-1)*1e-10],
 			[points[ismallestx].x, points[ismallestx].y+(dir?1:-1)*1e-10]);
 
-		for(var i=0; i<levelPolygons[0].length; i++){
-			levelPolygons[0][i][0] -= LEVEL_WIDTH/2;
-			levelPolygons[0][i][1] = LEVEL_HEIGHT/2 - levelPolygons[0][i][1];
+		for(var i=0; i<arenaPolygons[0].length; i++){
+			arenaPolygons[0][i][0] -= MAP_WIDTH/2;
+			arenaPolygons[0][i][1] = MAP_HEIGHT/2 - arenaPolygons[0][i][1];
 		}
 
 		var iil = 1
 		while(true){
 			if(('island' + iil) in store._importStore){
 				points = store.get('island' + iil).node.points;
-				levelPolygons.push(new Array(points.length));
+				arenaPolygons.push(new Array(points.length));
 				for(var ipt=0; ipt<points.length; ipt++){
-					levelPolygons[iil][ipt] = [points[ipt].x-LEVEL_WIDTH/2, LEVEL_HEIGHT/2-points[ipt].y];
+					arenaPolygons[iil][ipt] = [points[ipt].x-MAP_WIDTH/2, MAP_HEIGHT/2-points[ipt].y];
 				}
 				iil++;
 			}
 			else{break;}
 		}
 
-		// distance map much bigger so the level looks good when the cam zooms out:
+		// distance map much bigger so the terrain looks good when the cam zooms out:
 		DISTANCE_MAP.f = 5; // resolution factor
-		DISTANCE_MAP.w = LEVEL_MAXDIM*2*DISTANCE_MAP.f;
-		DISTANCE_MAP.h = LEVEL_MAXDIM*2*DISTANCE_MAP.f;
+		DISTANCE_MAP.w = MAP_MAXDIM*2*DISTANCE_MAP.f;
+		DISTANCE_MAP.h = MAP_MAXDIM*2*DISTANCE_MAP.f;
 
 		CANVAS_BUFFER.width = DISTANCE_MAP.w;
 		CANVAS_BUFFER.height = DISTANCE_MAP.h;
@@ -289,21 +289,21 @@ function Level(filename){
 		BUFFER_CONTEXT.fillStyle="#000000";
 		BUFFER_CONTEXT.fillRect(0,0,DISTANCE_MAP.w,DISTANCE_MAP.h);
 		BUFFER_CONTEXT.fillStyle="#ffffff";
-		BUFFER_CONTEXT.fillRect(DISTANCE_MAP.w/2-LEVEL_WIDTH*DISTANCE_MAP.f/2,
-				DISTANCE_MAP.h/2-LEVEL_HEIGHT*DISTANCE_MAP.f/2,
-				LEVEL_WIDTH*DISTANCE_MAP.f,
-				LEVEL_HEIGHT*DISTANCE_MAP.f);
+		BUFFER_CONTEXT.fillRect(DISTANCE_MAP.w/2-MAP_WIDTH*DISTANCE_MAP.f/2,
+				DISTANCE_MAP.h/2-MAP_HEIGHT*DISTANCE_MAP.f/2,
+				MAP_WIDTH*DISTANCE_MAP.f,
+				MAP_HEIGHT*DISTANCE_MAP.f);
 
 		BUFFER_CONTEXT.fillStyle = '#000000';
-		for(var iil=0; iil<levelPolygons.length; iil++){
+		for(var iil=0; iil<arenaPolygons.length; iil++){
 			BUFFER_CONTEXT.beginPath();
 			BUFFER_CONTEXT.moveTo(
-					(LEVEL_MAXDIM +levelPolygons[iil][0][0])*DISTANCE_MAP.f,
-					(LEVEL_MAXDIM -levelPolygons[iil][0][1])*DISTANCE_MAP.f);
-			for(var ipt=1; ipt<levelPolygons[iil].length; ipt++){
+					(MAP_MAXDIM +arenaPolygons[iil][0][0])*DISTANCE_MAP.f,
+					(MAP_MAXDIM -arenaPolygons[iil][0][1])*DISTANCE_MAP.f);
+			for(var ipt=1; ipt<arenaPolygons[iil].length; ipt++){
 				BUFFER_CONTEXT.lineTo(
-						(LEVEL_MAXDIM +levelPolygons[iil][ipt][0])*DISTANCE_MAP.f,
-						(LEVEL_MAXDIM -levelPolygons[iil][ipt][1])*DISTANCE_MAP.f);
+						(MAP_MAXDIM +arenaPolygons[iil][ipt][0])*DISTANCE_MAP.f,
+						(MAP_MAXDIM -arenaPolygons[iil][ipt][1])*DISTANCE_MAP.f);
 			}
 			BUFFER_CONTEXT.closePath();
 			BUFFER_CONTEXT.fill();
@@ -323,14 +323,14 @@ function Level(filename){
 		// draw border lines
 
 		if(DEBUG >= 2){
-			for(var iil=0; iil<levelPolygons.length; iil++){
+			for(var iil=0; iil<arenaPolygons.length; iil++){
 				var material = new THREE.LineBasicMaterial({color: 0x00ffff});
 				var geometry = new THREE.Geometry();
 
-				for(var ipt=0; ipt<levelPolygons[iil].length; ipt++){
-					geometry.vertices.push(new THREE.Vector3(levelPolygons[iil][ipt][0], levelPolygons[iil][ipt][1], 0.01));
+				for(var ipt=0; ipt<arenaPolygons[iil].length; ipt++){
+					geometry.vertices.push(new THREE.Vector3(arenaPolygons[iil][ipt][0], arenaPolygons[iil][ipt][1], 0.01));
 				}
-				geometry.vertices.push(new THREE.Vector3(levelPolygons[iil][0][0], levelPolygons[iil][0][1], 0.01));
+				geometry.vertices.push(new THREE.Vector3(arenaPolygons[iil][0][0], arenaPolygons[iil][0][1], 0.01));
 
 				var line = new THREE.Line(geometry, material);
 				GRAPHICS_SCENE.add(line);
@@ -339,11 +339,11 @@ function Level(filename){
 
 		// phyisics
 
-		for(var iil=0; iil<levelPolygons.length; iil++){
+		for(var iil=0; iil<arenaPolygons.length; iil++){
 			var body = new p2.Body({mass:0, position:[0,0]});
-			body.fromPolygon(levelPolygons[iil]);
+			body.fromPolygon(arenaPolygons[iil]);
 			for (var i=0; i<body.shapes.length; i++) {
-				body.shapes[i].material = LEVEL_MATERIAL;
+				body.shapes[i].material = MAP_MATERIAL;
 
 				if(DEBUG >= 3){ // draw convex shape decomposition
 					var material = new THREE.LineBasicMaterial({color: 0xff8000});
@@ -374,11 +374,11 @@ function Level(filename){
 
 		var w = 256;
 		var h = 256;
-		var geometry = new THREE.PlaneGeometry( LEVEL_MAXDIM*2, LEVEL_MAXDIM*2, w, h);
+		var geometry = new THREE.PlaneGeometry( MAP_MAXDIM*2, MAP_MAXDIM*2, w, h);
 
 		for(var iv=0; iv<geometry.vertices.length; iv++){
-			geometry.vertices[iv].x += (Math.random()-0.5)*LEVEL_MAXDIM/w*2;
-			geometry.vertices[iv].y += (Math.random()-0.5)*LEVEL_MAXDIM/h*2;
+			geometry.vertices[iv].x += (Math.random()-0.5)*MAP_MAXDIM/w*2;
+			geometry.vertices[iv].y += (Math.random()-0.5)*MAP_MAXDIM/h*2;
 			geometry.vertices[iv].z = -3.0*Math.atan(0.5*coastDistance(geometry.vertices[iv].x, geometry.vertices[iv].y));
 		}
 		geometry.computeFaceNormals();
@@ -438,7 +438,7 @@ function Level(filename){
 			for(var y = 0; y < heightMapDim; y++) {
 			    for(var x = 0; x < heightMapDim; x++) {
 				var pos = (y * heightMapDim + x) * 4; // position in buffer based on x and y
-				var c = coastDistance((x/heightMapDim*2-1)*LEVEL_MAXDIM,-(y/heightMapDim*2-1)*LEVEL_MAXDIM);
+				var c = coastDistance((x/heightMapDim*2-1)*MAP_MAXDIM,-(y/heightMapDim*2-1)*MAP_MAXDIM);
 				var h = -3.0*Math.atan(0.5*c) + 127.5;
 				var r = Math.floor(h);
 				var g = Math.floor((h-r)*256);
@@ -465,7 +465,7 @@ function Level(filename){
 				bumptex: {type:'t', value: bumptex}, // TODO: this must wait until the bump map is loaded (in case the std bumpmap is used)
 				bumptexdim: {type:'f', value: bumptex.image.width},
 				spectex: {type:'t', value: spectex}, // TODO: this must wait until the spec map is loaded (in case the std bumpmap is used)
-				terraindim: {type: 'f', value: 2*LEVEL_MAXDIM}
+				terraindim: {type: 'f', value: 2*MAP_MAXDIM}
 				 } );
 			
 			//( sizeXTexture, sizeYTexture, wrapS, wrapT, minFilter, magFilter, textureType )
@@ -479,7 +479,7 @@ function Level(filename){
 				uniforms: {
 					diftex: { type: 't', value: diftex },
 					nmlspectex: { type: 't', value: nmlspectex },
-					terraindims: { type: 'v2', value: new THREE.Vector2(2*LEVEL_MAXDIM, 2*LEVEL_MAXDIM) },
+					terraindims: { type: 'v2', value: new THREE.Vector2(2*MAP_MAXDIM, 2*MAP_MAXDIM) },
 					lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
 					fogColor: { type: 'c', value: FOG_COLOR},
 					heighttex: {type:'t', value: heighttex},
@@ -501,11 +501,11 @@ function Level(filename){
 
 		initWater();
 
-		LOADING_LIST.checkItem('level');
+		LOADING_LIST.checkItem('arena');
 	});
 
 }
 
-Level.prototype = Object.create(HBObject.prototype);
-Level.prototype.constructor = Level;
+Arena.prototype = Object.create(HBObject.prototype);
+Arena.prototype.constructor = Arena;
 
