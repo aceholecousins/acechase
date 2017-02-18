@@ -15,9 +15,9 @@ function Hovercraft(color){
 	this.hidden = false; // if the hovercraft is on the map and taking part in the game
 	this.color = color;
 	this.playerName = '';
-	this.hitpoints = HITPOINTS;
-	this.shield = SHIELD;
-	this.ammo = PHASER_AMMO;
+	this.hitpoints = 0;
+	this.shield = 0;
+	this.ammo = 0;
 	this.radius = 0.4;
 	this.control = new Control("nothing"); //dummy
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
@@ -78,17 +78,32 @@ function Hovercraft(color){
 	this.phaserGlow2 = this.phaserGlow1.clone()
 	this.mesh.add(this.phaserGlow2);	
 	this.phaserGlow2.position.y *= -1;
-
-	this.spawn();
-
-	// logic
-
-	this.lastPhaserShot = INGAME_TIME; // for limiting firing speed
-	this.phaserYOffset = 0.21; // offset between phaser shot line and center of the hovercraft
 }
 
 Hovercraft.prototype = Object.create(HBObject.prototype); // Hovercraft inherits from HBObject
 Hovercraft.prototype.constructor = Hovercraft;
+
+Hovercraft.prototype.initNewRound = function (startPos) {
+	this.kills = 0;
+	this.deaths = 0;
+	this.hitpoints = HITPOINTS;
+	this.shield = SHIELD;
+	this.ammo = PHASER_AMMO;
+
+	this.body.position[0] = startPos.x;
+	this.body.position[1] = startPos.y;
+	this.beamed = true;
+	this.body.angle = Math.random() * 2 * Math.PI;
+	this.control.direction = this.body.angle;
+	if (this.hidden) {
+		this.unhide();
+	}
+	
+	this.lastPhaserShot = INGAME_TIME; // for limiting firing speed
+	this.phaserYOffset = 0.21; // offset between phaser shot line and center of the hovercraft
+	
+	this.spawn();
+}
 
 Hovercraft.prototype.hide = function(){
 	this.hidden = true;

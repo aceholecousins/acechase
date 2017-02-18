@@ -134,14 +134,10 @@
 
 					if(key=="player"){
 						hovers[iPlayer] = new Hovercraft(new THREE.Color(value.split(',')[1]));
-						hovers[iPlayer].playerName = value.split(',')[0];
-						var startPos = findAccessiblePosition(2);
-						hovers[iPlayer].body.position[0] = startPos.x;
-						hovers[iPlayer].body.position[1] = startPos.y;
-						hovers[iPlayer].beamed = true;
-						hovers[iPlayer].body.angle = Math.random()*2*Math.PI;
+						hovers[iPlayer].playerName = value.split(',')[0];												
 						hovers[iPlayer].control = Control.createControl(value);
-						hovers[iPlayer].control.direction = hovers[iPlayer].body.angle;
+						var startPos = findAccessiblePosition(2);
+						hovers[iPlayer].initNewRound(startPos);
 						iPlayer++;
 					}
 
@@ -215,17 +211,8 @@
 				INGAME_TIME = 0;
 
 				for(var i=0; i<hovers.length; i++){
-					hovers[i].kills = 0;
-					hovers[i].deaths = 0;
-					hovers[i].hitpoints = HITPOINTS;
-
 					var startPos = findAccessiblePosition(2);
-					hovers[i].body.position[0] = startPos.x;
-					hovers[i].body.position[1] = startPos.y;
-					hovers[i].beamed = true;
-					hovers[i].body.angle = Math.random()*2*Math.PI;
-					hovers[i].control.direction = hovers[i].body.angle;
-					if(hovers[i].hidden){hovers[i].unhide();}
+					hovers[i].initNewRound(startPos);
 					hovers[i].update();
 				}
 

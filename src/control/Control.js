@@ -5,8 +5,8 @@ function Control(){
 	// parameters read by the rest of the game:
 	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
 	this.thrust = 0;
-	this.fire = 0; // primary fire (phaser)
-	this.special = 0; // secondary fire (collected item)
+	this.fire = false; // primary fire (phaser)
+	this.special = false; // secondary fire (collected item)
 }
 
 Control.createControl = function(configValues) { // player config string including name and color
