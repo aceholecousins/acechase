@@ -1,7 +1,7 @@
 // Inherits from Control
 "use strict";
 function Gamepad(params) {
-    Control.call(this, params);
+    Control.call(this);
 
     this.gpindex = params[3] - 1; // so the configuration can say 1 and we understand 0
     this.relative = params[4] == "rel"; // false for absolute direction control

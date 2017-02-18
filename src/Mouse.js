@@ -1,7 +1,7 @@
 // Inherits from Control
 "use strict";
 function Mouse(params) {
-    Control.call(this, params);
+    Control.call(this);
 
     this.relative = params[3] == "rel"; // false for absolute direction control
     this.thrustbutton = 2;

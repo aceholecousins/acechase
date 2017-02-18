@@ -1,7 +1,7 @@
 // Inherits from Control
 "use strict";
 function MobileDevice(params) {
-    Control.call(this, params);
+    Control.call(this);
     
     this.deviceRotationMatrix = new THREE.Matrix4();
     this.gravityVector = new THREE.Vector3(0, 0, 1);
