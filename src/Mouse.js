@@ -7,8 +7,8 @@ function Mouse(params) {
     this.thrustbutton = 2;
     this.firebutton = 0;
     if (params[4] == "lr") {
-        this.thrustbutton = 2;
-        this.firebutton = 0;
+        this.thrustbutton = 0;
+        this.firebutton = 2;
     }
     this.spcltrigger = params[5];
 
