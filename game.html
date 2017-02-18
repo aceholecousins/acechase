@@ -95,6 +95,7 @@
 		<script src="src/scene.js"></script>
 		<script src="src/Trail.js"></script>
 		<script src="src/Control.js"></script>
+                <script src="src/MobileDevice.js"></script>
 		<script src="src/Sound.js"></script>
 		<script src="src/HBObject.js"></script>
 		<script src="src/Effect.js"></script>
@@ -134,7 +135,7 @@
 						hovers[iPlayer].body.position[1] = startPos.y;
 						hovers[iPlayer].beamed = true;
 						hovers[iPlayer].body.angle = Math.random()*2*Math.PI;
-						hovers[iPlayer].control = new Control(value);
+						hovers[iPlayer].control = Control.createControl(value);
 						hovers[iPlayer].control.direction = hovers[iPlayer].body.angle;
 						iPlayer++;
 					}

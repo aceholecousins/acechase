@@ -1,10 +1,7 @@
 
 // depends on scene.js
 
-function Control(configvalues){ // player config string including name and color
-	
-	var params = configvalues.split(',');
-
+function Control(params){ 
 	// parameters read by the rest of the game:
 	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
 	this.thrust = 0;
@@ -57,16 +54,19 @@ function Control(configvalues){ // player config string including name and color
 		}
 		this.spcltrigger = params[5];
 	}
-        
-        calculateRotationMatrixFromCurrentOrientation();
 }
 
-function calculateRotationMatrixFromCurrentOrientation() {
-    var zVector = new THREE.Vector3(0, 0, 1);
-    var initial = SENSORS.gravityVector.clone();
-    var angle = zVector.angleTo(initial);
-    initial.cross(zVector).normalize();
-    SENSORS.deviceRotationMatrix.makeRotationAxis(initial, angle);
+Control.createControl = function(configValues) { // player config string including name and color
+    var params = configValues.split(',');
+    switch (params[2]) {
+        case 'md':
+            return new MobileDevice(params);
+            break;
+            
+        default:
+            return new Control(params);
+            break;
+    }
 }
 
 // new control scheme, relative direction control, auto fire:
@@ -149,26 +149,7 @@ Control.prototype.update = function(){ // TODO: test all the control modalities
 			this.fire = gp.buttons[this.firebutton].value;
 			this.special = gp.buttons[this.spclbutton].value;
 		}
-	}
-        
-        else if(this.device == 'md') {
-            this.fire = SENSORS.touch;
-            
-            var thrustVector3D = SENSORS.gravityVector.clone();
-            thrustVector3D.applyMatrix4(SENSORS.deviceRotationMatrix);            
-            var thrustVector2D = new THREE.Vector2(thrustVector3D.y, -thrustVector3D.x);
-            
-            var length = thrustVector2D.length();
-            if(length > 0.1) {
-                this.thrust = Math.min(length * 3, 1);
-            } else {
-                this.thrust = 0;
-            }
-            
-            if(length > 0.05) {
-                this.direction = thrustVector2D.angle();
-            }
-        }
+	}        
 }
 
 // mouse
@@ -268,26 +249,3 @@ document.addEventListener('keyup', function(event) {
 	KEYDOWN[event.keyCode] = false;
 });
 
-// mobile device
-
-var SENSORS = {
-    deviceRotationMatrix:new THREE.Matrix4(),
-    gravityVector:new THREE.Vector3(),
-    touch:false    
-};
-
-document.addEventListener('touchstart', function(event) {
-    SENSORS.touch = true; 
-});
-document.addEventListener('touchend', function(event) {
-    SENSORS.touch = false;
-});
-
-window.addEventListener('devicemotion', function(event) {
-    var acc = event.accelerationIncludingGravity;
-    const gravity = 9.807;
-    SENSORS.gravityVector.setX(acc.x);
-    SENSORS.gravityVector.setY(acc.y);
-    SENSORS.gravityVector.setZ(acc.z);
-    SENSORS.gravityVector.divideScalar(gravity);
-});
