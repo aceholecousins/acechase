@@ -64,8 +64,8 @@ var terrainFragmentShader = `
 		vec4 hmap = texture2D(heighttex, uv);
 		float h = hmap.x*256.0 + hmap.y + hmap.z/256.0 - 127.5; // from abt. -4.7 to 4.7, water level at 0
 		float wTurbid = 0.0;
-		if(h<0.0){wTurbid = h/-3.0;}
-		if(wTurbid>1.0){wTurbid=1.0;}
+		if(h<0.0){wTurbid = 1.0-exp(1.4*h);}
+		//if(wTurbid>1.0){wTurbid=1.0;}
 
 		// determine new normal from bump map:
 

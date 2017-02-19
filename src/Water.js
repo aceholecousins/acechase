@@ -108,7 +108,7 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-
+		
 	}`;
 
 var waterVertexShaderCA = `// read water level from cellular automata
@@ -152,9 +152,10 @@ var waterVertexShaderNoCA = `// generate water level
 	varying vec3 pSurf;
 	varying vec4 hmap;
 
-	float h(vec2 r){
+	float h(vec2 r_){
+		vec2 r=r_;
 		return
-			+ 0.30118*sin(3.8006*time + -87.019*r.x + -120.67*r.y)
+			( 0.30118*sin(3.8006*time + -87.019*r.x + -120.67*r.y)
 			+ 0.31303*sin(3.1302*time + -68.387*r.x + 47.969*r.y)
 			+ 0.36896*sin(3.8314*time + 73.017*r.x + -139.85*r.y)
 			+ 0.35293*sin(3.7046*time + 57.837*r.x + -86.63*r.y)
@@ -163,7 +164,7 @@ var waterVertexShaderNoCA = `// generate water level
 			+ 0.34801*sin(3.5123*time + 4.7301*r.x + -13.318*r.y)
 			+ 0.35282*sin(3.1819*time + 132.07*r.x + -30.798*r.y)
 			+ 0.38279*sin(3.3018*time + -118.34*r.x + 10.955*r.y)
-			+ 0.38524*sin(3.3936*time + -0.54873*r.x + 7.6717*r.y) *0.2;
+			+ 0.38524*sin(3.3936*time + -0.54873*r.x + 7.6717*r.y)) *0.6;
 	}
 
 	void main() {
@@ -176,9 +177,8 @@ var waterVertexShaderNoCA = `// generate water level
 			( h( uv + vec2( 0, - cellSize.y ) ) - h( uv + vec2( 0, cellSize.y ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			1.0 ));
 	
-		hmap = texture2D( heightmap, uv );
-		float heightValue = hmap.x - 5.0*hmap.w;
-		vec3 transformed = vec3( position.x, position.y, (h(uv) + 5.0)*0.03);
+		hmap = vec4(0.0,0.0,0.0,1.0); // indicates "no coast" for the fragment shader
+		vec3 transformed = vec3( position.x, position.y, (h(uv) + 1.0)*0.03);
 		//vec3 transformed = vec3( position.x, position.y, position.z );
 
 		vNormal = (modelMatrix * vec4(vNormal,0.0)).xyz;
@@ -243,13 +243,12 @@ function initWater() {
 
 	// Creates the gpu computation class and sets it up
 
+	WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
+	var heightmap0 = WATER_CA_GPU.createTexture();
+	fillWaterTexture( heightmap0 );
+
 	if(FANCY_WATER){
-		WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
-
-		var heightmap0 = WATER_CA_GPU.createTexture();
-
-		fillWaterTexture( heightmap0 );
-
+		
 		WATER_HM_VAR = WATER_CA_GPU.addVariable( "heightmap", heightmapFragmentShader, heightmap0 );
 
 		WATER_CA_GPU.setVariableDependencies( WATER_HM_VAR, [ WATER_HM_VAR ] );
@@ -269,6 +268,9 @@ function initWater() {
 		if ( error !== null ) {
 			console.error( error );
 		}
+	}
+	else{
+		WATER_UNIFORMS.heightmap.value = heightmap0;
 	}
 	/* // just a boring plane
 	var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, 1, 1);
@@ -303,7 +305,7 @@ function fillWaterTexture( texture ) {
 			w=-3*w;
 			w = coastDistance(x,y)*5.0+3.0;
 
-		    	pixels[ p + 0 ] = 0;
+		    pixels[ p + 0 ] = 0;
 			pixels[ p + 1 ] = 0;
 			pixels[ p + 2 ] = 0;
 			if(w<0.01){w = 0.01;}
