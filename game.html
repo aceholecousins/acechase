@@ -135,9 +135,10 @@
 					var value = PARAMS[i].split(':')[1];
 
 					if(key=="player"){
-						hovers[iPlayer] = new Hovercraft(new THREE.Color(value.split(',')[1]));
-						hovers[iPlayer].playerName = value.split(',')[0];												
-						hovers[iPlayer].control = Control.createControl(value);
+						hovers[iPlayer] = new Hovercraft(
+								new THREE.Color(value.split(',')[1]),
+								Control.createControl(value));
+						hovers[iPlayer].playerName = value.split(',')[0];						
 						var startPos = findAccessiblePosition(2);
 						hovers[iPlayer].initNewRound(startPos);
 						iPlayer++;

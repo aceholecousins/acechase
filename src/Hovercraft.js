@@ -8,7 +8,7 @@ loadObjMtl( 'media/objects/glider.obj', 'media/objects/glider.mtl', function (ob
 	LOADING_LIST.checkItem('hovercraftmesh');
 });
 
-function Hovercraft(color){
+function Hovercraft(color, control){
 	HBObject.call(this); // inheritance
 
 	this.type = 'hover';
@@ -19,7 +19,7 @@ function Hovercraft(color){
 	this.shield = 0;
 	this.ammo = 0;
 	this.radius = 0.4;
-	this.control = new Control("nothing"); //dummy
+	this.control = control;
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
 	this.kills = 0;
 	this.killedBy = {};
