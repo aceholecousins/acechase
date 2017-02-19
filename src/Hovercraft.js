@@ -78,6 +78,10 @@ function Hovercraft(color, control){
 	this.phaserGlow2 = this.phaserGlow1.clone()
 	this.mesh.add(this.phaserGlow2);	
 	this.phaserGlow2.position.y *= -1;
+	
+	this.initNewRound(new THREE.Vector3());
+	
+	this.spawn();
 }
 
 Hovercraft.prototype = Object.create(HBObject.prototype); // Hovercraft inherits from HBObject
@@ -101,8 +105,6 @@ Hovercraft.prototype.initNewRound = function (startPos) {
 	
 	this.lastPhaserShot = INGAME_TIME; // for limiting firing speed
 	this.phaserYOffset = 0.21; // offset between phaser shot line and center of the hovercraft
-	
-	this.spawn();
 }
 
 Hovercraft.prototype.hide = function(){
