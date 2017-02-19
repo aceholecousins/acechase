@@ -152,7 +152,7 @@ Hovercraft.prototype.update = function(){
 		effect.velocity.z = 1;
 		//effect.mesh.material.color = this.color.clone();
 		//effect.mesh.material.color.lerp(new THREE.Color("black"), 0.7);
-		effect.mesh.material.color = new THREE.Color("black");
+		effect.mesh.material.color = new THREE.Color("white");
 		effect.growth = 3;
 		effect.decay = 2;
 		effect.spawn();

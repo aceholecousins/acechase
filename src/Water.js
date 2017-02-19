@@ -162,13 +162,13 @@ var WATER_UNIFORMS;
 function initWater() {
 
 	if(FANCY_WATER){
-		var geometry = new THREE.PlaneBufferGeometry( MAP_MAXDIM, MAP_MAXDIM, WATER_CA_WIDTH - 1, WATER_CA_WIDTH -1 );
+		var geometry = new THREE.PlaneBufferGeometry( MAP_MAXDIM, MAP_MAXDIM, WATER_CA_WIDTH-1, WATER_CA_WIDTH-1 );
 
 		// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
 		var material = new THREE.ShaderMaterial( {
 			uniforms: {
 				heightmap: { type: 't', value: null },
-				lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
+				lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
 				// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
 				// that doesn't hurt now because it comes from (-1,1,1) but still!
 				// update: could be the orientation of the triangle split of the water tiles but that does

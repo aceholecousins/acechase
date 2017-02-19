@@ -279,7 +279,7 @@ function Arena(filename){
 		}
 
 		// distance map much bigger so the terrain looks good when the cam zooms out:
-		DISTANCE_MAP.f = 5; // resolution factor
+		DISTANCE_MAP.f = 8; // resolution factor
 		DISTANCE_MAP.w = MAP_MAXDIM*2*DISTANCE_MAP.f;
 		DISTANCE_MAP.h = MAP_MAXDIM*2*DISTANCE_MAP.f;
 
@@ -377,8 +377,8 @@ function Arena(filename){
 		var geometry = new THREE.PlaneGeometry( MAP_MAXDIM*2, MAP_MAXDIM*2, w, h);
 
 		for(var iv=0; iv<geometry.vertices.length; iv++){
-			geometry.vertices[iv].x += (Math.random()-0.5)*MAP_MAXDIM/w*2;
-			geometry.vertices[iv].y += (Math.random()-0.5)*MAP_MAXDIM/h*2;
+			//geometry.vertices[iv].x += (Math.random()-0.5)*MAP_MAXDIM/w*2;
+			//geometry.vertices[iv].y += (Math.random()-0.5)*MAP_MAXDIM/h*2;
 			geometry.vertices[iv].z = -3.0*Math.atan(0.5*coastDistance(geometry.vertices[iv].x, geometry.vertices[iv].y));
 		}
 		geometry.computeFaceNormals();
@@ -480,7 +480,7 @@ function Arena(filename){
 					diftex: { type: 't', value: diftex },
 					nmlspectex: { type: 't', value: nmlspectex },
 					terraindims: { type: 'v2', value: new THREE.Vector2(2*MAP_MAXDIM, 2*MAP_MAXDIM) },
-					lightvec: { type: 'v3', value: new THREE.Vector3(-1,1,1) }, // direction TOWARDS light
+					lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
 					fogColor: { type: 'c', value: FOG_COLOR},
 					heighttex: {type:'t', value: heighttex},
 					waterColor: {type: 'c', value: WATER_COLOR}

@@ -3,6 +3,8 @@
 var CAMERA = new THREE.PerspectiveCamera(53, window.innerWidth / window.innerHeight, 1.0, 300.0); // angle, aspect, near, far
 CAMERA.position.set(0,0,30);
 
+var LIGHT_VECTOR = new THREE.Vector3(-1,1,1);
+
 window.addEventListener( 'resize', onWindowResize, false ); // adapt scene when window is resized
 function onWindowResize() {
 
@@ -66,6 +68,10 @@ function updateCam(){
 	snapx/=hovers.length;
 	snapy/=hovers.length;
 	
+	// so light looks more fancy
+	LIGHT_VECTOR.x = -1 + 2*snapx/MAP_MAXDIM;
+	LIGHT_VECTOR.y = 1 + 2*snapy/MAP_MAXDIM;
+
 	// p are points, e are planes (makes sense in German) (the normals)
 
 	var dir = new THREE.Vector3(-snapx, -snapy, -MAP_MAXDIM).normalize(); // camera direction
