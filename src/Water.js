@@ -47,10 +47,6 @@ var heightmapFragmentShader = `
 		heightmapValue.y *= heightmapValue.w;
 
 		// disturbances
-
-		float cx=1.3;
-		float ct=0.7;
-
 		heightmapValue.z =
 			+ 0.30118*sin(3.8006*time + -87.019*uv.x + -120.67*uv.y)
 			+ 0.31303*sin(3.1302*time + -68.387*uv.x + 47.969*uv.y)
@@ -100,7 +96,6 @@ var waterFragmentShader = `
 		else if(wSpecular>specFull){wSpecular = 1.0;}
 		else{wSpecular = 0.5-0.5*cos((wSpecular-specStart)/(specFull-specStart)*3.1416);}
 
-
 		vec4 cAmbient = vec4(0.0,0.0,0.0,waterColor.w);
 		vec4 cDiffuse = waterColor;
 		vec4 cSpecular = waterColor;
@@ -116,9 +111,10 @@ var waterFragmentShader = `
 
 	}`;
 
-var waterVertexShader = `
+var waterVertexShaderCA = `// read water level from cellular automata
 
 	uniform sampler2D heightmap;
+	uniform float time; // only needed in noCA version
 	varying vec3 vNormal;
 	varying vec3 pCam;
 	varying vec3 pSurf;
@@ -147,6 +143,54 @@ var waterVertexShader = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed,1.0);
 	}`;
 
+var waterVertexShaderNoCA = `// generate water level
+
+	uniform sampler2D heightmap;
+	uniform float time;
+	varying vec3 vNormal;
+	varying vec3 pCam;
+	varying vec3 pSurf;
+	varying vec4 hmap;
+
+	float h(vec2 r){
+		return
+			+ 0.30118*sin(3.8006*time + -87.019*r.x + -120.67*r.y)
+			+ 0.31303*sin(3.1302*time + -68.387*r.x + 47.969*r.y)
+			+ 0.36896*sin(3.8314*time + 73.017*r.x + -139.85*r.y)
+			+ 0.35293*sin(3.7046*time + 57.837*r.x + -86.63*r.y)
+			+ 0.34859*sin(3.8219*time + -97.666*r.x + 99.891*r.y)
+			+ 0.32156*sin(3.1244*time + 3.2101*r.x + 18.612*r.y)
+			+ 0.34801*sin(3.5123*time + 4.7301*r.x + -13.318*r.y)
+			+ 0.35282*sin(3.1819*time + 132.07*r.x + -30.798*r.y)
+			+ 0.38279*sin(3.3018*time + -118.34*r.x + 10.955*r.y)
+			+ 0.38524*sin(3.3936*time + -0.54873*r.x + 7.6717*r.y) *0.2;
+	}
+
+	void main() {
+
+		vec2 cellSize = vec2( 1.0 / WATER_CA_WIDTH, 1.0 / WATER_CA_WIDTH );
+
+		// Compute normal from heightmap
+		vNormal = normalize(vec3(
+			( h( uv + vec2( - cellSize.x, 0 ) ) - h( uv + vec2( cellSize.x, 0 ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
+			( h( uv + vec2( 0, - cellSize.y ) ) - h( uv + vec2( 0, cellSize.y ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
+			1.0 ));
+	
+		hmap = texture2D( heightmap, uv );
+		float heightValue = hmap.x - 5.0*hmap.w;
+		vec3 transformed = vec3( position.x, position.y, (h(uv) + 5.0)*0.03);
+		//vec3 transformed = vec3( position.x, position.y, position.z );
+
+		vNormal = (modelMatrix * vec4(vNormal,0.0)).xyz;
+		pSurf = (modelMatrix * vec4(transformed,1.0)).xyz;
+
+		pCam = cameraPosition;
+
+		gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed,1.0);
+	}`;
+
+var WATER_MATERIAL = {};
+
 // Texture width for simulation
 var WATER_CA_WIDTH = 128;
 var NUM_TEXELS = WATER_CA_WIDTH * WATER_CA_WIDTH;
@@ -161,41 +205,45 @@ var WATER_UNIFORMS;
 
 function initWater() {
 
+	var geometry = new THREE.PlaneBufferGeometry( MAP_MAXDIM, MAP_MAXDIM, WATER_CA_WIDTH-1, WATER_CA_WIDTH-1 );
+
+	var vertexShader = waterVertexShaderCA;
+	if(!FANCY_WATER){vertexShader = waterVertexShaderNoCA;}
+
+	// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
+	WATER_MATERIAL = new THREE.ShaderMaterial( {
+		uniforms: {
+			heightmap: { type: 't', value: null },
+			time: { type: 'f', value: 0 },
+			lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
+			// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
+			// that doesn't hurt now because it comes from (-1,1,1) but still!
+			// update: could be the orientation of the triangle split of the water tiles but that does
+			// not explain why there is zero corneriness in the WATERTEST4
+			waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
+			// make sure water color is set by arena loader
+		},
+		vertexShader: vertexShader,
+		fragmentShader: waterFragmentShader,
+		transparent: true
+	} );
+
+	// Defines
+	WATER_MATERIAL.defines.WATER_CA_WIDTH = WATER_CA_WIDTH.toFixed( 1 );
+	WATER_MATERIAL.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
+
+	WATER_UNIFORMS = WATER_MATERIAL.uniforms;
+
+	var waterMesh = new THREE.Mesh( geometry, WATER_MATERIAL );
+	//waterMesh.rotation.x = - Math.PI / 2;
+	waterMesh.matrixAutoUpdate = false;
+	waterMesh.updateMatrix();
+
+	GRAPHICS_SCENE.add( waterMesh );
+
+	// Creates the gpu computation class and sets it up
+
 	if(FANCY_WATER){
-		var geometry = new THREE.PlaneBufferGeometry( MAP_MAXDIM, MAP_MAXDIM, WATER_CA_WIDTH-1, WATER_CA_WIDTH-1 );
-
-		// material: make a ShaderMaterial clone of MeshPhongMaterial, with customized vertex shader
-		var material = new THREE.ShaderMaterial( {
-			uniforms: {
-				heightmap: { type: 't', value: null },
-				lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
-				// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
-				// that doesn't hurt now because it comes from (-1,1,1) but still!
-				// update: could be the orientation of the triangle split of the water tiles but that does
-				// not explain why there is zero corneriness in the WATERTEST4
-				waterColor: { type: 'v4', value: new THREE.Vector4(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY)}
-				// make sure water color is set by arena loader
-			},
-			vertexShader: waterVertexShader,
-			fragmentShader: waterFragmentShader,
-			transparent: true
-		} );
-
-		// Defines
-		material.defines.WATER_CA_WIDTH = WATER_CA_WIDTH.toFixed( 1 );
-		material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
-
-		WATER_UNIFORMS = material.uniforms;
-
-		var waterMesh = new THREE.Mesh( geometry, material );
-		//waterMesh.rotation.x = - Math.PI / 2;
-		waterMesh.matrixAutoUpdate = false;
-		waterMesh.updateMatrix();
-
-		GRAPHICS_SCENE.add( waterMesh );
-
-		// Creates the gpu computation class and sets it up
-
 		WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
 
 		var heightmap0 = WATER_CA_GPU.createTexture();
@@ -219,20 +267,20 @@ function initWater() {
 
 		var error = WATER_CA_GPU.init();
 		if ( error !== null ) {
-		    console.error( error );
+			console.error( error );
 		}
 	}
-	else{
-		var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, 1, 1);
-		var material = new THREE.MeshBasicMaterial({
-			color:WATER_COLOR,
-			opacity:WATER_OPACITY,
-			transparent:true});
-		var water = new THREE.Mesh(geometry, material );
-		water.renderOrder = RENDER_ORDER.water;
-		water.position.z = 0;
-		GRAPHICS_SCENE.add(water);
-	}
+	/* // just a boring plane
+	var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, 1, 1);
+	var material = new THREE.MeshBasicMaterial({
+		color:WATER_COLOR,
+		opacity:WATER_OPACITY,
+		transparent:true});
+	var water = new THREE.Mesh(geometry, material );
+	water.renderOrder = RENDER_ORDER.water;
+	water.position.z = 0;
+	GRAPHICS_SCENE.add(water);
+	*/
 }
 
 function fillWaterTexture( texture ) {
@@ -268,6 +316,10 @@ function fillWaterTexture( texture ) {
 }
 
 function updateWater(){
+
+	WATER_MATERIAL.uniforms.time.value += DT;
+
+
 	if(FANCY_WATER){
 		//WATER_HM_VAR.material.uniforms.disturbances.value[1].x -=0.01;
 		WATER_HM_VAR.material.uniforms.time.value += DT;

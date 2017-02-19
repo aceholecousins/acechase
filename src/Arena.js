@@ -435,79 +435,83 @@ function Arena(filename){
 			WATER_OPACITY = store.get('outline').node.style.fillOpacity;
 
 			var material;
-			if(TERRAIN_BUMP_MAPPING){
 
-				// create height map texture
-				var heightMapDim = 512;
-				CANVAS_BUFFER.width = heightMapDim;
-				CANVAS_BUFFER.height = heightMapDim;
-				var arrayBuffer = new Uint8ClampedArray(heightMapDim * heightMapDim * 4);
-			
-				for(var y = 0; y < heightMapDim; y++) {
-					for(var x = 0; x < heightMapDim; x++) {
-					var pos = (y * heightMapDim + x) * 4; // position in buffer based on x and y
-					var c = coastDistance((x/heightMapDim*2-1)*MAP_MAXDIM,-(y/heightMapDim*2-1)*MAP_MAXDIM);
-					var h = -3.0*Math.atan(0.5*c) + 127.5;
-					var r = Math.floor(h);
-					var g = Math.floor((h-r)*256);
-					var b = Math.floor(((h-r)*256-g)*256);
-					arrayBuffer[pos  ] = r;
-					arrayBuffer[pos+1] = g;
-					arrayBuffer[pos+2] = b;
-					arrayBuffer[pos+3] = 255;
-					}
+			// create height map texture
+			var heightMapDim = 512; // dimensions of the heightmap that is derived from the distance map
+			CANVAS_BUFFER.width = heightMapDim;
+			CANVAS_BUFFER.height = heightMapDim;
+			var arrayBuffer = new Uint8ClampedArray(heightMapDim * heightMapDim * 4);
+		
+			for(var y = 0; y < heightMapDim; y++) {
+				for(var x = 0; x < heightMapDim; x++) {
+				var pos = (y * heightMapDim + x) * 4; // position in buffer based on x and y
+				var c = coastDistance((x/heightMapDim*2-1)*MAP_MAXDIM,-(y/heightMapDim*2-1)*MAP_MAXDIM);
+				var h = -3.0*Math.atan(0.5*c) + 127.5;
+				var r = Math.floor(h);
+				var g = Math.floor((h-r)*256);
+				var b = Math.floor(((h-r)*256-g)*256);
+				arrayBuffer[pos  ] = r;
+				arrayBuffer[pos+1] = g;
+				arrayBuffer[pos+2] = b;
+				arrayBuffer[pos+3] = 255;
 				}
-
-				var idata = BUFFER_CONTEXT.createImageData(heightMapDim, heightMapDim);
-				idata.data.set(arrayBuffer);
-				BUFFER_CONTEXT.putImageData(idata, 0, 0);
-				var heighttex = new THREE.Texture(CANVAS_BUFFER);
-				heighttex.needsUpdate = true;
-				bumptex.needsUpdate = true;
-
-				// convert bumpmap and terrain height map into normal map
-				var terrainGPU = new GPUComputationRenderer( 1024, 1024, RENDERER );
-				var terrainGPUmat = terrainGPU.createShaderMaterial( terrainNormalComputationShader,{
-					heighttex: {type:'t', value: heighttex},
-					heighttexdim: {type:'f', value: heightMapDim},
-					bumptex: {type:'t', value: bumptex},
-					bumptexdim: {type:'f', value: bumptex.image.width},
-					bumptexrepeat: {type: 'v2', value: bumptex.repeat},
-					spectex: {type:'t', value: spectex},
-					spectexrepeat: {type: 'v2', value: spectex.repeat},
-					terraindim: {type: 'f', value: 2*MAP_MAXDIM}
-					 } );
-			
-				//( sizeXTexture, sizeYTexture, wrapS, wrapT, minFilter, magFilter, textureType )
-				var outputRenderTarget = terrainGPU.createRenderTarget(
-					undefined, undefined, undefined, undefined, THREE.LinearMipMapLinearFilter, THREE.LinearFilter, THREE.UnsignedByteType);
-				var nmlspectex = outputRenderTarget.texture;
-
-				STD_TEX.minFilter = THREE.NearestFilter;
-	 			terrainGPU.doRenderTarget( terrainGPUmat, outputRenderTarget );
-				STD_TEX.minFilter = THREE.LinearMipMapLinearFilter;
-
-				//use the new texture
-				material = new THREE.ShaderMaterial( {
-					uniforms: {
-						diftex: { type: 't', value: diftex },
-						diftexrepeat: { type: 'v2', value: diftex.repeat },
-						nmlspectex: { type: 't', value: nmlspectex },
-						terraindims: { type: 'v2', value: new THREE.Vector2(2*MAP_MAXDIM, 2*MAP_MAXDIM) },
-						lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
-						fogColor: { type: 'c', value: FOG_COLOR},
-						heighttex: {type:'t', value: heighttex},
-						waterColor: {type: 'c', value: WATER_COLOR}
-					},
-					vertexShader: terrainVertexShader,
-					fragmentShader: terrainFragmentShader
-				} );
 			}
-			else{
-				material = new THREE.MeshLambertMaterial({
-					map:diftex,
-					wireframe:false
-				});
+
+			var idata = BUFFER_CONTEXT.createImageData(heightMapDim, heightMapDim);
+			idata.data.set(arrayBuffer);
+			BUFFER_CONTEXT.putImageData(idata, 0, 0);
+			var heighttex = new THREE.Texture(CANVAS_BUFFER);
+			heighttex.needsUpdate = true;
+			bumptex.needsUpdate = true;
+
+			// convert bumpmap and terrain height map into normal map
+			var terrainGPU = new GPUComputationRenderer( 2048, 2048, RENDERER );
+			var terrainGPUmat = terrainGPU.createShaderMaterial( terrainNormalComputationShader,{
+				heighttex: {type:'t', value: heighttex},
+				heighttexdim: {type:'f', value: heightMapDim},
+				bumptex: {type:'t', value: bumptex},
+				bumptexdim: {type:'f', value: bumptex.image.width},
+				bumptexrepeat: {type: 'v2', value: bumptex.repeat},
+				spectex: {type:'t', value: spectex},
+				spectexrepeat: {type: 'v2', value: spectex.repeat},
+				terraindim: {type: 'f', value: 2*MAP_MAXDIM}
+				 } );
+		
+			//( sizeXTexture, sizeYTexture, wrapS, wrapT, minFilter, magFilter, textureType )
+			var outputRenderTarget = terrainGPU.createRenderTarget(
+				undefined, undefined, undefined, undefined, THREE.LinearMipMapLinearFilter, THREE.LinearFilter, THREE.UnsignedByteType);
+			var nmlspectex = outputRenderTarget.texture;
+
+			STD_TEX.minFilter = THREE.NearestFilter;
+ 			terrainGPU.doRenderTarget( terrainGPUmat, outputRenderTarget );
+			STD_TEX.minFilter = THREE.LinearMipMapLinearFilter;
+
+			//use the new texture
+			material = new THREE.ShaderMaterial( {
+				uniforms: {
+					diftex: { type: 't', value: diftex },
+					diftexrepeat: { type: 'v2', value: diftex.repeat },
+					nmlspectex: { type: 't', value: nmlspectex },
+					terraindims: { type: 'v2', value: new THREE.Vector2(2*MAP_MAXDIM, 2*MAP_MAXDIM) },
+					lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
+					fogColor: { type: 'c', value: FOG_COLOR},
+					heighttex: {type:'t', value: heighttex},
+					waterColor: {type: 'c', value: WATER_COLOR}
+				},
+				vertexShader: terrainVertexShader,
+				fragmentShader: terrainFragmentShader
+			} );
+
+			if(!TERRAIN_BUMP_MAPPING){ // prerender terrain and use that (light static)
+				
+				var tg = new TextureGenerator(2048, 2048, RENDERER, '', '');
+				tg.mesh.material = material;
+				material.uniforms.terraindims.value = new THREE.Vector2(2, 2);
+
+				var statictex = tg.render();
+
+				material = new THREE.MeshBasicMaterial({map:statictex});
+
 			}
 
 			this.mesh = new THREE.Mesh(geometry, material );
