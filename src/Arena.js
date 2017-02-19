@@ -482,7 +482,10 @@ function Arena(filename){
 				var outputRenderTarget = terrainGPU.createRenderTarget(
 					undefined, undefined, undefined, undefined, THREE.LinearMipMapLinearFilter, THREE.LinearFilter, THREE.UnsignedByteType);
 				var nmlspectex = outputRenderTarget.texture;
+
+				STD_TEX.minFilter = THREE.NearestFilter;
 	 			terrainGPU.doRenderTarget( terrainGPUmat, outputRenderTarget );
+				STD_TEX.minFilter = THREE.LinearMipMapLinearFilter;
 
 				//use the new texture
 				material = new THREE.ShaderMaterial( {
