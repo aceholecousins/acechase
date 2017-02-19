@@ -139,7 +139,9 @@ var TEXTURE_LOADER = new THREE.TextureLoader();
 function loadTexture(filename){ // will automatically do CHECKLIST stuff
 	LOADING_LIST.addItem(filename);
 	return TEXTURE_LOADER.load(filename,
-		function(){LOADING_LIST.checkItem(filename);} );
+		function(){
+			LOADING_LIST.checkItem(filename);
+} );
 }
 var CANVAS_BUFFER = document.getElementById('canvasbuffer');
 var BUFFER_CONTEXT = CANVAS_BUFFER.getContext('2d');

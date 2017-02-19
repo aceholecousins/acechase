@@ -149,7 +149,7 @@ Hovercraft.prototype.update = function(){
 		effect.mesh.material = SMOKE_MESH.material.clone();
 		effect.mesh.rotation.z = Math.random()*1000;
 		effect.mesh.position.z = 0.4;
-		effect.velocity.z = 1;
+		effect.velocity.z = 3;
 		//effect.mesh.material.color = this.color.clone();
 		//effect.mesh.material.color.lerp(new THREE.Color("black"), 0.7);
 		effect.mesh.material.color = new THREE.Color("white");
