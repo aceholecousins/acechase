@@ -23,7 +23,7 @@ function image2array(img){ // result.data contains array
 	return canvas2array(image2canvas(img));
 }
 
-function array2canvas(array, w, h){ // use new a = Uint8ClampedArray(length); a[0], a[1] ... for the array
+function array2canvas(array, w, h){ // use var a = new Uint8ClampedArray(w*h*4); a[0], a[1] ... for the array
 	var canvas = document.createElement('canvas');
 	canvas.width = w; canvas.height = h;
 	var ctx = canvas.getContext('2d');
@@ -47,9 +47,17 @@ function canvas2image(canvas){
 	return pic;
 }
 
-// for canvas2texture or image2texture use:
-// var tex = new Texture(source)
-// tex.needsUpdate = true;
+function canvas2texture(canvas){
+	var tex = new THREE.Texture(canvas);
+	tex.needsUpdate = true;
+	return tex;
+}
+
+function image2texture(image){
+	var tex = new THREE.Texture(image);
+	tex.needsUpdate = true;
+	return tex;
+}
 
 /*
 loadImage("testtex.png", function(){
@@ -65,6 +73,49 @@ loadImage("testtex.png", function(){
 	document.body.appendChild(canv);
 });
 */
+
+function renderTexture(tex, renderer){
+	var material = new THREE.MeshBasicMaterial( { map:tex } );
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 90, 1, 0.1, 10 );
+
+	var geometry = new THREE.PlaneGeometry(2,2);
+	var mesh = new THREE.Mesh( geometry, material );
+	scene.add( mesh );
+
+	camera.position.z = 1;
+
+	var sizeBefore = renderer.getSize();
+	renderer.setSize(tex.image.width, tex.image.height);
+	renderer.render( scene, camera );
+	renderer.setSize(sizeBefore.width, sizeBefore.height);
+}
+
+// TODO: DOESNT WORK
+function texture2array(tex, renderer){
+	var material = new THREE.MeshBasicMaterial( { map:tex } );
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 90, 1, 0.1, 10 );
+
+	var geometry = new THREE.PlaneGeometry(2,2);
+	var mesh = new THREE.Mesh( geometry, material );
+	scene.add( mesh );
+
+	camera.position.z = 1;
+
+	var renderTarget = new THREE.WebGLRenderTarget(tex.image.width, tex.image.height);
+
+	var sizeBefore = renderer.getSize();
+	renderer.setSize(tex.image.width, tex.image.height);
+	renderer.render( scene, camera, renderTarget );
+	renderer.setSize(sizeBefore.width, sizeBefore.height);
+
+	var buffer = new Uint8Array(tex.image.width * tex.image.height * 4);
+	renderer.readRenderTargetPixels ( renderTarget, 0, 0, tex.image.width, tex.image.height, buffer );
+	return buffer;
+}
 
 TextureGenerator = function(w, h, renderer, fragmentShader, uniforms){
 	this.w = w;

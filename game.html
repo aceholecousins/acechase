@@ -8,7 +8,7 @@
 			body {
 				margin: 0px;
 				background-color: #000000;
-				overflow: hidden;
+				/*overflow: hidden;*/
 			}
 			td {
 				text-align: center;
@@ -109,7 +109,11 @@
 		<script src="src/Flame.js"></script>
 		<script src="src/Hovercraft.js"></script>
 		<script src="src/Phaser.js"></script>
-		<script src="src/Arena.js"></script>
+
+			<script src="src/arena/ArenaSvgLoader.js"></script>
+			<script src="src/arena/terrainShaders.js"></script>
+			<script src="src/arena/Arena.js"></script>
+
 		<script src="src/Water.js"></script>
 		<script src="src/camera.js"></script>
 
@@ -139,7 +143,7 @@
 								new THREE.Color(value.split(',')[1]),
 								Control.createControl(value));
 						hovers[iPlayer].playerName = value.split(',')[0];						
-						var startPos = findAccessiblePosition(2);
+						var startPos = findAccessiblePosition(-1);
 						hovers[iPlayer].initNewRound(startPos);
 						iPlayer++;
 					}
@@ -214,7 +218,7 @@
 				INGAME_TIME = 0;
 
 				for(var i=0; i<hovers.length; i++){
-					var startPos = findAccessiblePosition(2);
+					var startPos = findAccessiblePosition(-1);
 					hovers[i].initNewRound(startPos);
 					hovers[i].update();
 				}

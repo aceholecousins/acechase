@@ -76,7 +76,7 @@ var QUOTES = [
 "Say what you mean and mean what you say.",
 "Instead of focusing on what you think of people, find out what you can learn from them.",
 "What's the worst that can happen?",
-"Sometimes you just have to do the next right thing.",
+"Sometimes you just have to do the next-right thing.",
 "No one builds a house. You put brick by brick.",
 "It's easier to get forgiveness than permission.",
 "No matter how far you've gone down the wrong road, turn back.",

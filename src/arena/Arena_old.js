@@ -12,7 +12,7 @@ var MAP_MAXDIM;
 var DISTANCE_MAP = {};
 var FOG_COLOR = new THREE.Color(0x808080);
 
-var STD_TEX; // standard texture if no other texture is specified
+var STD_TEX;
 
 // returns the distance from the coast (bilinear interpolation on distance map)
 function coastDistance(x,y){ // map center at (0,0)
