@@ -24,16 +24,19 @@ var bumpmapFragmentShader = `
 		// bumpmapValue.z == reference height (disturbed by disturbances)
 		// bumpmapValue.w == coast distance (negative in water)
 		vec4 bumpmapValue = texture2D( bumpmap, uv );
+		
+		float coastDamping = clamp(-bumpmapValue.w,0.0,1.0);
 
 		// Get neighbours
 		vec4 N = texture2D( bumpmap, uv + vec2( 0.0, cellSize.y ) );
 		vec4 S = texture2D( bumpmap, uv + vec2( 0.0, - cellSize.y ) );
 		vec4 E = texture2D( bumpmap, uv + vec2( cellSize.x, 0.0 ) );
 		vec4 W = texture2D( bumpmap, uv + vec2( - cellSize.x, 0.0 ) );
+		vec4 NSEWd = clamp(-vec4(N.w, S.w, E.w, W.w), 0.0, 1.0);
 
-		vec4 NSEWd = clamp(-vec4(N.w, S.w, E.w, W.w) + 1.0, 0.01, 1.0);
-		float sump = (NSEWd.x*(N.x-N.z) + NSEWd.y*(S.x-S.z) + NSEWd.z*(E.x-E.z) + NSEWd.w*(W.x-W.z))/(dot(NSEWd, vec4(1.0)))
-					- (bumpmapValue.x-bumpmapValue.z);
+		float sump = (NSEWd.x*(N.x-N.z) + NSEWd.y*(S.x-S.z) + NSEWd.z*(E.x-E.z) + NSEWd.w*(W.x-W.z))/(NSEWd.x + NSEWd.y + NSEWd.z + NSEWd.w) - (bumpmapValue.x-bumpmapValue.z);
+		//float sump = (N.x-N.z) + (S.x-S.z) + (E.x-E.z) + (W.x-W.z) - (bumpmapValue.x-bumpmapValue.z);
+		//sump *= coastDamping;
 
 		float accel = sump * GRAVITY_CONSTANT;
 
@@ -44,10 +47,9 @@ var bumpmapFragmentShader = `
 		// Viscosity
 		bumpmapValue.x += sump * viscosityConstant;
 		bumpmapValue.x *= 0.999; // move towards 0
-
-		float coastDamp = clamp(-bumpmapValue.w + 1.0, 0.01, 1.0);
-		bumpmapValue.x *= coastDamp;
-		bumpmapValue.y *= coastDamp;
+		
+		//bumpmapValue.x *= coastDamping;
+		//bumpmapValue.y *= coastDamping;
 
 		// disturbances
 		bumpmapValue.z =
@@ -109,7 +111,7 @@ var waterFragmentShader = `
 
 		float wDiffuse = dot(n, light)*0.5+0.5;
 		float wSpecular = dot(reflectedView, light);
-		float wCoast = clamp(hmap.w-1.0, 0.0, 1.0);
+		float wCoast = 1.0-hmap.w;
 	
 		float specStart = 0.96;
 		float specFull = 0.98;
@@ -129,7 +131,14 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor = vec4(waterdepth<0.0, waterdepth<1.0, waterdepth<-1.0, 1.0);
+		/*
+		if(waterdepth <= 0.1){ // smooth alpha transition at coast
+			float q = waterdepth * 10.0;
+			//if(q < 0.0){q = 0.0;}
+			if(q > 1.0){q = 1.0;}
+			gl_FragColor.w *= q;
+		}*/
+		
 		
 	}`;
 
@@ -159,6 +168,8 @@ var waterVertexShaderCA = `// read water level from cellular automata
 			1.0 ));
 	
 		hmap = texture2D( bumpmap, uv );
+		//float heightValue = hmap.x - 5.0*hmap.w;
+		//vec3 transformed = vec3( position.x, position.y, (heightValue + 5.0)*0.03);
 
 		vec3 transformed = vec3( position.x, position.y, position.z );
 
@@ -175,7 +186,7 @@ var waterVertexShaderCA = `// read water level from cellular automata
 		else{distanceuv.x -= 0.5*(terraindims.y - terraindims.x)/terraindims.y;}
 		vec4 distv4 = texture2D(distancetex, distanceuv);
 		float dist = distv4.x*255.0 + distv4.y*255.0/256.0 + distv4.z*255.0/256.0/256.0 - 128.0;
-		waterdepth = -hmap.w + hmap.x*0.0; // terrain depth (negative) + wave bump height
+		waterdepth = -dist + hmap.x*0.1; // terrain depth (negative) + wave bump height
 
 
 
@@ -361,11 +372,9 @@ function fillWaterTexture( texture ) {
 			var x2 = x*2.6-1.3;
 			var y2 = y*2.6-1.3;
 
-			//var w = Math.pow(x2,4.0)+Math.pow(y2,4.0) + 0.5*Math.sin(19.0*x) + 0.5*Math.sin(17.0*y) - 0.9;
-			//w=-3*w;
-			//w = -coastDistance(x,y)*5.0+3.0;
-
-			var w = coastDistance(x,y);
+			var w = Math.pow(x2,4.0)+Math.pow(y2,4.0) + 0.5*Math.sin(19.0*x) + 0.5*Math.sin(17.0*y) - 0.9;
+			w=-3*w;
+			w = coastDistance(x,y);
 
 		    pixels[ p + 0 ] = 0;
 			pixels[ p + 1 ] = 0;

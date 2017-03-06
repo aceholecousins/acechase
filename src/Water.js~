@@ -129,7 +129,7 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor = vec4(waterdepth<0.0, waterdepth<1.0, waterdepth<-1.0, 1.0);
+		gl_FragColor = vec4(waterdepth, waterdepth<0.0, -waterdepth, 1.0);
 		
 	}`;
 
