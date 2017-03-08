@@ -259,7 +259,6 @@ function Arena(filename){
 				if(bumpstruct != null){ // convert bumpmap to normal map
 
 				}
-			}
 			var specstruct = ASL.gettex('specularmap');
 			var overstruct = ASL.gettex('overlay');
 

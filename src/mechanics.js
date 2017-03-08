@@ -151,6 +151,7 @@ var BUFFER_CONTEXT = CANVAS_BUFFER.getContext('2d');
 
 var ro = 0;
 var RENDER_ORDER = {};
+RENDER_ORDER.terrain = ro++;
 RENDER_ORDER.water = ro++;
 RENDER_ORDER.phaser = RENDER_ORDER.phaserimpact = ro++;
 RENDER_ORDER.shield = ro++;

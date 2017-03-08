@@ -79,8 +79,7 @@ var waterFragmentShader = `
 	varying vec3 pCam;
 	varying vec3 pSurf;
 	varying vec4 hmap;
-	uniform sampler2D distancetex;
-	uniform vec2 terraindims;
+
 	uniform vec4 waterColor;
 	varying vec2 vuv;
 
@@ -98,7 +97,7 @@ var waterFragmentShader = `
 */
 		if(waterdepth <= 0.0){
 			gl_FragColor = vec4(0.0,0.0,0.0,0.0);
-			//return;
+			return;
 		}
 
 		vec3 n = normalize(vNormal);
@@ -129,7 +128,7 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor = vec4(waterdepth<0.0, waterdepth<1.0, waterdepth<-1.0, 1.0);
+		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0);
 		
 	}`;
 
@@ -143,8 +142,6 @@ var waterVertexShaderCA = `// read water level from cellular automata
 	varying vec4 hmap;
 	varying vec2 vuv;
 
-	uniform sampler2D distancetex;
-	uniform vec2 terraindims;
 	varying float waterdepth;
 
 	void main() {
@@ -167,17 +164,7 @@ var waterVertexShaderCA = `// read water level from cellular automata
 
 		pCam = cameraPosition;
 
-
-
-
-		vec2 distanceuv = uv;
-		if(terraindims.x > terraindims.y){distanceuv.y -= 0.5*(terraindims.x - terraindims.y)/terraindims.x;}
-		else{distanceuv.x -= 0.5*(terraindims.y - terraindims.x)/terraindims.y;}
-		vec4 distv4 = texture2D(distancetex, distanceuv);
-		float dist = distv4.x*255.0 + distv4.y*255.0/256.0 + distv4.z*255.0/256.0/256.0 - 128.0;
-		waterdepth = -hmap.w + hmap.x*0.0; // terrain depth (negative) + wave bump height
-
-
+		waterdepth = -hmap.w + hmap.x*0.1; // terrain depth (negative) + wave bump height
 
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed,1.0);
 	}`;
@@ -192,8 +179,6 @@ var waterVertexShaderNoCA = `// generate water level
 	varying vec4 hmap;
 	varying vec2 vuv;
 
-	uniform sampler2D distancetex;
-	uniform vec2 terraindims;
 	varying float waterdepth;
 
 	float h(vec2 r_){
@@ -222,7 +207,7 @@ var waterVertexShaderNoCA = `// generate water level
 			( h( uv + vec2( 0, - cellSize.y ) ) - h( uv + vec2( 0, cellSize.y ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			1.0 ));
 	
-		hmap = vec4(h(uv),0.0,0.0,1.0); // indicates "no coast" for the fragment shader
+		hmap = vec4(h(uv),0.0,0.0, texture2D(bumpmap, uv).w);
 		vec3 transformed = vec3( position.x, position.y, (h(uv) + 1.0)*0.03);
 		//vec3 transformed = vec3( position.x, position.y, position.z );
 
@@ -231,18 +216,7 @@ var waterVertexShaderNoCA = `// generate water level
 
 		pCam = cameraPosition;
 
-
-
-
-		vec2 distanceuv = uv;
-		if(terraindims.x > terraindims.y){distanceuv.y -= 0.5*(terraindims.x - terraindims.y)/terraindims.x;}
-		else{distanceuv.x -= 0.5*(terraindims.y - terraindims.x)/terraindims.y;}
-		vec4 distv4 = texture2D(distancetex, distanceuv);
-		float dist = distv4.x*255.0 + distv4.y*255.0/256.0 + distv4.z*255.0/256.0/256.0 - 128.0;
-		waterdepth = -dist + hmap.x*0.1; // terrain depth (negative) + wave bump height
-
-
-
+		waterdepth = -hmap.w + hmap.x*0.1; // terrain depth (negative) + wave bump height
 
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed,1.0);
 	}`;
@@ -272,8 +246,6 @@ function initWater() {
 	WATER_MATERIAL = new THREE.ShaderMaterial( {
 		uniforms: {
 			bumpmap: { type: 't', value: null }, // waves
-			distancetex: {type: 't', value: DISTANCE_TEX}, // terrain
-			terraindims: { type: 'v2', value: new THREE.Vector2(MAP_WIDTH, MAP_HEIGHT) },
 			time: { type: 'f', value: 0 },
 			lightvec: { type: 'v3', value: LIGHT_VECTOR }, // direction TOWARDS light
 			// optional TODO: the light looks corner-ish when it comes from (1,1,1) which makes no sense
@@ -365,7 +337,7 @@ function fillWaterTexture( texture ) {
 			//w=-3*w;
 			//w = -coastDistance(x,y)*5.0+3.0;
 
-			var w = coastDistance(x,y);
+			var w = coastDistance(x,y,true);
 
 		    pixels[ p + 0 ] = 0;
 			pixels[ p + 1 ] = 0;

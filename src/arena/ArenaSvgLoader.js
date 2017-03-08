@@ -1,11 +1,11 @@
 
 // requires imglib
 
-function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
-// gfxres describes the texture width (or height, whatever is bigger) for the graphical distance map (smooth paths)
-// phxdpu describes the gfxres of the distance map for the physics engine in dots per unit length of the svg dims
+function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
-// when the loader is done, .domsvg, .gfxdistancemap (canvas), .phxdistancemap (array) and .polygons can be used
+// curv = curved paths, poly = cornered paths, dpu = dots per unit length, os = over sampling factor for generation (to avoid aliasing)
+
+// when the loader is done, .domsvg, .curvdistancemap (array), .polydistancemap (array) and .polygons can be used
 // distance maps are positive on land and negative in water (like heightmaps)
 
 	new THREE.FileLoader().load(filename, function(rawsvg){
@@ -19,35 +19,23 @@ function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
 
 		this.svgw = this.domsvg.getAttribute("width");
 		this.svgh = this.domsvg.getAttribute("height");
-		var resw;
-		var resh;
+
+		var curvw = this.svgw * curvdpu * curvos;
+		var curvh = this.svgh * curvdpu * curvos;
+		this.curvdpu = curvdpu;
 
 		var domoutline = this.domsvg.getElementById("outline");
 		var domislands = this.domsvg.getElementById("islands");
 
-		var tform;
-		var ppu; // pixel per unit length
-
-		if(this.svgw>this.svgh){
-			ppu = gfxres/this.svgw;
-			resw = gfxres;
-			resh = Math.pow(2.0, Math.ceil(Math.log2(this.svgh*ppu))); // next largest power of 2
-			tform = 'transform="translate(0,' + (resh-this.svgh*ppu) + ') scale(' + ppu + ',' + ppu + ')"';
+		var tform = 'transform="scale(' + curvdpu * curvos + ',' + curvdpu * curvos + ')"';
 			// svg origin is upper left, dunno what bit them
-		}
-		else{
-			ppu = gfxres/this.svgh;
-			resh = gfxres;
-			resw = Math.pow(2.0, Math.ceil(Math.log2(this.svgw*ppu))); // next largest power of 2
-			tform = 'transform="scale(' + ppu + ',' + ppu + ')"';
-		}
 
 		var canvas = document.createElement("canvas");
-		canvas.width = resw;
-		canvas.height = resh;
+		canvas.width = curvw;
+		canvas.height = curvh;
 
-		// generate SVG for graphics distance map
-		var rawboolsvg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + resw + '" height="' + resh + '" '
+		// generate SVG for curved distance map
+		var rawboolsvg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + curvw + '" height="' + curvh + '" '
 			+ 'style="background-color:white"><g ' + tform + '>'
 			+ '<path style="fill:black" d="' + domoutline.getAttribute("d") + '"></path>';
 		if(domislands != null){
@@ -55,34 +43,38 @@ function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
 		}
 		rawboolsvg += '</g></svg>';
 
+		// draw into canvas
 		var img = new Image();
 		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
 		canvas.getContext('2d').drawImage(img, 0, 0);
 
+		// generate distance map
 		var booleanImage = booleanImageFromCanvas(canvas, 128, false);
-		var mapOutside = distanceFromBooleanImage(booleanImage, resw, resh, 'EDT');
+		var mapOutside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
 		booleanImage = booleanImageFromCanvas(canvas, 128, true);
-		var mapInside = distanceFromBooleanImage(booleanImage, resw, resh, 'EDT');
-		distancemap = mapOutside;
+		var mapInside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
 
-		var u8ca = new Uint8ClampedArray(resw*resh*4);
-		var d;
-		for(var ipx=0; ipx<resw*resh; ipx++){
+		// downsampling
+		this.curvdistancemap = new Array(curvw/curvos * curvh/curvos).fill(0);
+
+		var ix = 0;
+		var iy = 0;
+		var os4 = curvos*curvos*curvos*curvos;
+
+		for(var ipx=0; ipx<curvw*curvh; ipx++){
+			ix = ipx % curvw;
+			iy = Math.floor(ipx / curvw);
+			ix = Math.floor(ix / curvos);
+			iy = Math.floor(iy / curvos);
+
 			if(mapInside[ipx]>mapOutside[ipx]){
-				distancemap[ipx] = -mapInside[ipx];
+				this.curvdistancemap[iy*curvw/curvos + ix] += -mapInside[ipx]/os4;
 			}
-			d = distancemap[ipx]/ppu+128;
-			if(d < 0){d = 0;}
-			if(d >= 256){d = 256 * 0xffffff/0x1000000;}
-			u8ca[4*ipx  ] = Math.floor(d); // red changes by 1 per unit coast distance, land at r >= 128
-			d = (d-u8ca[4*ipx  ])*256;
-			u8ca[4*ipx+1] = Math.floor(d); // green changes by 1 per 1/256 unit coast distance
-			d = (d-u8ca[4*ipx+1])*256;
-			u8ca[4*ipx+2] = Math.floor(d); // blue changes by 1 per 1/256^2 unit coast distance
-			u8ca[4*ipx+3] = 255;
+			else{
+				this.curvdistancemap[iy*curvw/curvos + ix] += mapOutside[ipx]/os4;
+			}
 		}
 
-		this.gfxdistancemap = array2canvas(u8ca, resw, resh);
 
 		// read polygon data
 
@@ -128,54 +120,48 @@ function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
 
 		//console.log(commands.join(" "));
 
-		this.phxw = this.svgw*phxdpu;
-		this.phxh = this.svgh*phxdpu;
-		this.phxdpu = phxdpu;
+		var polyw = this.svgw * polydpu * polyos;
+		var polyh = this.svgh * polydpu * polyos;
+		this.polydpu = polydpu;
 
 		// generate SVG for physics distance map
-		tform = 'transform="scale(' + phxdpu + ',' + phxdpu + ')"';
-		var rawboolsvg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + this.svgw*phxdpu + '" height="' + this.svgh*phxdpu + '" '
+		tform = 'transform="scale(' + polydpu * polyos + ',' + polydpu * polyos + ')"';
+		var rawboolsvg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + polyw + '" height="' + polyh + '" '
 			+ 'style="background-color:white"><g ' + tform + '>'
 			+ '<path style="fill:black; fill-rule:evenodd" d="' + commands.join(" ") + '"></path>';
 		rawboolsvg += '</g></svg>';
 
 		img = new Image();
 		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
-		canvas.width = this.phxw;
-		canvas.height = this.phxh;
+		canvas.width = polyw;
+		canvas.height = polyh;
 		canvas.getContext('2d').drawImage(img, 0, 0);
 
 		booleanImage = booleanImageFromCanvas(canvas, 128, false);
-		mapOutside = distanceFromBooleanImage(booleanImage, this.phxw, this.phxh, 'EDT');
+		mapOutside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
 		booleanImage = booleanImageFromCanvas(canvas, 128, true);
-		mapInside = distanceFromBooleanImage(booleanImage, this.phxw, this.phxh, 'EDT');
-		distancemap = mapOutside;
+		mapInside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
 
-		for(var ipx=0; ipx<this.phxw*this.phxh; ipx++){
+		// downsampling
+		this.polydistancemap = new Array(polyw/polyos * polyh/polyos).fill(0);
+
+		ix = 0;
+		iy = 0;
+		os4 = polyos*polyos*polyos*polyos;
+
+		for(var ipx=0; ipx<polyw*polyh; ipx++){
+			ix = ipx % polyw;
+			iy = Math.floor(ipx / polyw);
+			ix = Math.floor(ix / polyos);
+			iy = Math.floor(iy / polyos);
+
 			if(mapInside[ipx]>mapOutside[ipx]){
-				distancemap[ipx] = -mapInside[ipx]/phxdpu;
+				this.polydistancemap[iy*polyw/polyos + ix] += -mapInside[ipx]/os4;
 			}
 			else{
-				distancemap[ipx] = mapOutside[ipx]/phxdpu;
+				this.polydistancemap[iy*polyw/polyos + ix] += mapOutside[ipx]/os4;
 			}
 		}
-
-		this.phxdistancemap = distancemap;
-
-		//document.body.appendChild(canvas);
-
-		/*u8ca = new Uint8ClampedArray(canvas.width*canvas.height*4);
-		for(var ipx=0; ipx<canvas.width*canvas.height; ipx++){
-			d = distancemap[ipx]+100;
-			if(d < 0){d = 0;}
-			if(d > 255){d = 255;}
-			u8ca[4*ipx  ] = Math.floor(d);
-			u8ca[4*ipx+1] = Math.floor(d);
-			u8ca[4*ipx+2] = Math.floor(d);
-			u8ca[4*ipx+3] = 255;
-		}
-		document.body.appendChild(array2canvas(u8ca, canvas.width, canvas.height))
-*/
 
 		callback(this);
 
@@ -183,11 +169,17 @@ function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
 
 	this.gettex = function(id){
 		var elem = this.domsvg.getElementById(id);
-		if(elem == null){return undefined;}
+		if(elem == null){return null;}
 
 		var url = elem.getAttribute('xlink:href');
-		var xy = new THREE.Vector2(elem.getAttribute('x'), elem.getAttribute('y'));
-		var dims = new THREE.Vector2(elem.getAttribute('width'), elem.getAttribute('height'));
+		var img = new Image();
+		img.src = url;
+		var tex = new THREE.Texture(img);
+		tex.needsUpdate = true;
+		tex.wrapS = THREE.RepeatWrapping;
+		tex.wrapT = THREE.RepeatWrapping;
+		var pos = new THREE.Vector4(elem.getAttribute('x'), elem.getAttribute('y'),
+			elem.getAttribute('width'), elem.getAttribute('height'));
 		var tfmtx = elem.getAttribute('transform');
 		if(tfmtx == null){
 			tfmtx = new THREE.Vector4(1,0,0,1);
@@ -196,12 +188,13 @@ function ArenaSvgLoader(filename, gfxres, phxdpu, callback){
 			tfmtx = tfmtx.replace("matrix(", "").replace(")","").split(',');
 			tfmtx = new THREE.Vector4(tfmtx[0], tfmtx[1], tfmtx[2], tfmtx[3]);
 		}
-		return {mapurl:url, pos:xy, dims:dims, tfmtx:tfmtx};
+		var tfinv = new THREE.Vector4(tfmtx.w, -tfmtx.y, -tfmtx.z, tfmtx.x).multiplyScalar(1/(tfmtx.x*tfmtx.w - tfmtx.y*tfmtx.z));
+		return {tex:tex, pos:pos, tfinv:tfinv};
 	}
 
 	this.getstyle = function(id, styleElement){
 		var elem = this.domsvg.getElementById(id);
-		if(elem == null){return undefined;}
+		if(elem == null){return null;}
 
 		var dummydiv = document.createElement("div");
 		dummydiv.style = elem.getAttribute("style");
