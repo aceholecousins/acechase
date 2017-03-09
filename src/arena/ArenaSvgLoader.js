@@ -59,7 +59,7 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 		var ix = 0;
 		var iy = 0;
-		var os4 = curvos*curvos*curvos*curvos;
+		var os = curvos * curvos * curvos * curvdpu; // oversampling in x and y and vertical correction
 
 		for(var ipx=0; ipx<curvw*curvh; ipx++){
 			ix = ipx % curvw;
@@ -68,10 +68,10 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 			iy = Math.floor(iy / curvos);
 
 			if(mapInside[ipx]>mapOutside[ipx]){
-				this.curvdistancemap[iy*curvw/curvos + ix] += -mapInside[ipx]/os4;
+				this.curvdistancemap[iy*curvw/curvos + ix] += -(mapInside[ipx]-0.5)/os;
 			}
 			else{
-				this.curvdistancemap[iy*curvw/curvos + ix] += mapOutside[ipx]/os4;
+				this.curvdistancemap[iy*curvw/curvos + ix] += (mapOutside[ipx]-0.5)/os;
 			}
 		}
 
@@ -80,7 +80,7 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 		var commands = domoutline.getAttribute("d");
 		if(domislands != null){
-			commands += domislands.getAttribute("d");
+			commands += " " + domislands.getAttribute("d");
 		}
 		commands = commands.split(/(?=[MZLHVCSmzlhvcs])/);
 
@@ -147,7 +147,7 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 		ix = 0;
 		iy = 0;
-		os4 = polyos*polyos*polyos*polyos;
+		os = polyos * polyos * polydpu * polyos; // oversampling in x and y and vertical correction
 
 		for(var ipx=0; ipx<polyw*polyh; ipx++){
 			ix = ipx % polyw;
@@ -156,10 +156,10 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 			iy = Math.floor(iy / polyos);
 
 			if(mapInside[ipx]>mapOutside[ipx]){
-				this.polydistancemap[iy*polyw/polyos + ix] += -mapInside[ipx]/os4;
+				this.polydistancemap[iy*polyw/polyos + ix] += -(mapInside[ipx]-0.5)/os;
 			}
 			else{
-				this.polydistancemap[iy*polyw/polyos + ix] += mapOutside[ipx]/os4;
+				this.polydistancemap[iy*polyw/polyos + ix] += (mapOutside[ipx]-0.5)/os;
 			}
 		}
 

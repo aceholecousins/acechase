@@ -92,10 +92,10 @@ function updateCam(){
 	var eE = new THREE.Vector3().addVectors(dir_, eh); // eastern ...
 	var eW = new THREE.Vector3().subVectors(dir_, eh); // western ...
 
-	pSW = new THREE.Vector3(-MAP_WIDTH/2, -MAP_HEIGHT/2, 0); // map corners
-	pSE = new THREE.Vector3( MAP_WIDTH/2, -MAP_HEIGHT/2, 0); 
-	pNW = new THREE.Vector3(-MAP_WIDTH/2,  MAP_HEIGHT/2, 0); 
-	pNE = new THREE.Vector3( MAP_WIDTH/2,  MAP_HEIGHT/2, 0); 
+	pSW = new THREE.Vector3(OUTLINE_BOUNDS.x, OUTLINE_BOUNDS.z, 0); // map corners
+	pSE = new THREE.Vector3(OUTLINE_BOUNDS.y, OUTLINE_BOUNDS.z, 0);
+	pNW = new THREE.Vector3(OUTLINE_BOUNDS.x, OUTLINE_BOUNDS.w, 0); 
+	pNE = new THREE.Vector3(OUTLINE_BOUNDS.y, OUTLINE_BOUNDS.w, 0); 
 	
 	var pN = pNE.clone(); // northest map corner in the camera view
 	if(pNW.dot(eN) > pNE.dot(eN)){pN.copy(pNW);}

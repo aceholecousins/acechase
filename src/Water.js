@@ -128,7 +128,7 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0);
+		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0); 
 		
 	}`;
 
@@ -319,31 +319,20 @@ function initWater() {
 
 function fillWaterTexture( texture ) {
 
-	var waterMaxHeight = 10;
-
 	var pixels = texture.image.data;
 
 	var p = 0;
 	for ( var j = 0; j < WATER_CA_WIDTH; j++ ) {
 		for ( var i = 0; i < WATER_CA_WIDTH; i++ ) {
 
-			var x = (i/WATER_CA_WIDTH-0.5) * MAP_MAXDIM;
-			var y = (j/WATER_CA_WIDTH-0.5) * MAP_MAXDIM;
-
-			var x2 = x*2.6-1.3;
-			var y2 = y*2.6-1.3;
-
-			//var w = Math.pow(x2,4.0)+Math.pow(y2,4.0) + 0.5*Math.sin(19.0*x) + 0.5*Math.sin(17.0*y) - 0.9;
-			//w=-3*w;
-			//w = -coastDistance(x,y)*5.0+3.0;
+			var x = (i/(WATER_CA_WIDTH-1)-0.5) * MAP_MAXDIM;
+			var y = (j/(WATER_CA_WIDTH-1)-0.5) * MAP_MAXDIM;
 
 			var w = coastDistance(x,y,true);
 
 		    pixels[ p + 0 ] = 0;
 			pixels[ p + 1 ] = 0;
 			pixels[ p + 2 ] = 0;
-			//if(w<0.01){w = 0.01;}
-			//if(w>1){w = 1;}
 			pixels[ p + 3 ] = w;
 
 			p += 4;

@@ -13,23 +13,53 @@ var DISTANCE_MAP_POLY = {};
 var DISTANCE_MAP_CURV = {};
 var FOG_COLOR = new THREE.Color(0x808080);
 
+var OUTLINE_BOUNDS; // xmin, xmax, ymin, ymax
+
 var STD_TEX;
 
 var ASL; // arena svg loader
 
 // convert coast distance to terrain height
-function d2h(d){return 3.0*Math.atan(0.5*d);}
+function d2h(d){return d;}//3.0*Math.atan(0.5*d);}
 
 // single color texture
 function monotex(r, g, b, a){ // 0..255
-	var ar = new Uint8ClampedArray(4*4*4);
+	var ar = new Uint8Array(64*64*4);
 	for(var i=0; i<ar.length; i+=4){
-		ar[i  ] = 255;
+		ar[i  ] = r;
 		ar[i+1] = g;
 		ar[i+2] = b;
 		ar[i+3] = a;
 	}
-	return new THREE.Texture(array2canvas(ar, 4, 4));
+	var result = new THREE.DataTexture(ar, 64, 64, 
+		THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping);
+	result.needsUpdate = true;
+	return result
+}
+
+// convert bump map to normal map
+function bump2nml(bumptex){
+	var texw = bumptex.image.width;
+	var texh = bumptex.image.height;
+	var nmlgen = new TextureGenerator(texw, texh, RENDERER, `
+		varying vec2 vUv;
+		uniform sampler2D tex;
+		uniform vec2 h;
+		void main()	{
+			float v0 = texture2D(tex, vUv).x;
+			float vx = texture2D(tex, vUv + vec2(h.x, 0.0)).x;
+			float vy = texture2D(tex, vUv + vec2(0.0, h.y)).x;
+			vec3 nml = normalize(vec3(-vx+v0, -vy+v0, 1.0/16.0)); // that means white corresponds to 16 pixel height
+			gl_FragColor = vec4(nml*0.5+0.5, 1.0);
+		}`,
+	{
+		tex:{type:'t', value:bumptex},
+		h:{type:'v2', value:new THREE.Vector2(1/texw, 1/texh)}
+	});
+	var result = nmlgen.render();
+	result.wrapS = THREE.RepeatWrapping; // does not work, manual "fract()" in shader
+	result.wrapT = THREE.RepeatWrapping;
+	return result;
 }
 
 // returns the distance from the coast (bilinear interpolation on distance map)
@@ -37,7 +67,7 @@ function coastDistance(x, y, curved){ // map center at (0,0), negative distance 
 
 	var DISTANCE_MAP = curved? DISTANCE_MAP_CURV : DISTANCE_MAP_POLY;
 
-	// the -0.5 was found experimentally but it probably makes sense due to pixel centering and rounding and stuff :P TODO: overthink this
+	// -0.5 because of pixel centering
 	var xhr = DISTANCE_MAP.w/2 + x*DISTANCE_MAP.f -0.5;
 	var yhr = DISTANCE_MAP.h/2 - y*DISTANCE_MAP.f -0.5;
 
@@ -113,16 +143,25 @@ function Arena(filename){
 			// cut open the outline at the leftest point (smallestx)
 			// the physics library can't deal with a shape that has a hole
 			// so we turn it into one concave shape by turning an O into a C with a very tiny gap
-			var smallestx = MAP_WIDTH;
 			var ismallestx = -1;
 
 			var poly = ASL.polygons;
 
+			OUTLINE_BOUNDS = new THREE.Vector4(10000,-10000,-10000,10000);
 			for(var ipt=0; ipt<poly[0].length; ipt++){
-				if(poly[0][ipt][0] < smallestx){
-					smallestx = poly[0][ipt][0];
+				if(poly[0][ipt][0] < OUTLINE_BOUNDS.x){ // .x = xmin
+					OUTLINE_BOUNDS.x = poly[0][ipt][0];
 					ismallestx = ipt;
 				}
+				if(poly[0][ipt][0] > OUTLINE_BOUNDS.y){ // .y = xmax
+					OUTLINE_BOUNDS.y = poly[0][ipt][0];
+				}
+				if(poly[0][ipt][1] > OUTLINE_BOUNDS.z){ // .z = ymin (inverted later)
+					OUTLINE_BOUNDS.z = poly[0][ipt][1];
+				}				
+				if(poly[0][ipt][1] < OUTLINE_BOUNDS.w){ // .w = ymax (inverted later)
+					OUTLINE_BOUNDS.w = poly[0][ipt][1];
+				}								
 			}
 
 			// find y values of the points before and after the incision
@@ -160,6 +199,10 @@ function Arena(filename){
 					poly[j][i][1] = MAP_HEIGHT/2 - poly[j][i][1];
 				}
 			}
+			OUTLINE_BOUNDS.x -= MAP_WIDTH/2;
+			OUTLINE_BOUNDS.y -= MAP_WIDTH/2;
+			OUTLINE_BOUNDS.z = MAP_HEIGHT/2 - OUTLINE_BOUNDS.z;
+			OUTLINE_BOUNDS.w = MAP_HEIGHT/2 - OUTLINE_BOUNDS.w;
 
 			// cornery distance map for physics and game engine:
 			DISTANCE_MAP_POLY.f = ASL.polydpu; // resolution factor
@@ -222,7 +265,7 @@ function Arena(filename){
 			}
 
 			// create terrain mesh
-			var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, MAP_WIDTH*4, MAP_HEIGHT*4);
+			var geometry = new THREE.PlaneGeometry( MAP_WIDTH, MAP_HEIGHT, MAP_WIDTH*4-1, MAP_HEIGHT*4-1);
 			var normals = new Array(geometry.vertices.length);
 			var x,y,O,N,E,S,W,dzdx,dzdy;
 			var h = 1;
@@ -253,26 +296,26 @@ function Arena(filename){
 
 			// prepare textures
 			var diffstruct = ASL.gettex('diffusemap');
-			var bumpstruct = ASL.gettex('normalmap');
-			if(bumpstruct == null){
-				bumpstruct = ASL.gettex('bumpmap');
-				if(bumpstruct != null){ // convert bumpmap to normal map
-
+			var nrmlstruct = ASL.gettex('normalmap');
+			if(nrmlstruct == null){
+				nrmlstruct = ASL.gettex('bumpmap');
+				if(nrmlstruct != null){
+					nrmlstruct.tex = bump2nml(nrmlstruct.tex)
 				}
 			}
 			var specstruct = ASL.gettex('specularmap');
 			var overstruct = ASL.gettex('overlay');
 
-			if(diffstruct == null && bumpstruct == null && specstruct == null){
+			if(diffstruct == null && nrmlstruct == null && specstruct == null && overstruct == null){
 				diffstruct = {tex:STD_TEX, pos:new THREE.Vector4(0,0,5,5), tfinv:new THREE.Vector4(1,0,0,1)};
-				bumpstruct = diffstruct;
-				specstruct = diffstruct;
+				nrmlstruct = {tex:bump2nml(STD_TEX), pos:new THREE.Vector4(0,0,5,5), tfinv:new THREE.Vector4(1,0,0,1)};
+				specstruct = {tex:STD_TEX, pos:new THREE.Vector4(0,0,5,5), tfinv:new THREE.Vector4(1,0,0,1)};
 			}
 			else{
 				if(diffstruct == null){
-					diffstruct = {tex:monotex(150,200,250,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
-				if(bumpstruct == null){
-					bumpstruct = {tex:monotex(128,128,255,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
+					diffstruct = {tex:monotex(170,190,210,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
+				if(nrmlstruct == null){
+					nrmlstruct = {tex:monotex(128,128,255,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
 				if(specstruct == null){
 					specstruct = {tex:monotex(100,100,100,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
 			}
@@ -292,9 +335,9 @@ function Arena(filename){
 					difftex:    { type: 't',  value: diffstruct.tex },
 					difftexpos: { type: 'v4', value: diffstruct.pos },
 					difftextf:  { type: 'v4', value: diffstruct.tfinv },
-					bumptex:    { type: 't',  value: bumpstruct.tex },
-					bumptexpos: { type: 'v4', value: bumpstruct.pos },
-					bumptextf:  { type: 'v4', value: bumpstruct.tfinv },
+					nrmltex:    { type: 't',  value: nrmlstruct.tex },
+					nrmltexpos: { type: 'v4', value: nrmlstruct.pos },
+					nrmltextf:  { type: 'v4', value: nrmlstruct.tfinv },
 					spectex:    { type: 't',  value: specstruct.tex },
 					spectexpos: { type: 'v4', value: specstruct.pos },
 					spectextf:  { type: 'v4', value: specstruct.tfinv },
@@ -315,9 +358,9 @@ function Arena(filename){
 					uniform vec4 difftexpos;
 					uniform vec4 difftextf;
 					varying vec2 diffuv;
-					uniform vec4 bumptexpos;
-					uniform vec4 bumptextf;
-					varying vec2 bumpuv;
+					uniform vec4 nrmltexpos;
+					uniform vec4 nrmltextf;
+					varying vec2 nrmluv;
 					uniform vec4 spectexpos;
 					uniform vec4 spectextf;
 					varying vec2 specuv;
@@ -339,7 +382,7 @@ function Arena(filename){
 						view = position-cameraPosition;
 
 						diffuv = tfuv(difftexpos, difftextf);
-						bumpuv = tfuv(bumptexpos, bumptextf);
+						nrmluv = tfuv(nrmltexpos, nrmltextf);
 						specuv = tfuv(spectexpos, spectextf);
 						overuv = tfuv(overtexpos, overtextf);
 
@@ -353,33 +396,33 @@ function Arena(filename){
 					varying vec3 view;
 
 					uniform sampler2D difftex;
-					uniform sampler2D bumptex;
+					uniform sampler2D nrmltex;
 					uniform sampler2D spectex;
 					uniform sampler2D overtex;
 
 					varying vec2 diffuv;
-					varying vec2 bumpuv;
+					varying vec2 nrmluv;
 					varying vec2 specuv;
 					varying vec2 overuv;
 
 					void main()	{
 
 						vec4 diff = texture2D( difftex, diffuv );
-						vec3 bump = texture2D( bumptex, bumpuv ).xyz*2.0-1.0;
-						float spec = texture2D( spectex, specuv ).y;
+						vec3 nrml = texture2D( nrmltex, fract(nrmluv) ).xyz*2.0-1.0; // fract because repeat wrapping does not work
+						vec4 spec = texture2D( spectex, specuv );
 						vec3 nnml = normalize(nml); // necessary since the normals shorten during interpolation between vertices
 						vec4 over = texture2D( overtex, overuv );
 
-						vec2 dhdxy = nnml.xy/nnml.z + bump.xy/bump.z;
+						vec2 dhdxy = nnml.xy/nnml.z + nrml.xy/nrml.z;
 						vec3 nunml = normalize(vec3(dhdxy, 1.0));
 
 						float wdiff = clamp(dot(nunml, light), 0.2, 1.0);
-						float wspecular = pow(clamp(dot(reflect(normalize(view), nunml), light), 0.0, 1.0), 8.0) * spec;
+						float wspecular = pow(clamp(dot(reflect(normalize(view), nunml), light), 0.0, 1.0), 8.0) * spec.w;
 
 						gl_FragColor = vec4(
 							over.xyz * over.w +
 							(1.0-over.w)*(
-								wspecular * vec3(1.0) + 
+								wspecular * spec.xyz + 
 								(1.0-wspecular) * wdiff * diff.xyz
 							)
 						, 1.0);
@@ -390,6 +433,7 @@ function Arena(filename){
 			// always in background
 			material.depthWrite = false;
 			material.transparent = true;
+
 			this.mesh = new THREE.Mesh(geometry, material );
 			this.mesh.renderOrder = RENDER_ORDER.terrain;
 			GRAPHICS_SCENE.add( this.mesh );
