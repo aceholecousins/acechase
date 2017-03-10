@@ -416,7 +416,7 @@ function Arena(filename){
 						vec2 dhdxy = nnml.xy/nnml.z + nrml.xy/nrml.z;
 						vec3 nunml = normalize(vec3(dhdxy, 1.0));
 
-						float wdiff = clamp(dot(nunml, light), 0.2, 1.0);
+						float wdiff = clamp(dot(nunml, light), 0.0, 1.0) * 0.7 + 0.3;
 						float wspecular = pow(clamp(dot(reflect(normalize(view), nunml), light), 0.0, 1.0), 8.0) * spec.w;
 
 						gl_FragColor = vec4(
