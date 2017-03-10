@@ -509,7 +509,7 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 </div>
 
 <div class="std" style="background-color:white; display:block; width:540px">
-MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="">
+MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="maps/islandisle.svg">
 <datalist id="arenanames">
     <option>maps/grassiceislands.svg</option>
 </datalist>
