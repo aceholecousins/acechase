@@ -41,7 +41,7 @@ Thus, we need your
 
 because we want to work full time on it in order to implement all that.
 
-You can become a [patron](https://www.patreon.com/aceholecousins) on ![patreon](/media/images/patreon.png), that would be like so awesome, you know? We would like appreciate it like soo much!
+You can become a patron on [patreon](https://www.patreon.com/aceholecousins), that would be like so awesome, you know? We would like appreciate it like soo much!
 
 We are also thinking about kickstartering it at some point but we want to be super virally famous first, so please spread the word, play it with your friends and once the kickstarter campaign is running, pledge all the moneys that you have.
 
