@@ -32,7 +32,7 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 
 	this.type = 'phaser';
 
-	var velocity = 25
+	var velocity = 25;
 
 	var length = 0.4;
 	var radius = 0.2;
@@ -74,21 +74,22 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 	this.mesh.scale.y = 2*radius;
 	this.spawn();
 
-	this.impact = function(){ // what happens on impact
-		var effect = new Effect();
-		effect.type = 'phaserimpact';
-		effect.mesh = PHASER_IMPACT_MESH.clone();
-		effect.mesh.renderOrder = PHASER_IMPACT_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
-		effect.mesh.material = PHASER_IMPACT_MESH.material.clone(); // so we can change the color without changing the color of all the shots
-		effect.mesh.material.color.copy(this.mesh.material.color);
-		effect.mesh.position.copy(this.mesh.position);
-		effect.spawn();
-		effect.decay = 10; // so the spark degrades in 0.1s
-		effect.growth = 10;
-		this.despawn();
-	}
 }
 
 Phaser.prototype = Object.create(HBObject.prototype); // Phaser inherits from HBObject
 Phaser.prototype.constructor = Phaser;
+
+Phaser.prototype.impact = function(){ // what happens on impact
+	var effect = new Effect();
+	effect.type = 'phaserimpact';
+	effect.mesh = PHASER_IMPACT_MESH.clone();
+	effect.mesh.renderOrder = PHASER_IMPACT_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
+	effect.mesh.material = PHASER_IMPACT_MESH.material.clone(); // so we can change the color without changing the color of all the shots
+	effect.mesh.material.color.copy(this.mesh.material.color);
+	effect.mesh.position.copy(this.mesh.position);
+	effect.spawn();
+	effect.decay = 10; // so the spark degrades in 0.1s
+	effect.growth = 10;
+	this.despawn();
+}
 

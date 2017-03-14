@@ -7,7 +7,7 @@ document.body.appendChild( RENDERER.domElement ); // creates canvas on page into
 
 var GRAPHICS_SCENE = new THREE.Scene();
 
-var AMBIENT_LIGHT = new THREE.AmbientLight( 0x303050 );
+var AMBIENT_LIGHT = new THREE.AmbientLight( 0x404050 );
 GRAPHICS_SCENE.add(AMBIENT_LIGHT);
 
 var SUN_LIGHT = new THREE.DirectionalLight( 0xffffff, 0.8 );

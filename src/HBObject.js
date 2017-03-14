@@ -49,6 +49,9 @@ HBObject.prototype.update = function(){
 			this.mesh.position.y = this.body.position[1];
 			this.mesh.rotation.z = this.body.angle;
 		}
+		if(typeof(this.specificUpdate)=="function"){
+			this.specificUpdate();
+		}
 	}
 }
 

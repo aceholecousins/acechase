@@ -24,6 +24,8 @@ function Hovercraft(color, control){
 	this.kills = 0;
 	this.killedBy = {};
 	this.deaths = 0;
+	this.powerup = -1; // active powerup (-1 = none)
+	this.powerupLasts = 0; // time until powerup is over
 
 	// physics
 
@@ -56,9 +58,12 @@ function Hovercraft(color, control){
 	this.mesh.position.z = 0.1; // so it doesn't sink in waves
 
 	this.shieldMesh = new THREE.Mesh(
-              new THREE.SphereGeometry(1.2,9,9),
-              new THREE.MeshBasicMaterial({color:color, opacity:0.7, transparent:true}));
-	this.shieldMesh.material.color.lerp(new THREE.Color("white"), 0.4);
+            new THREE.SphereGeometry(1.2,9,9),
+            new THREE.MeshPhongMaterial({
+				color:color,
+				emissive:color.clone().lerp(new THREE.Color("black"), 0.4),
+				opacity:0.7,
+				transparent:true}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
 	this.mesh.add(this.shieldMesh);
@@ -93,6 +98,8 @@ Hovercraft.prototype.initNewRound = function (startPos) {
 	this.hitpoints = HITPOINTS;
 	this.shield = SHIELD;
 	this.ammo = PHASER_AMMO;
+	this.powerup = -1;
+	this.powerupLasts = 0;
 
 	this.body.position[0] = startPos.x;
 	this.body.position[1] = startPos.y;
@@ -132,6 +139,11 @@ Hovercraft.prototype.update = function(){
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
 
+	if(this.powerup == PU.BLUEBERRY){
+		this.shield = SHIELD;
+		this.shieldMesh.material.opacity = 0.7;
+	}
+
 	this.ammo += PHASER_REGEN*DT;
 	if(this.ammo >= PHASER_AMMO){
 		this.ammo = PHASER_AMMO;
@@ -141,6 +153,13 @@ Hovercraft.prototype.update = function(){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = false;
 	}
 
+	this.powerupLasts -= DT;
+	if(this.powerupLasts<0){
+		this.powerup = -1;
+		this.powerupLasts = 0;
+	}
+
+	// smoke
 	if(Math.random() < Math.pow(1-this.hitpoints/HITPOINTS,1.7)*10*DT){
 		var effect = new Effect();
 		effect.type = 'smoke';
@@ -170,7 +189,13 @@ Hovercraft.prototype.update = function(){
 		this.hide();
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
-	
+		this.powerup = -1;
+		this.powerupLasts = 0;
+		if(GLOBAL_POWERUP_TARGET.victim == this){
+			GLOBAL_POWERUP_TARGET.pu = -1;
+			GLOBAL_POWERUP_TARGET.victim = [];
+		}
+
 		ingameTimeout(3, function(){
 			var startPos = findAccessiblePosition(2);
 			this.body.position[0] = startPos.x;
@@ -203,8 +228,25 @@ Hovercraft.prototype.update = function(){
 
 	if(typeof(this.control) != "undefined"){
 		this.control.update();
+		if(this.powerup == PU.BEANS){this.control.thrust*=2;}
 
-		var tau = 0.1;
+		if((GLOBAL_POWERUP_TARGET.pu == PU.BONBON
+				|| GLOBAL_POWERUP_TARGET.pu == PU.GARLIC)
+				&& GLOBAL_POWERUP_TARGET.victim != this){
+			this.control.direction = Math.atan2(
+				GLOBAL_POWERUP_TARGET.victim.body.position[1] - this.body.position[1],
+				GLOBAL_POWERUP_TARGET.victim.body.position[0] - this.body.position[0]);
+			if(GLOBAL_POWERUP_TARGET.pu == PU.GARLIC){
+				this.control.direction += Math.PI;
+			}
+			this.control.thrust = 1;
+		}
+
+		var tau = 0.1; // for rotation lowpass filter
+		if(this.powerup == PU.CANNABIS){
+			this.control.thrust*=0.3;
+			tau*=4;
+		}
 		var q = 1.0 - Math.exp(-DT/tau);
 
 		var watchdog = 0;
@@ -219,12 +261,11 @@ Hovercraft.prototype.update = function(){
 
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
-		
 
-		if(this.control.thrust){
+		//if(this.control.thrust){
 			this.body.force[0] = Math.cos(this.body.angle)*17*this.body.mass * this.control.thrust;
 			this.body.force[1] = Math.sin(this.body.angle)*17*this.body.mass * this.control.thrust;
-		}
+		//}
 
 		if(this.control.fire){
 			this.shootPhaser();
@@ -246,11 +287,21 @@ Hovercraft.prototype.update = function(){
 }
 
 Hovercraft.prototype.shootPhaser = function(){
-	if(this.lastPhaserShot < INGAME_TIME - 0.06 && this.ammo > 2){ // can I fire already?
+
+	var cannabisfactor = 1;
+	if(this.powerup == PU.CANNABIS){
+		cannabisfactor = 1.5;
+	}
+
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE*cannabisfactor && this.ammo > 2){ // can I fire already?
 		this.ammo -= 2;
-		new Phaser(this); // create new phaser shot with this hovercraft as its parent
+		if(this.powerup != PU.CANNABIS || Math.random()<0.5){
+			new Phaser(this); // create new phaser shot with this hovercraft as its parent
+		}
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
-		new Phaser(this);
+		if(this.powerup != PU.CANNABIS || Math.random()<0.5){
+			new Phaser(this);
+		}
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
 		playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false)
@@ -276,7 +327,22 @@ Hovercraft.prototype.hitBy = function(thing){
 	}
 }
 
+Hovercraft.prototype.collect = function(pu){
+	this.powerup = pu;
+	this.powerupLasts = POWERUP_DURATIONS[pu];
 
+	if(pu == PU.ALOEVERA){this.hitpoints = HITPOINTS;}
+	if(pu == PU.CIGARETTE){this.hitpoints = 0.0001;}
+
+	if(pu == PU.BONBON || pu == PU.GARLIC){
+		GLOBAL_POWERUP_TARGET.pu = pu;
+		GLOBAL_POWERUP_TARGET.victim = this;
+		ingameTimeout(POWERUP_DURATIONS[pu], function(){
+			GLOBAL_POWERUP_TARGET.pu = -1;
+			GLOBAL_POWERUP_TARGET.victim = [];
+		});
+	}
+}
 
 
 

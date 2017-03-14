@@ -102,7 +102,7 @@ PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(PHASER_MATERIAL, MAP_MAT
 // collisions (including phaser hits)
 
 PHYSICS_WORLD.on('impact', function(event){
-	var firstBody; // sort by type to simplify checks
+	var firstBody; // alphabetically sort by type to simplify checks
 	var secondBody;
 	if(event.bodyA.HBO.type <= event.bodyB.HBO.type){
 		firstBody = event.bodyA;
@@ -120,6 +120,13 @@ PHYSICS_WORLD.on('impact', function(event){
 	}
 	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'phaser'){
 		firstBody.HBO.hitBy(secondBody.HBO);
+	}
+	if(firstBody.HBO.type == "phaser" && secondBody.HBO.type == "pubox"){
+		secondBody.HBO.shot();
+	}
+	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == "pubox"){
+		firstBody.HBO.collect(secondBody.HBO.pu);
+		secondBody.HBO.destroyed();
 	}
 });
 

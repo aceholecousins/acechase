@@ -112,6 +112,7 @@
 
 		<script src="src/Water.js"></script>
 		<script src="src/camera.js"></script>
+		<script src="src/powerups.js"></script>
 
 
 		<script type="text/javascript">
@@ -160,6 +161,8 @@
 				requestAnimationFrame( animate );
 
 				updateIngameTimeouts();
+
+				maybeSpawnPowerup();
 
 				PHYSICS_WORLD.step(DT);
 
@@ -229,6 +232,9 @@
 						HBO_LIST[i].despawn();
 					}
 				}
+				NPUBOXES = 0;
+				GLOBAL_POWERUP_TARGET.pu = -1;
+				GLOBAL_POWERUP_TARGET.victim = [];
 				updateAllHBObjects();				
 
 				TIMEOUT_LIST = [];
