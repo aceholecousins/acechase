@@ -32,7 +32,8 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 
 	this.type = 'phaser';
 
-	var velocity = 25;
+	this.velocity = 25;
+	this.lock = null;
 
 	var length = 0.4;
 	var radius = 0.2;
@@ -57,8 +58,8 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 	this.body.position[0] -= Math.sin(this.body.angle)*shooter.phaserYOffset;
 	this.body.position[1] += Math.cos(this.body.angle)*shooter.phaserYOffset;
 
-	this.body.velocity[0] = Math.cos(this.body.angle)*velocity;
-	this.body.velocity[1] = Math.sin(this.body.angle)*velocity;
+	this.body.velocity[0] = Math.cos(this.body.angle)*this.velocity;
+	this.body.velocity[1] = Math.sin(this.body.angle)*this.velocity;
 
 	shape.material = PHASER_MATERIAL;
 	this.body.addShape(shape);
@@ -78,6 +79,29 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 
 Phaser.prototype = Object.create(HBObject.prototype); // Phaser inherits from HBObject
 Phaser.prototype.constructor = Phaser;
+
+Phaser.prototype.specificUpdate = function(){
+	if(this.lock != null){
+		if(this.lock.hidden == true){
+			this.lock = null;
+			return;
+		}
+
+		var targetdir = Math.atan2(
+			this.lock.body.position[1] - this.body.position[1],
+			this.lock.body.position[0] - this.body.position[0]);
+		var dir = this.body.angle;
+		var delta = targetdir - dir;
+		if(delta >  Math.PI){delta -= 2*Math.PI;}
+		if(delta < -Math.PI){delta += 2*Math.PI;}
+		if(delta >  PHASER_TURN*DT){delta =  PHASER_TURN*DT;}
+		if(delta < -PHASER_TURN*DT){delta = -PHASER_TURN*DT;}
+
+		this.body.angle += delta;
+		this.body.velocity[0] = Math.cos(this.body.angle)*this.velocity;
+		this.body.velocity[1] = Math.sin(this.body.angle)*this.velocity;		
+	}
+}
 
 Phaser.prototype.impact = function(){ // what happens on impact
 	var effect = new Effect();

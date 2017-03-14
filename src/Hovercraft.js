@@ -295,12 +295,46 @@ Hovercraft.prototype.shootPhaser = function(){
 
 	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE*cannabisfactor && this.ammo > 2){ // can I fire already?
 		this.ammo -= 2;
-		if(this.powerup != PU.CANNABIS || Math.random()<0.5){
-			new Phaser(this); // create new phaser shot with this hovercraft as its parent
+		var p;
+		var locktarget;
+
+		if(this.powerup == PU.CARROT){
+			var deltamin = 1000;
+
+			for(var i=0; i<hovers.length; i++){
+				if(hovers[i] == this){continue;}
+				var targetdir = Math.atan2( // this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
+					hovers[i].body.position[1] - this.body.position[1],
+					hovers[i].body.position[0] - this.body.position[0]);
+				var dir = this.body.angle;
+				var delta = targetdir - dir;
+				if(delta >  Math.PI){delta -= 2*Math.PI;}
+				if(delta < -Math.PI){delta += 2*Math.PI;}
+				if(Math.abs(delta) < deltamin){
+					deltamin = Math.abs(delta);
+					locktarget = hovers[i];
+				}
+			}
+		}
+
+		if(this.powerup != PU.CANNABIS || Math.random()<0.7){ // have some blocking when on cannabis
+			p = new Phaser(this); // create new phaser shot with this hovercraft as its parent
+			if(this.powerup == PU.CANNABIS && Math.random()<0.2){
+				p.lock = this; // lock on self
+			}
+			if(this.powerup == PU.CARROT){
+				p.lock = locktarget;
+			}
 		}
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
-		if(this.powerup != PU.CANNABIS || Math.random()<0.5){
-			new Phaser(this);
+		if(this.powerup != PU.CANNABIS || Math.random()<0.7){
+			p = new Phaser(this);
+			if(this.powerup == PU.CANNABIS && Math.random()<0.2){
+				p.lock = this; // lock on self
+			}
+			if(this.powerup == PU.CARROT){
+				p.lock = locktarget;
+			}
 		}
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;

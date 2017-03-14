@@ -12,7 +12,6 @@ var PU = {
 	GARLIC:ipu++
 };
 var NPUS = ipu; // number of implemented powerups
-console.log(NPUS);
 
 var POWERUP_TEXTURES = [];
 POWERUP_TEXTURES[PU.ALOEVERA]=		loadTexture("media/textures/aloevera.png");

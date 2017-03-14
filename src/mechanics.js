@@ -69,12 +69,23 @@ BROADPHASE.boundingVolumeCheck = function(bodyA, bodyB){
 			result = false;
 		}
 		else{
-			// result = p2.Broadphase.aabbCheck(bodyA, bodyB); // THIS DOESNT WORK AND I DONT KNOW WHY. IT MAKES THINGS STOP COLLIDING
+			// result = p2.Broadphase.aabbCheck(bodyA, bodyB); // TODO: THIS DOESNT WORK AND I DONT KNOW WHY. IT MAKES THINGS STOP COLLIDING
 			result = p2.Broadphase.boundingRadiusCheck(bodyA,bodyB);
 		}
 	}
     return result;
 };
+
+// override pre collision check to exclude phasershots by one and the same player
+var canCollideOld = p2.Broadphase.canCollide;
+p2.Broadphase.canCollide = function(bodyA, bodyB){
+	if(bodyA.HBO.type == "phaser" && bodyB.HBO.type == "phaser"){
+		if(bodyA.HBO.shooter == bodyB.HBO.shooter){
+			return false;
+		}
+	}
+	return canCollideOld(bodyA, bodyB);
+}
 
 var PHYSICS_WORLD = new p2.World({
 	gravity : [0,0],

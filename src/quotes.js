@@ -91,7 +91,8 @@ var QUOTES = [
 "When losing an argument, always move the conversation to looking at the bigger picture.",
 "Don't listen to other people's advice! Think for yourself!",
 "Prevent cake from getting dry by eating it all at once!",
-"Be honest!"
+"Be honest!",
+"Don't try so hard. Let it come to you."
 ];
 
 //sources: hagakure, common knowledge, http://inktank.fi/28-of-the-best-pieces-of-advice-about-life-youll-ever-read/ hackschooling, tim minchin, http://waitbutwhy.com/table/best-advice, https://questionofmindfulness.wordpress.com/2009/04/08/sheldon-kopps-eschatological-laundry-list/, friends, http://www.boredpanda.com/shitty-life-pro-tips/?afterlogin=savecommentvote&comment=997233&score=1
