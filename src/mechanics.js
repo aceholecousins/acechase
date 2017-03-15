@@ -39,6 +39,8 @@ if(DEBUG>=1){
 
 var FRAME_COUNTER = 0; // increased by 1 in every game step
 var DT = 1.0/60.0; // time between two frames // TODO: should adjust to screen framerate
+var DT_ORIGINAL = DT; // to restore DT after coffee
+var DT_COFFEE = DT / 2;
 var INGAME_TIME = 0; // seconds since start of the current game
 
 // PHYSICS

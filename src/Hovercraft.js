@@ -24,7 +24,7 @@ function Hovercraft(color, control){
 	this.kills = 0;
 	this.killedBy = {};
 	this.deaths = 0;
-	this.powerup = -1; // active powerup (-1 = none)
+	this.powerup = POWERUPS.nothing; // active powerup (-1 = none)
 	this.powerupLasts = 0; // time until powerup is over
 
 	// physics
@@ -139,7 +139,7 @@ Hovercraft.prototype.update = function(){
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
 
-	if(this.powerup == PU.BLUEBERRY){
+	if(this.powerup == POWERUPS.blueberry){
 		this.shield = SHIELD;
 		this.shieldMesh.material.opacity = 0.7;
 	}
@@ -192,7 +192,7 @@ Hovercraft.prototype.update = function(){
 		this.powerup = -1;
 		this.powerupLasts = 0;
 		if(GLOBAL_POWERUP_TARGET.victim == this){
-			GLOBAL_POWERUP_TARGET.pu = -1;
+			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
 			GLOBAL_POWERUP_TARGET.victim = [];
 		}
 
@@ -228,22 +228,22 @@ Hovercraft.prototype.update = function(){
 
 	if(typeof(this.control) != "undefined"){
 		this.control.update();
-		if(this.powerup == PU.BEANS){this.control.thrust*=2;}
+		if(this.powerup == POWERUPS.beans){this.control.thrust*=2;}
 
-		if((GLOBAL_POWERUP_TARGET.pu == PU.BONBON
-				|| GLOBAL_POWERUP_TARGET.pu == PU.GARLIC)
+		if((GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon
+				|| GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic)
 				&& GLOBAL_POWERUP_TARGET.victim != this){
 			this.control.direction = Math.atan2(
 				GLOBAL_POWERUP_TARGET.victim.body.position[1] - this.body.position[1],
 				GLOBAL_POWERUP_TARGET.victim.body.position[0] - this.body.position[0]);
-			if(GLOBAL_POWERUP_TARGET.pu == PU.GARLIC){
+			if(GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic){
 				this.control.direction += Math.PI;
 			}
 			this.control.thrust = 1;
 		}
 
 		var tau = 0.1; // for rotation lowpass filter
-		if(this.powerup == PU.CANNABIS){
+		if(this.powerup == POWERUPS.cannabis){
 			this.control.thrust*=0.3;
 			tau*=4;
 		}
@@ -289,7 +289,7 @@ Hovercraft.prototype.update = function(){
 Hovercraft.prototype.shootPhaser = function(){
 
 	var cannabisfactor = 1;
-	if(this.powerup == PU.CANNABIS){
+	if(this.powerup == POWERUPS.cannabis){
 		cannabisfactor = 1.5;
 	}
 
@@ -298,7 +298,7 @@ Hovercraft.prototype.shootPhaser = function(){
 		var p;
 		var locktarget;
 
-		if(this.powerup == PU.CARROT){
+		if(this.powerup == POWERUPS.carrot){
 			var deltamin = 1000;
 
 			for(var i=0; i<hovers.length; i++){
@@ -317,22 +317,22 @@ Hovercraft.prototype.shootPhaser = function(){
 			}
 		}
 
-		if(this.powerup != PU.CANNABIS || Math.random()<0.7){ // have some blocking when on cannabis
+		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){ // have some blocking when on cannabis
 			p = new Phaser(this); // create new phaser shot with this hovercraft as its parent
-			if(this.powerup == PU.CANNABIS && Math.random()<0.2){
+			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){
 				p.lock = this; // lock on self
 			}
-			if(this.powerup == PU.CARROT){
+			if(this.powerup == POWERUPS.carrot){
 				p.lock = locktarget;
 			}
 		}
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
-		if(this.powerup != PU.CANNABIS || Math.random()<0.7){
+		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){
 			p = new Phaser(this);
-			if(this.powerup == PU.CANNABIS && Math.random()<0.2){
+			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){
 				p.lock = this; // lock on self
 			}
-			if(this.powerup == PU.CARROT){
+			if(this.powerup == POWERUPS.carrot){
 				p.lock = locktarget;
 			}
 		}
@@ -363,16 +363,16 @@ Hovercraft.prototype.hitBy = function(thing){
 
 Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;
-	this.powerupLasts = POWERUP_DURATIONS[pu];
+	this.powerupLasts = pu.duration;
 
-	if(pu == PU.ALOEVERA){this.hitpoints = HITPOINTS;}
-	if(pu == PU.CIGARETTE){this.hitpoints = 0.0001;}
+	if(pu == POWERUPS.aloevera){this.hitpoints = HITPOINTS;}
+	if(pu == POWERUPS.cigarette){this.hitpoints = 0.0001;}
 
-	if(pu == PU.BONBON || pu == PU.GARLIC){
+	if(pu == POWERUPS.bonbon || pu == POWERUPS.garlic){
 		GLOBAL_POWERUP_TARGET.pu = pu;
 		GLOBAL_POWERUP_TARGET.victim = this;
-		ingameTimeout(POWERUP_DURATIONS[pu], function(){
-			GLOBAL_POWERUP_TARGET.pu = -1;
+		ingameTimeout(pu.duration, function(){
+			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
 			GLOBAL_POWERUP_TARGET.victim = [];
 		});
 	}
