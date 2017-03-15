@@ -10,7 +10,7 @@ var SHIELD_REGEN = 1;
 var PHASER_AMMO = 30;
 var PHASER_FIRE_RATE = 12;
 var PHASER_REGEN = 10;
-var PHASER_TURN = 1; // angular velocity for homing phasers
+var PHASER_TURN = 0.7; // angular velocity for homing phasers
 
 var AVG_SECONDS_BETWEEN_POWERUPS = 3;
 var PUBOX_HITPOINTS = 7;

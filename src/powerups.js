@@ -9,7 +9,7 @@ var POWERUPS = {
 	cannabis:   {tex:loadTexture("media/textures/cannabis.png"),   color:new THREE.Color(0xffff00), duration:6},
 	carrot:     {tex:loadTexture("media/textures/carrot.png"),     color:new THREE.Color(0xff8000), duration:8},
 	cigarette:  {tex:loadTexture("media/textures/cigarette.png"),  color:new THREE.Color(0xAAAAAA), duration:0},
-	coffee:     {tex:loadTexture("media/textures/coffee.png"),     color:new THREE.Color(0x804000), duration:4},
+	coffee:     {tex:loadTexture("media/textures/coffee.png"),     color:new THREE.Color(0x804000), duration:7},
 	garlic:     {tex:loadTexture("media/textures/garlic.png"),     color:new THREE.Color(0xf0e0d0), duration:4}
 };
 var PUARRAY=[POWERUPS.aloevera, POWERUPS.beans, POWERUPS.blueberry, POWERUPS.bonbon,

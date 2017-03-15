@@ -98,7 +98,7 @@ Hovercraft.prototype.initNewRound = function (startPos) {
 	this.hitpoints = HITPOINTS;
 	this.shield = SHIELD;
 	this.ammo = PHASER_AMMO;
-	this.powerup = -1;
+	this.powerup = POWERUPS.nothing;
 	this.powerupLasts = 0;
 
 	this.body.position[0] = startPos.x;
@@ -135,7 +135,10 @@ Hovercraft.prototype.update = function(){
 
 	if(this.hidden){return;}
 
-	this.shield += SHIELD_REGEN*DT;
+	var localdt = DT;
+	if(this.powerup == POWERUPS.coffee){localdt *= COFFEE_STRETCH;}
+
+	this.shield += SHIELD_REGEN*localdt;
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
 
@@ -144,7 +147,7 @@ Hovercraft.prototype.update = function(){
 		this.shieldMesh.material.opacity = 0.7;
 	}
 
-	this.ammo += PHASER_REGEN*DT;
+	this.ammo += PHASER_REGEN*localdt;
 	if(this.ammo >= PHASER_AMMO){
 		this.ammo = PHASER_AMMO;
 		this.phaserGlow1.visible = this.phaserGlow2.visible = true;
@@ -153,9 +156,9 @@ Hovercraft.prototype.update = function(){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = false;
 	}
 
-	this.powerupLasts -= DT;
+	this.powerupLasts -= localdt;
 	if(this.powerupLasts<0){
-		this.powerup = -1;
+		this.powerup = POWERUPS.nothing;
 		this.powerupLasts = 0;
 	}
 
@@ -189,7 +192,9 @@ Hovercraft.prototype.update = function(){
 		this.hide();
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
-		this.powerup = -1;
+
+		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;}
+		this.powerup = POWERUPS.nothing;
 		this.powerupLasts = 0;
 		if(GLOBAL_POWERUP_TARGET.victim == this){
 			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
@@ -227,8 +232,12 @@ Hovercraft.prototype.update = function(){
 	
 
 	if(typeof(this.control) != "undefined"){
+
+		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;} // temporarily revert to normal DT for control update
+
 		this.control.update();
 		if(this.powerup == POWERUPS.beans){this.control.thrust*=2;}
+		if(this.powerup == POWERUPS.coffee){this.control.thrust*=COFFEE_STRETCH;}
 
 		if((GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon
 				|| GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic)
@@ -270,6 +279,9 @@ Hovercraft.prototype.update = function(){
 		if(this.control.fire){
 			this.shootPhaser();
 		}
+
+		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL/COFFEE_STRETCH;} // go back to coffee dt
+
 	}
 
 	HBObject.prototype.update.call(this);
@@ -292,8 +304,12 @@ Hovercraft.prototype.shootPhaser = function(){
 	if(this.powerup == POWERUPS.cannabis){
 		cannabisfactor = 1.5;
 	}
+	var coffeefactor = 1;
+	if(this.powerup == POWERUPS.coffee){
+		coffeefactor = 1/COFFEE_STRETCH;
+	}
 
-	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE*cannabisfactor && this.ammo > 2){ // can I fire already?
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE*cannabisfactor*coffeefactor && this.ammo > 2){ // can I fire already?
 		this.ammo -= 2;
 		var p;
 		var locktarget;
@@ -302,7 +318,7 @@ Hovercraft.prototype.shootPhaser = function(){
 			var deltamin = 1000;
 
 			for(var i=0; i<hovers.length; i++){
-				if(hovers[i] == this){continue;}
+				if(hovers[i] == this || hovers[i].hidden){continue;}
 				var targetdir = Math.atan2( // this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
 					hovers[i].body.position[1] - this.body.position[1],
 					hovers[i].body.position[0] - this.body.position[0]);
@@ -318,22 +334,24 @@ Hovercraft.prototype.shootPhaser = function(){
 		}
 
 		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){ // have some blocking when on cannabis
-			p = new Phaser(this); // create new phaser shot with this hovercraft as its parent
-			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){
-				p.lock = this; // lock on self
-			}
-			if(this.powerup == POWERUPS.carrot){
-				p.lock = locktarget;
+			p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
+			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){p.lock = this;} // lock on self
+			if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
+			if(this.powerup == POWERUPS.coffee){
+				p.velocity *= COFFEE_STRETCH;
+				p.body.velocity[0] *= COFFEE_STRETCH; 
+				p.body.velocity[1] *= COFFEE_STRETCH;
 			}
 		}
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
 		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){
 			p = new Phaser(this);
-			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){
-				p.lock = this; // lock on self
-			}
-			if(this.powerup == POWERUPS.carrot){
-				p.lock = locktarget;
+			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){p.lock = this;} // lock on self
+			if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
+			if(this.powerup == POWERUPS.coffee){
+				p.velocity *= COFFEE_STRETCH;
+				p.body.velocity[0] *= COFFEE_STRETCH; 
+				p.body.velocity[1] *= COFFEE_STRETCH;
 			}
 		}
 		this.phaserYOffset *= -1;
@@ -363,7 +381,7 @@ Hovercraft.prototype.hitBy = function(thing){
 
 Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;
-	this.powerupLasts = pu.duration;
+	this.powerupLasts = pu.duration; // coffeestretch applied at timers
 
 	if(pu == POWERUPS.aloevera){this.hitpoints = HITPOINTS;}
 	if(pu == POWERUPS.cigarette){this.hitpoints = 0.0001;}
@@ -374,6 +392,13 @@ Hovercraft.prototype.collect = function(pu){
 		ingameTimeout(pu.duration, function(){
 			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
 			GLOBAL_POWERUP_TARGET.victim = [];
+		});
+	}
+
+	if(pu == POWERUPS.coffee){
+		DT = DT_ORIGINAL / COFFEE_STRETCH;
+		ingameTimeout(pu.duration / COFFEE_STRETCH, function(){
+			DT = DT_ORIGINAL;
 		});
 	}
 }
