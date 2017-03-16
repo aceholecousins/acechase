@@ -1,12 +1,58 @@
 
 // requires imglib
 
+var ASL; // arena svg loader
+
 function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 // curv = curved paths, poly = cornered paths, dpu = dots per unit length, os = over sampling factor for generation (to avoid aliasing)
 
-// when the loader is done, .domsvg, .curvdistancemap (array), .polydistancemap (array) and .polygons can be used
+// when the loader is done, .domsvg, .curvdistancemap (array), .polydistancemap (array) and .polygons
+// and the textures .diffstruct .nrmlstruct .bumpstruct .specstruct .overstruct can be used
 // distance maps are positive on land and negative in water (like heightmaps)
+
+	this.checklist = new Checklist();
+
+	this.extractTex = function(id){ // since img.src=bla is asynchronous even with dataurls, we need this extra trouble
+		this.checklist.addItem(id);
+
+		var elem = this.domsvg.getElementById(id);
+		if(elem == null){
+			this.checklist.checkItem(id);
+			return null;
+		}
+
+		var pos = new THREE.Vector4(elem.getAttribute('x'), elem.getAttribute('y'),
+			elem.getAttribute('width'), elem.getAttribute('height'));
+		var tfmtx = elem.getAttribute('transform');
+		if(tfmtx == null){
+			tfmtx = new THREE.Vector4(1,0,0,1);
+		}
+		else{
+			tfmtx = tfmtx.replace("matrix(", "").replace(")","").split(',');
+			tfmtx = new THREE.Vector4(tfmtx[0], tfmtx[1], tfmtx[2], tfmtx[3]);
+		}
+		var tfinv = new THREE.Vector4(tfmtx.w, -tfmtx.y, -tfmtx.z, tfmtx.x).multiplyScalar(1/(tfmtx.x*tfmtx.w - tfmtx.y*tfmtx.z));
+
+		var url = elem.getAttribute('xlink:href');
+		var img = new Image();
+		var result = {tex:null, pos:pos, tfinv:tfinv};
+		img.hresult = result; // handle so the texture can be assigned from inside the onload callback
+		img.hcl = this.checklist;
+		img.id = id;
+
+		img.onload = function(){
+			var tex = new THREE.Texture(img);
+			tex.needsUpdate = true;
+			tex.wrapS = THREE.RepeatWrapping;
+			tex.wrapT = THREE.RepeatWrapping;
+			this.hresult.tex = tex;
+			this.hcl.checkItem(this.id);
+		}
+		img.src = url;
+
+		return result; // result.tex will be assigned in the callback
+	}
 
 	new THREE.FileLoader().load(filename, function(rawsvg){
 
@@ -22,10 +68,16 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 		var curvw = this.svgw * curvdpu * curvos;
 		var curvh = this.svgh * curvdpu * curvos;
-		this.curvdpu = curvdpu;
+		this.curvdpu = curvdpu; // since we are inside a callback, it is strange that we can access curvdpu from the outside...
 
 		var domoutline = this.domsvg.getElementById("outline");
 		var domislands = this.domsvg.getElementById("islands");
+
+		this.diffstruct = this.extractTex('diffusemap');
+		this.nrmlstruct = this.extractTex('normalmap');
+		this.bumpstruct = this.extractTex('bumpmap');
+		this.specstruct = this.extractTex('specularmap');
+		this.overstruct = this.extractTex('overlay');
 
 		var tform = 'transform="scale(' + curvdpu * curvos + ',' + curvdpu * curvos + ')"';
 			// svg origin is upper left, dunno what bit them
@@ -45,37 +97,43 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 
 		// draw into canvas
 		var img = new Image();
-		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
-		canvas.getContext('2d').drawImage(img, 0, 0);
+		img.hasl = this; // Arena Svg Loader object handle
+		this.checklist.addItem("curvdistancemap");
 
-		// generate distance map
-		var booleanImage = booleanImageFromCanvas(canvas, 128, false);
-		var mapOutside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
-		booleanImage = booleanImageFromCanvas(canvas, 128, true);
-		var mapInside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
+		img.onload = function(){
+			canvas.getContext('2d').drawImage(this, 0, 0);
 
-		// downsampling
-		this.curvdistancemap = new Array(curvw/curvos * curvh/curvos).fill(0);
+			// generate distance map
+			var booleanImage = booleanImageFromCanvas(canvas, 128, false);
+			var mapOutside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
+			booleanImage = booleanImageFromCanvas(canvas, 128, true);
+			var mapInside = distanceFromBooleanImage(booleanImage, curvw, curvh, 'EDT');
 
-		var ix = 0;
-		var iy = 0;
-		var os = curvos * curvos * curvos * curvdpu; // oversampling in x and y and vertical correction
+			// downsampling
+			this.hasl.curvdistancemap = new Array(curvw/curvos * curvh/curvos).fill(0);
 
-		for(var ipx=0; ipx<curvw*curvh; ipx++){
-			ix = ipx % curvw;
-			iy = Math.floor(ipx / curvw);
-			ix = Math.floor(ix / curvos);
-			iy = Math.floor(iy / curvos);
+			var ix = 0;
+			var iy = 0;
+			var os = curvos * curvos * curvos * curvdpu; // oversampling in x and y and vertical correction
 
-			if(mapInside[ipx]>mapOutside[ipx]){
-				this.curvdistancemap[iy*curvw/curvos + ix] += -(mapInside[ipx]-0.5)/os;
+			for(var ipx=0; ipx<curvw*curvh; ipx++){
+				ix = ipx % curvw;
+				iy = Math.floor(ipx / curvw);
+				ix = Math.floor(ix / curvos);
+				iy = Math.floor(iy / curvos);
+
+				if(mapInside[ipx]>mapOutside[ipx]){
+					this.hasl.curvdistancemap[iy*curvw/curvos + ix] += -(mapInside[ipx]-0.5)/os;
+				}
+				else{
+					this.hasl.curvdistancemap[iy*curvw/curvos + ix] += (mapOutside[ipx]-0.5)/os;
+				}
 			}
-			else{
-				this.curvdistancemap[iy*curvw/curvos + ix] += (mapOutside[ipx]-0.5)/os;
-			}
+
+			this.hasl.checklist.checkItem("curvdistancemap");
 		}
-
-
+		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
+		
 		// read polygon data
 
 		var commands = domoutline.getAttribute("d");
@@ -132,65 +190,47 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 		rawboolsvg += '</g></svg>';
 
 		img = new Image();
-		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
-		canvas.width = polyw;
-		canvas.height = polyh;
-		canvas.getContext('2d').drawImage(img, 0, 0);
+		img.hasl = this; // Arena Svg Loader object handle
+		this.checklist.addItem("polydistancemap");
 
-		booleanImage = booleanImageFromCanvas(canvas, 128, false);
-		mapOutside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
-		booleanImage = booleanImageFromCanvas(canvas, 128, true);
-		mapInside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
+		img.onload = function(){
 
-		// downsampling
-		this.polydistancemap = new Array(polyw/polyos * polyh/polyos).fill(0);
+			canvas.width = polyw;
+			canvas.height = polyh;
+			canvas.getContext('2d').drawImage(this, 0, 0);
 
-		ix = 0;
-		iy = 0;
-		os = polyos * polyos * polydpu * polyos; // oversampling in x and y and vertical correction
+			var booleanImage = booleanImageFromCanvas(canvas, 128, false);
+			var mapOutside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
+			booleanImage = booleanImageFromCanvas(canvas, 128, true);
+			var mapInside = distanceFromBooleanImage(booleanImage, polyw, polyh, 'EDT');
 
-		for(var ipx=0; ipx<polyw*polyh; ipx++){
-			ix = ipx % polyw;
-			iy = Math.floor(ipx / polyw);
-			ix = Math.floor(ix / polyos);
-			iy = Math.floor(iy / polyos);
+			// downsampling
+			this.hasl.polydistancemap = new Array(polyw/polyos * polyh/polyos).fill(0);
 
-			if(mapInside[ipx]>mapOutside[ipx]){
-				this.polydistancemap[iy*polyw/polyos + ix] += -(mapInside[ipx]-0.5)/os;
+			var ix = 0;
+			var iy = 0;
+			var os = polyos * polyos * polydpu * polyos; // oversampling in x and y and vertical correction
+
+			for(var ipx=0; ipx<polyw*polyh; ipx++){
+				ix = ipx % polyw;
+				iy = Math.floor(ipx / polyw);
+				ix = Math.floor(ix / polyos);
+				iy = Math.floor(iy / polyos);
+
+				if(mapInside[ipx]>mapOutside[ipx]){
+					this.hasl.polydistancemap[iy*polyw/polyos + ix] += -(mapInside[ipx]-0.5)/os;
+				}
+				else{
+					this.hasl.polydistancemap[iy*polyw/polyos + ix] += (mapOutside[ipx]-0.5)/os;
+				}
 			}
-			else{
-				this.polydistancemap[iy*polyw/polyos + ix] += (mapOutside[ipx]-0.5)/os;
-			}
+			this.hasl.checklist.checkItem("polydistancemap");
 		}
+		img.src='data:image/svg+xml;base64,' + btoa(rawboolsvg);
 
-		callback(this);
+		this.checklist.setCallback(callback);
 
 	}.bind(this));
-
-	this.gettex = function(id){
-		var elem = this.domsvg.getElementById(id);
-		if(elem == null){return null;}
-
-		var url = elem.getAttribute('xlink:href');
-		var img = new Image();
-		img.src = url;
-		var tex = new THREE.Texture(img);
-		tex.needsUpdate = true;
-		tex.wrapS = THREE.RepeatWrapping;
-		tex.wrapT = THREE.RepeatWrapping;
-		var pos = new THREE.Vector4(elem.getAttribute('x'), elem.getAttribute('y'),
-			elem.getAttribute('width'), elem.getAttribute('height'));
-		var tfmtx = elem.getAttribute('transform');
-		if(tfmtx == null){
-			tfmtx = new THREE.Vector4(1,0,0,1);
-		}
-		else{
-			tfmtx = tfmtx.replace("matrix(", "").replace(")","").split(',');
-			tfmtx = new THREE.Vector4(tfmtx[0], tfmtx[1], tfmtx[2], tfmtx[3]);
-		}
-		var tfinv = new THREE.Vector4(tfmtx.w, -tfmtx.y, -tfmtx.z, tfmtx.x).multiplyScalar(1/(tfmtx.x*tfmtx.w - tfmtx.y*tfmtx.z));
-		return {tex:tex, pos:pos, tfinv:tfinv};
-	}
 
 	this.getstyle = function(id, styleElement){
 		var elem = this.domsvg.getElementById(id);

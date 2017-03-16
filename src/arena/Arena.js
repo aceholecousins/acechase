@@ -17,8 +17,6 @@ var OUTLINE_BOUNDS; // xmin, xmax, ymin, ymax
 
 var STD_TEX;
 
-var ASL; // arena svg loader
-
 // convert coast distance to terrain height
 function d2h(d){return d;}//3.0*Math.atan(0.5*d);}
 
@@ -295,16 +293,16 @@ function Arena(filename){
 			//geometry.computeVertexNormals(false);
 
 			// prepare textures
-			var diffstruct = ASL.gettex('diffusemap');
-			var nrmlstruct = ASL.gettex('normalmap');
+			var diffstruct = ASL.diffstruct;
+			var nrmlstruct = ASL.nrmlstruct;
 			if(nrmlstruct == null){
-				nrmlstruct = ASL.gettex('bumpmap');
+				var nrmlstruct = ASL.bumpstruct;
 				if(nrmlstruct != null){
 					nrmlstruct.tex = bump2nml(nrmlstruct.tex)
 				}
 			}
-			var specstruct = ASL.gettex('specularmap');
-			var overstruct = ASL.gettex('overlay');
+			var specstruct = ASL.specstruct;
+			var overstruct = ASL.overstruct;
 
 			if(diffstruct == null && nrmlstruct == null && specstruct == null && overstruct == null){
 				diffstruct = {tex:STD_TEX, pos:new THREE.Vector4(0,0,5,5), tfinv:new THREE.Vector4(1,0,0,1)};
@@ -441,8 +439,8 @@ function Arena(filename){
 			initWater();
 
 			LOADING_LIST.checkItem('arena');
-		});
-	});
+		}.bind(this));
+	}.bind(this));
 
 }
 
