@@ -58,7 +58,7 @@ function Hovercraft(color, control){
 	this.mesh.position.z = 0.1; // so it doesn't sink in waves
 
 	this.shieldMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(1.2,9,9),
+            new THREE.SphereGeometry(1.7,9,9),
             new THREE.MeshPhongMaterial({
 				color:color,
 				emissive:color.clone().lerp(new THREE.Color("black"), 0.4),

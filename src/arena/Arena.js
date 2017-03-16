@@ -217,15 +217,15 @@ function Arena(filename){
 			// draw border lines
 			if(DEBUG >= 2){
 				for(var iil=0; iil<poly.length; iil++){
-					var material = new THREE.LineBasicMaterial({color: 0x00ffff});
-					var geometry = new THREE.Geometry();
+					var mat = new THREE.LineBasicMaterial({color: 0x00ffff});
+					var geom = new THREE.Geometry();
 
 					for(var ipt=0; ipt<poly[iil].length; ipt++){
-						geometry.vertices.push(new THREE.Vector3(poly[iil][ipt][0], poly[iil][ipt][1], 0.01));
+						geom.vertices.push(new THREE.Vector3(poly[iil][ipt][0], poly[iil][ipt][1], 0.01));
 					}
-					geometry.vertices.push(new THREE.Vector3(poly[iil][0][0], poly[iil][0][1], 0.01));
+					geom.vertices.push(new THREE.Vector3(poly[iil][0][0], poly[iil][0][1], 0.01));
 
-					var line = new THREE.Line(geometry, material);
+					var line = new THREE.Line(geom, mat);
 					GRAPHICS_SCENE.add(line);
 				}
 			}
@@ -239,21 +239,21 @@ function Arena(filename){
 					body.shapes[i].material = MAP_MATERIAL;
 
 					if(DEBUG >= 3){ // draw convex shape decomposition
-						var material = new THREE.LineBasicMaterial({color: 0xff8000});
-						var geometry = new THREE.Geometry();
+						var mat = new THREE.LineBasicMaterial({color: 0xff8000});
+						var geom = new THREE.Geometry();
 
 						for(var ipt=0; ipt<body.shapes[i].vertices.length; ipt++){
-							geometry.vertices.push(new THREE.Vector3(
+							geom.vertices.push(new THREE.Vector3(
 								body.shapes[i].vertices[ipt][0]+body.shapeOffsets[i][0]+body.position[0],
 								body.shapes[i].vertices[ipt][1]+body.shapeOffsets[i][1]+body.position[1],
 								0.01));
 						}
-						geometry.vertices.push(new THREE.Vector3(
+						geom.vertices.push(new THREE.Vector3(
 							body.shapes[i].vertices[0][0]+body.shapeOffsets[i][0]+body.position[0],
 							body.shapes[i].vertices[0][1]+body.shapeOffsets[i][1]+body.position[1],
 							0.01));
 
-						var line = new THREE.Line(geometry, material);
+						var line = new THREE.Line(geom, mat);
 						GRAPHICS_SCENE.add(line);
 					}
 				}
@@ -426,17 +426,31 @@ function Arena(filename){
 						, 1.0);
 
 					}`
-				} );
-
-			// always in background
-			material.depthWrite = false;
-			material.transparent = true;
+			});
 
 			this.mesh = new THREE.Mesh(geometry, material );
-			this.mesh.renderOrder = RENDER_ORDER.terrain;
-			GRAPHICS_SCENE.add( this.mesh );
+			GRAPHICS_SCENE.add( this.mesh );			
 
-			initWater();
+			if(!TERRAIN_BUMP_MAPPING){ // prerender arena texture
+				var res = 2048;
+				var rentrg = new THREE.WebGLRenderTarget( res, res);
+				var scn = new THREE.Scene();
+				var cam = new THREE.OrthographicCamera( -MAP_WIDTH/2, MAP_WIDTH/2, MAP_HEIGHT/2, -MAP_HEIGHT/2, 1, 100 ); 
+				scn.add(new THREE.Mesh(geometry, material ));
+				cam.position.z = 50;
+				var sizeBefore = RENDERER.getSize();
+				RENDERER.setSize(res, res);
+				RENDERER.render( scn, cam, rentrg );
+				RENDERER.setSize(sizeBefore.width, sizeBefore.height);
+				this.mesh.material = new THREE.MeshBasicMaterial({map:rentrg.texture});
+			}
+
+			// always in background
+			this.mesh.material.depthWrite = false;
+			this.mesh.material.transparent = true;
+			this.mesh.renderOrder = RENDER_ORDER.terrain;
+
+			initWater(); //TODO: water is drawn before terrain when added before, independent from renderOrder...
 
 			LOADING_LIST.checkItem('arena');
 		}.bind(this));
