@@ -236,8 +236,8 @@ Hovercraft.prototype.update = function(){
 		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;} // temporarily revert to normal DT for control update
 
 		this.control.update();
-		if(this.powerup == POWERUPS.beans){this.control.thrust*=2;}
-		if(this.powerup == POWERUPS.coffee){this.control.thrust*=COFFEE_STRETCH;}
+		if(this.powerup == POWERUPS.beans){this.control.thrust = 2;}
+		if(this.powerup == POWERUPS.coffee){this.control.thrust *= COFFEE_STRETCH;}
 
 		if((GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon
 				|| GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic)
