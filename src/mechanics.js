@@ -141,6 +141,9 @@ PHYSICS_WORLD.on('impact', function(event){
 		firstBody.HBO.collect(secondBody.HBO.pu);
 		secondBody.HBO.destroyed();
 	}
+	if(firstBody.HBO.type == "arena" && secondBody.HBO.type == "hover"){
+		secondBody.HBO.wallhit();
+	}
 });
 
 // GRAPHICS
@@ -196,5 +199,23 @@ function updateIngameTimeouts(){
 	}
 }
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
 
+function linesegintersect(p1, p2, q1, q2){ // stolen from p2.js
+   var dx = p2.x - p1.x;
+   var dy = p2.y - p1.y;
+   var da = q2.x - q1.x;
+   var db = q2.y - q1.y;
 
+   // segments are parallel
+   if(da*dy - db*dx == 0)
+      return false;
+
+   var s = (dx * (q1.y - p1.y) + dy * (p1.x - q1.x)) / (da * dy - db * dx)
+   var t = (da * (p1.y - q1.y) + db * (q1.x - p1.x)) / (db * dx - da * dy)
+
+   return {bool:(s>=0 && s<=1 && t>=0 && t<=1), s:s, t:t};
+};

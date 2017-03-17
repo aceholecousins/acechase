@@ -18,6 +18,7 @@ var PUBOX_LIMIT = 4;
 
 var MUSIC_VOLUME = 0.2;
 
+var RESPAWN_TIME = 3;
 var ROUND_TIME = 120;
 var PAUSE_TIME = 10;
 

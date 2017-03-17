@@ -18,7 +18,7 @@ var OUTLINE_BOUNDS; // xmin, xmax, ymin, ymax
 var STD_TEX;
 
 // convert coast distance to terrain height
-function d2h(d){return d;}//3.0*Math.atan(0.5*d);}
+function d2h(d){return 3.0*Math.atan(0.5*d);}
 
 // single color texture
 function monotex(r, g, b, a){ // 0..255

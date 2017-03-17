@@ -201,7 +201,7 @@ Hovercraft.prototype.update = function(){
 			GLOBAL_POWERUP_TARGET.victim = [];
 		}
 
-		ingameTimeout(3, function(){
+		ingameTimeout(RESPAWN_TIME, function(){
 			var startPos = findAccessiblePosition(2);
 			this.body.position[0] = startPos.x;
 			this.body.position[1] = startPos.y;
@@ -378,6 +378,8 @@ Hovercraft.prototype.hitBy = function(thing){
 		}
 	}
 }
+
+Hovercraft.prototype.wallhit = function(){} // for being overwritten
 
 Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;
