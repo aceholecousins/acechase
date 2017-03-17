@@ -290,6 +290,7 @@
 					hovers[i].initNewRound(startPos);
 					hovers[i].control.direction = hovers[i].body.angle = Math.atan2(startp1.y-startp0.y, startp1.x-startp0.x)+Math.PI/2;
 					hovers[i].body.velocity[0] = hovers[i].body.velocity[1] = 0;
+					hovers[i].racetime = 0;
 					hovers[i].update();
 				}
 
