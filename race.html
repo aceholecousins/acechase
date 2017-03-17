@@ -208,7 +208,7 @@
 
 				for(var i=0; i<hovers.length; i++){
 					hovers[i].lastPosition.fromArray(hovers[i].body.position);
-					if(INGAME_TIME<2){hovers[i].body.velocity[0] = hovers[i].body.velocity[1] = 0;} // start delay
+					if(INGAME_TIME<2){hovers[i].body.force[0] = hovers[i].body.force[1] = 0;} // start delay
 				}
 
 				PHYSICS_WORLD.step(DT);
