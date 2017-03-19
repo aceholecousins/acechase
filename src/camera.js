@@ -12,6 +12,14 @@ function onWindowResize() {
 	CAMERA.updateProjectionMatrix();
 	RENDERER.setSize( window.innerWidth, window.innerHeight );
 
+	if(CAMERA.aspect > 1){
+		SCORETABLE.plane.material.uniforms.dims.value.x = 0.9/CAMERA.aspect;
+		SCORETABLE.plane.material.uniforms.dims.value.y = 0.9;
+	}
+	else{
+		SCORETABLE.plane.material.uniforms.dims.value.x = 0.9;
+		SCORETABLE.plane.material.uniforms.dims.value.y = 0.9*CAMERA.aspect;
+	}
 }
 
 if(DEBUG>2){ // render camera frustum
