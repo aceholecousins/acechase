@@ -1,6 +1,8 @@
 ![AceDroids banner](/media/images/banner.jpg)
 
-# [PLAY!](https://aceholecousins.github.io/acedroids/)
+# [>> PLAY! <<](https://aceholecousins.github.io/acedroids/)
+
+(Go ahead, click it! Nothing to install and totes for free!)
 
 # About
 
