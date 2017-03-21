@@ -26,9 +26,6 @@
 		<span id="splashscreentext"></span>
 		</td></tr></table>	
 
-		<div id="arenadrawing" style="height:0; width:0"></div> <!-- graphics container for the SVG library -->
-		<canvas id="canvasbuffer" width=100 height=100 style="display:none"></canvas> <!-- buffer canvas for pixel access in images -->
-
 		<script src="config.js"></script> <!-- configuration file -->		
 		<script src="src/quotes.js"></script> <!-- quotes to nicen loading time -->
 
@@ -99,7 +96,7 @@
                 <script src="src/control/Keyboard.js"></script>                
                 <script src="src/control/MobileDevice.js"></script>
 		
-                <script src="src/Sound.js"></script>
+        <script src="src/Sound.js"></script>
 		<script src="src/HBObject.js"></script>
 		<script src="src/Effect.js"></script>
 		<script src="src/explosion.js"></script>
@@ -113,21 +110,31 @@
 		<script src="src/Water.js"></script>
 		<script src="src/camera.js"></script>
 		<script src="src/powerups.js"></script>
+		<script src="src/scoretable.js"></script>
 
 
 		<script type="text/javascript">
 
-			var PAUSED = true;
+			var GAME_PHASE; // S for pre start, G for... going... on, O for over, R for results, P for paused
 
 			var hovers=[];
-			var ARENA;
-
-			ARENA = new Arena(MAP);
+			var ARENA = new Arena(MAP);
+			var SCORETABLE = new ScoreTable();
+			var SCORETABLE_PROTECT = false;
+			GRAPHICS_SCENE.add(SCORETABLE.plane);
+			SCORETABLE.plane.visible = false;
+			
+			var STARTLINE, FINISHLINE;
 
 			function start() {
 				onWindowResize(); // call to initially adjust camera
 				document.getElementById("splashscreen").style.visibility = "hidden";
 				RENDERER.setClearColor( FOG_COLOR );
+				
+				if(GAME_MODE == "T" || GAME_MODE == "R"){ // race or time trial
+					STARTLINE = ASL.getline("startline");
+					FINISHLINE = ASL.getline("finishline");
+				}
 
 				var iPlayer=0;
 
@@ -139,87 +146,141 @@
 						hovers[iPlayer] = new Hovercraft(
 								new THREE.Color(value.split(',')[1]),
 								Control.createControl(value));
-						hovers[iPlayer].playerName = value.split(',')[0];						
-						var startPos = findAccessiblePosition(-1);
-						hovers[iPlayer].initNewRound(startPos);
+						hovers[iPlayer].playerName = value.split(',')[0];
 						iPlayer++;
 					}
+				}
 
+				if(GAME_MODE == "T" || GAME_MODE == "R"){
+					SCORETABLE.prepare(NUM_PLAYERS+2, [1,1], [0.4,0.2,0.4], ["c", "c"]);
+				}
+				else if(GAME_MODE == "D"){
+					SCORETABLE.prepare(NUM_PLAYERS+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 				}
 				
-				PAUSED = false;
-				ingameTimeout(ROUND_TIME, function(){endRound();});				
-				animate();
+				newRound();
+				gameloop();
 			}
 			LOADING_LIST.setCallback(start);
 
-			function animate() {
-				//setTimeout(function(){ requestAnimationFrame( animate ); }, 100);
-				
-				if(PAUSED){return;}
+			function gameloop() {
 
-				requestAnimationFrame( animate );
+				requestAnimationFrame( gameloop );
 
-				updateIngameTimeouts();
+				if(GAME_PHASE != "P"){ // not paused
+					updateIngameTimeouts(); // ingame timeouts also run during start and over phase (for triggering their end)
 
-				maybeSpawnPowerup();
+					if(GAME_MODE == "D"){maybeSpawnPowerup();}
 
-				PHYSICS_WORLD.step(DT);
+					PHYSICS_WORLD.step(DT);
 
-				updateAllHBObjects();
-				updateAllEffects();
+					if((GAME_MODE == "T" || GAME_MODE == "R") && GAME_PHASE == "G"){ // time trial or race, ongoing
 
-				updateWater();
-				updateCam();
+						var allFinished = true;
+
+						for(var i=0; i<hovers.length; i++){
+
+							if(!hovers[i].finished){
+								hovers[i].racetime += DT;
+								allFinished = false;
+							}
+
+							var finish = linesegintersect(hovers[i].lastPosition, hovers[i].newPosition, FINISHLINE.p0, FINISHLINE.p1);
+
+							if(finish.bool){ // crossed the finish line
+								hovers[i].finished = true;
+								hovers[i].hitpoints = 0; // explode
+								hovers[i].racetime += -DT + finish.s*DT; // subframe accuracy for time measurement!
+							}
+						}
+						if(allFinished){
+							GAME_PHASE = "O"; // game is over
+							ingameTimeout(1, function(){endRound();});
+						}
+					}
+
+					if(GAME_PHASE == "R"){
+						var continus = 0;
+						for(var i=0; i<hovers.length; i++){
+							hovers[i].control.update();
+							if(hovers[i].control.fire){hovers[i].continu = true;}
+							if(hovers[i].continu){continus++;}
+						}
+						if(continus > NUM_PLAYERS/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
+					}
+
+					updateAllHBObjects();
+
+					updateCam();
+					INGAME_TIME += DT;
+
+					updateAllEffects();
+					updateWater();
+
+				}
 
 				RENDERER.render( GRAPHICS_SCENE, CAMERA );
 				if(DEBUG>=1){STATS.update()};
 
 				FRAME_COUNTER++;
-				INGAME_TIME += DT;
-
+				
+				// explosion testing
 				/*if(FRAME_COUNTER% 6  == 5){
 					explosion(new THREE.Vector3(Math.random()*40-20, Math.random()*30-15, 0), new THREE.Color(Math.floor(Math.random()*0x1000000)));
 				}*/
 				
 			}
 
-			function endRound(){
+			function endRound(){ // display results
 
-				PAUSED = true;
-
-				var html = "<center><table width=60% style='font-weight:bold'>"
-					+ "<tr><td>Player</td><td>Points</td><td>Kills</td><td>Deaths</td></tr>";
-				hovers.sort(function(a, b){return (b.kills*1.001-b.deaths) - (a.kills*1.001-a.deaths);});
-				// not sure if it is a good idea to shuffle this array, lets see
-
-				for(var i=0; i<hovers.length; i++){
-					var h = 0.3*hovers[i].color.r + 0.6*hovers[i].color.g + 0.1*hovers[i].color.b;
-					var shadow = "";
-					if(h>0.5){shadow = " text-shadow: -1px -1px black, -1px 1px black, 1px -1px black, 1px 1px black; ";}
-
-					html += "<tr style='color:#" + hovers[i].color.getHexString() + "; "
-						+ shadow + "'><td>" + hovers[i].playerName + "</td>";
-					html += "<td>" + (hovers[i].kills-hovers[i].deaths) + "</td>";
-					html += "<td>" + hovers[i].kills + "</td>";
-					html += "<td>" + hovers[i].deaths + "</td></tr>";				
-				}
-				html += "</table></center>";
-
-				document.getElementById("splashscreentext").style.fontSize = "12pt";
-				document.getElementById("splashscreentext").innerHTML = html;
-				document.getElementById("splashscreen").style.visibility = "visible";
+				GAME_PHASE = "R";
+				SCORETABLE_PROTECT = true;
+				ingameTimeout(2, function(){SCORETABLE_PROTECT = false;}); // show scoretable for at least 2 seconds
 				
-				setTimeout(function(){newRound();}, PAUSE_TIME*1000);
+				if(GAME_MODE == "T" || GAME_MODE == "R"){ // race or time trial
+					hovers.sort(function(a, b){return (a.racetime - b.racetime);});
+					// not sure if it is a good idea to shuffle this array, lets see
+					SCORETABLE.clear();
+					SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
+					SCORETABLE.line(["", ""], new THREE.Color("black"));
+
+					for(var i=0; i<hovers.length; i++){
+						SCORETABLE.line([hovers[i].playerName, 
+								Math.floor(hovers[i].racetime/60) + ":"
+								+ pad(Math.floor(hovers[i].racetime%60),2) + "."
+								+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
+								hovers[i].color);			
+					}
+					SCORETABLE.plane.visible = true;
+				}
+
+				else if(GAME_MODE == "D"){ // death match
+					hovers.sort(function(a, b){return (b.kills*1.1-b.deaths) - (a.kills*1.1-a.deaths);});
+					// not sure if it is a good idea to shuffle this array, lets see
+					SCORETABLE.clear();
+					SCORETABLE.line(["P L A Y E R", "SCORE ", "KILLS ", "DEATHS"], new THREE.Color("black"));
+					SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
+
+					for(var i=0; i<hovers.length; i++){
+						SCORETABLE.line([hovers[i].playerName, 
+								hovers[i].kills*1.1 - hovers[i].deaths,
+								hovers[i].kills,
+								hovers[i].deaths],
+								hovers[i].color);			
+					}
+					SCORETABLE.plane.visible = true;
+				}
 			}
 
 			function newRound(){
+				GAME_PHASE = "S";
+
 				INGAME_TIME = 0;
 
+				SCORETABLE.plane.visible = false;				
+
 				for(var i=0; i<hovers.length; i++){
-					var startPos = findAccessiblePosition(-1);
-					hovers[i].initNewRound(startPos);
-					hovers[i].update();
+					hovers[i].initNewRound(i);
 				}
 
 				for(var i=0; i<EFFECT_LIST.length; i++){
@@ -240,11 +301,14 @@
 				updateAllHBObjects();				
 
 				TIMEOUT_LIST = [];
-				document.getElementById("splashscreen").style.visibility = "hidden";
-				PAUSED = false;
-				ingameTimeout(ROUND_TIME, function(){endRound();});
-				animate();		
 
+				ingameTimeout(1, function(){GAME_PHASE = "G";});
+
+				if(GAME_MODE == "D"){ // death match
+					ingameTimeout(ROUND_TIME+1, function(){
+						endRound();
+					}); // time limit
+				}
 			}
 
 		</script>

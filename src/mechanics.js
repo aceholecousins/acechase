@@ -164,10 +164,8 @@ function loadTexture(filename){ // will automatically do CHECKLIST stuff
 	return TEXTURE_LOADER.load(filename,
 		function(){
 			LOADING_LIST.checkItem(filename);
-} );
+		});
 }
-var CANVAS_BUFFER = document.getElementById('canvasbuffer');
-var BUFFER_CONTEXT = CANVAS_BUFFER.getContext('2d');
 
 // renderorder for transparent objects, they are otherwise sorted by z position
 // which can lead to ugly artefacts
@@ -193,10 +191,19 @@ function updateIngameTimeouts(){
 	for(var i=0; i<TIMEOUT_LIST.length; i++){
 		TIMEOUT_LIST[i].seconds -= DT;
 		if(TIMEOUT_LIST[i].seconds<=0){
-			TIMEOUT_LIST[i].callback();
+			var cb = TIMEOUT_LIST[i].callback;
 			TIMEOUT_LIST.splice(i,1);
+			cb(); // needs to be done after splice, otherwise if newRound() clears the list and creates a new timeout, it will be deleted by splice
 		}
 	}
+}
+
+function pad(num, size){ // 0 padding for time
+	var s = num+"";
+	while (s.length < size){
+		s = "0" + s;
+	}
+	return s;
 }
 
 String.prototype.replaceAll = function(search, replacement) {
@@ -211,8 +218,9 @@ function linesegintersect(p1, p2, q1, q2){ // stolen from p2.js
    var db = q2.y - q1.y;
 
    // segments are parallel
-   if(da*dy - db*dx == 0)
-      return false;
+   if(da*dy - db*dx == 0){
+      return {bool:false, s:0, t:0};
+	}
 
    var s = (dx * (q1.y - p1.y) + dy * (p1.x - q1.x)) / (da * dy - db * dx)
    var t = (da * (p1.y - q1.y) + db * (q1.x - p1.x)) / (db * dx - da * dy)

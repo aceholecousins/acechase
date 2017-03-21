@@ -12,7 +12,7 @@ function ScoreTable(){ // use .prepare to prepare and .line to add lines and add
 	this.lineHeight = 64;
 	this.yoffset = 0;
 	this.bgimg = document.createElement("img");
-	this.bgimg.src = "media/images/scorebg.jpg";
+	this.bgimg.src = "media/images/scorebg.png";
 
 	this.tex = new THREE.Texture(this.canvas);
 	this.planegeo = new THREE.PlaneGeometry(2,2,1,1);
@@ -43,7 +43,7 @@ function ScoreTable(){ // use .prepare to prepare and .line to add lines and add
 	this.plane.renderOrder = 10000000;
 
 	this.clear = function(){
-		this.ctx.scale(2,2);
+		this.ctx.scale(4,4);
 		this.ctx.drawImage(this.bgimg,0,0);
 		this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 		this.iline = 0;

@@ -26,6 +26,8 @@ function Hovercraft(color, control){
 	this.deaths = 0;
 	this.powerup = POWERUPS.nothing; // active powerup (-1 = none)
 	this.powerupLasts = 0; // time until powerup is over
+	this.lastPosition = new THREE.Vector2(0,0); // for line crossing tests
+	this.newPosition = new THREE.Vector2(0,0);
 
 	// physics
 
@@ -84,7 +86,7 @@ function Hovercraft(color, control){
 	this.mesh.add(this.phaserGlow2);	
 	this.phaserGlow2.position.y *= -1;
 	
-	this.initNewRound(new THREE.Vector3());
+	this.initNewRound(0);
 	
 	this.spawn();
 }
@@ -92,7 +94,26 @@ function Hovercraft(color, control){
 Hovercraft.prototype = Object.create(HBObject.prototype); // Hovercraft inherits from HBObject
 Hovercraft.prototype.constructor = Hovercraft;
 
-Hovercraft.prototype.initNewRound = function (startPos) {
+Hovercraft.prototype.initNewRound = function (iPlayer) {
+
+	var startPos;
+
+	if(GAME_MODE == "T" || GAME_MODE == "R"){ // place players along start line
+		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(NUM_PLAYERS+1));
+		this.control.direction = this.body.angle =
+			Math.atan2(STARTLINE.p1.y-STARTLINE.p0.y, STARTLINE.p1.x-STARTLINE.p0.x)+Math.PI/2;
+		this.racetime = 0;
+		this.finished = false;
+		this.lastPosition.copy(startPos); // for line crossing tests
+		this.newPosition.copy(startPos);
+	}
+	else if(GAME_MODE == "D"){ // place randomly on map
+		startPos = findAccessiblePosition(-1);
+		this.control.direction = this.body.angle = Math.random() * 2 * Math.PI;
+	}
+
+	this.continu = false; // whether the player has voted to continue the game during result display
+
 	this.kills = 0;
 	this.deaths = 0;
 	this.hitpoints = HITPOINTS;
@@ -103,9 +124,8 @@ Hovercraft.prototype.initNewRound = function (startPos) {
 
 	this.body.position[0] = startPos.x;
 	this.body.position[1] = startPos.y;
+	this.body.velocity[0] = this.body.velocity[1] = 0;
 	this.beamed = true;
-	this.body.angle = Math.random() * 2 * Math.PI;
-	this.control.direction = this.body.angle;
 	if (this.hidden) {
 		this.unhide();
 	}
@@ -201,32 +221,34 @@ Hovercraft.prototype.update = function(){
 			GLOBAL_POWERUP_TARGET.victim = [];
 		}
 
-		ingameTimeout(RESPAWN_TIME, function(){
-			var startPos = findAccessiblePosition(2);
-			this.body.position[0] = startPos.x;
-			this.body.position[1] = startPos.y;
-			this.beamed = true;
-			this.body.angle = Math.random()*2*Math.PI;
-			this.control.direction = this.body.angle;
-			this.unhide();
-			this.update();
+		if(GAME_MODE != "T"){ // don't respawn in time trials after suicide
+			ingameTimeout(RESPAWN_TIME, function(){
+				var startPos = findAccessiblePosition(2);
+				this.body.position[0] = startPos.x;
+				this.body.position[1] = startPos.y;
+				this.beamed = true;
+				this.body.angle = Math.random()*2*Math.PI;
+				this.control.direction = this.body.angle;
+				this.unhide();
+				this.update();
 
-			effect = new Effect();
-			effect.type = 'star';
-			effect.mesh = STAR_MESH.clone();
-			effect.mesh.position.copy(this.mesh.position);
-			effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
-			effect.mesh.material = STAR_MESH.material.clone();
-			effect.mesh.material.color.copy(this.color);
-			effect.mesh.scale.set(3,3,1);
-			effect.spawn();
-			effect.strength = 5;
-			effect.decay = 40;
-			effect.growth = 30;
+				effect = new Effect();
+				effect.type = 'star';
+				effect.mesh = STAR_MESH.clone();
+				effect.mesh.position.copy(this.mesh.position);
+				effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
+				effect.mesh.material = STAR_MESH.material.clone();
+				effect.mesh.material.color.copy(this.color);
+				effect.mesh.scale.set(3,3,1);
+				effect.spawn();
+				effect.strength = 5;
+				effect.decay = 40;
+				effect.growth = 30;
 
-			playSound(SOUNDS.splash, 0.5, 1.0, false);
+				playSound(SOUNDS.splash, 0.5, 1.0, false);
 
-		}.bind(this));
+			}.bind(this));
+		}
 	}
 
 	
@@ -236,6 +258,9 @@ Hovercraft.prototype.update = function(){
 		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;} // temporarily revert to normal DT for control update
 
 		this.control.update();
+
+		if(GAME_PHASE != "G"){this.control.thrust = 0;} // game not going
+
 		if(this.powerup == POWERUPS.beans){this.control.thrust = 2;}
 		if(this.powerup == POWERUPS.coffee){this.control.thrust *= COFFEE_STRETCH;}
 
@@ -277,7 +302,14 @@ Hovercraft.prototype.update = function(){
 		//}
 
 		if(this.control.fire){
-			this.shootPhaser();
+			if((GAME_MODE == "R" || GAME_MODE == "D") && GAME_PHASE == "G"){ // race or death match ongoing
+				this.shootPhaser();
+			}
+			else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
+				this.hitpoints = 0; // explode
+				GAME_PHASE = "O"; // round over
+				ingameTimeout(1, function(){newRound();});
+			}
 		}
 
 		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL/COFFEE_STRETCH;} // go back to coffee dt
@@ -285,6 +317,9 @@ Hovercraft.prototype.update = function(){
 	}
 
 	HBObject.prototype.update.call(this);
+
+	this.lastPosition.copy(this.newPosition);
+	this.newPosition.fromArray(this.body.position);
 
 	if(this.beamed){
 		this.trail1.reposition(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
@@ -379,7 +414,26 @@ Hovercraft.prototype.hitBy = function(thing){
 	}
 }
 
-Hovercraft.prototype.wallhit = function(){} // for being overwritten
+Hovercraft.prototype.wallhit = function(){
+	if(GAME_MODE == "R" || GAME_MODE == "T"){ // penalty
+		this.body.velocity[0] *= 0.2;
+		this.body.velocity[1] *= 0.2;
+		effect = new Effect();
+		effect.type = 'star';
+		effect.mesh = STAR_MESH.clone();
+		effect.mesh.position.x = this.body.position[0];
+		effect.mesh.position.y = this.body.position[1];
+		effect.mesh.position.z = 0.2;
+		effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
+		effect.mesh.material = STAR_MESH.material.clone();
+		effect.mesh.material.color.copy(this.color);
+		effect.mesh.scale.set(2,2,1);
+		effect.spawn();
+		effect.strength = 5;
+		effect.decay = 80;
+		effect.growth = 30;
+	}
+} 
 
 Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;

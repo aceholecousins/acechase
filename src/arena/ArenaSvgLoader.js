@@ -241,4 +241,16 @@ function ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 		return dummydiv.style[styleElement];
 	}
 
+	this.getline = function(id){ // read start and end point of a line (startline, finishline, checkpoint, whatnot)
+		var line = this.domsvg.getElementById(id).getAttribute("d"); // make sure this is "M x1,y1 L x2,y2"
+		line = line.replaceAll(" ", "").replaceAll("M", "").split("L");
+		var p0 = new THREE.Vector2().fromArray(line[0].split(","));
+		p0.x-=MAP_WIDTH/2;
+		p0.y=MAP_HEIGHT/2-p0.y;
+		var p1 = new THREE.Vector2().fromArray(line[1].split(","));
+		p1.x-=MAP_WIDTH/2;
+		p1.y=MAP_HEIGHT/2-p1.y;
+		return {p0:p0, p1:p1};
+	}
+
 }
