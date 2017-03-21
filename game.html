@@ -56,6 +56,7 @@
 				var key = PARAMS[i].split(':')[0];
 				var value = PARAMS[i].split(':')[1];
 
+				if(key == "game"){GAME_MODE = value;}
 				if(key == "player"){NUM_PLAYERS++;} // players are read later
 				if(key == "debug"){DEBUG = 1*value;}
 				if(key == "map"){MAP = value;}
