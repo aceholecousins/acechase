@@ -453,15 +453,15 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 
 function string2config(string, warning){ // string must be complete
 
+	get("spdisparea").innerHTML = '';
+	addPlayer(false); // add random single player
+	get("mpdisparea").innerHTML = '';
+
 	if(string.split(';')[0] != 'adcfgv:' + CFGVERSION){
 		if(warning){alert("Data does not store AceDroids configuration or version is incompatible!");}
 		console.log("Data: " + string);
 		return;
 	}
-
-	get("spdisparea").innerHTML = '';
-	addPlayer(false); // add random single player
-	get("mpdisparea").innerHTML = '';
 
 	var cfg = string.split(';');
 
@@ -575,11 +575,10 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 <div id="singleplayercfg" style = "display:none">
 	<div id="spdisparea"></div>
 
-<table id="sp1" class="campaign">
+<table id="sp1" class="campaign" onclick="setCookie('adcfg', config2string(true), 3650); MAP0='maps/hilbertsgarden.svg'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
-	<img src="maps/hilbertsgarden.jpg" title="Hilbert's Garden" class="std" style="width:100px"
-		onclick="setCookie('adcfg', config2string(true), 3650); MAP0='maps/hilbertsgarden.svg'; startgame()">
+	<img src="maps/hilbertsgarden.jpg" title="Hilbert's Garden" class="std" style="width:100px">
   </td>
   <td style = "width:200px">
 <b>Hilbert's Garden</b><br>
