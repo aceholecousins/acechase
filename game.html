@@ -113,6 +113,7 @@
 		<script src="src/camera.js"></script>
 		<script src="src/powerups.js"></script>
 		<script src="src/scoretable.js"></script>
+		<script src="medals.js"></script>
 
 
 		<script type="text/javascript">
@@ -154,7 +155,7 @@
 				}
 
 				if(GAME_MODE == "T" || GAME_MODE == "R"){
-					SCORETABLE.prepare(NUM_PLAYERS+2, [1,1], [0.4,0.2,0.4], ["c", "c"]);
+					SCORETABLE.prepare(NUM_PLAYERS+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
 				}
 				else if(GAME_MODE == "D"){
 					SCORETABLE.prepare(NUM_PLAYERS+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
@@ -246,14 +247,39 @@
 					SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
 					SCORETABLE.line(["", ""], new THREE.Color("black"));
 
+					var highscore = 1e6;
+
 					for(var i=0; i<hovers.length; i++){
 						SCORETABLE.line([hovers[i].playerName, 
 								Math.floor(hovers[i].racetime/60) + ":"
 								+ pad(Math.floor(hovers[i].racetime%60),2) + "."
 								+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
-								hovers[i].color);			
+								hovers[i].color);
+
+						highscore = getCookie(MAP);
+						if(highscore == ""){highscore = 1e6;}
+						highscore *= 1; // string to numba
+						if(hovers[i].racetime < highscore){
+							setCookie(MAP, hovers[i].racetime + "", 3650); // numba 2 string
+							SCORETABLE.line(["", "Highscore!"], hovers[i].color);
+							var award = medal(MAP, hovers[i].racetime);
+							if(award == "bronze"){SCORETABLE.line(["", "Bronze."], new THREE.Color("firebrick"));}
+							if(award == "silver"){SCORETABLE.line(["", "Silver!"], new THREE.Color("silver"));}
+							if(award == "gold"){SCORETABLE.line(["", "Gold!!!"], new THREE.Color("gold"));}
+							if(award == "bronze"){SCORETABLE.line(["", "DIAMOND!!!1"], new THREE.Color("azure"));}
+							highscore = hovers[i].racetime;
+						}
+		
 					}
+					
+					SCORETABLE.line(["Highscore", 
+							Math.floor(highscore/60) + ":"
+							+ pad(Math.floor(highscore%60),2) + "."
+							+ pad(Math.round(1000*(highscore%1)),3)],
+							new THREE.Color("black"));
+
 					SCORETABLE.plane.visible = true;
+
 				}
 
 				else if(GAME_MODE == "D"){ // death match

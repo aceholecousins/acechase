@@ -57,6 +57,7 @@ input[type=checkbox]
 
 </head><body>
 
+<script src="medals.js"></script>
 <script>
 
 var CFGVERSION = 1; // version of the config string pattern
@@ -235,6 +236,7 @@ function txt(str){return document.createTextNode(str);}
 String.prototype.replaceAll = function(search, replacement){var target = this; return target.split(search).join(replacement);};
 function idx(self){return self.id.split("_")[1];} // return index of an html element
 function randint(maximum){return Math.floor(Math.random()*maximum);}
+function pad(num, size){var s = num+""; while (s.length < size){s = "0" + s;} return s;} // 0 padding for strings
 
 function fillOptions(select, options, code){
 	for(var i=0; i<options.length; i++){
@@ -575,6 +577,7 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 <div id="singleplayercfg" style = "display:none">
 	<div id="spdisparea"></div>
 
+
 <table id="sp1" class="campaign" onclick="setCookie('adcfg', config2string(true), 3650); MAP0='maps/hilbertsgarden.svg'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
@@ -585,11 +588,25 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 Hustle through the second order Hilbert curve (preferably without touching the walls) and beat your own time because we didn't implement a high score server!
   </td>
   <td align="center" style = "width:100px">
-	<!--<img src="media/images/diamond.png" title="Diamond Medal!!!!11" onclick="" style="width:100px"><br>
-	1:00.000-->
+	<img id="hilbertsgardenmedal" src="media/images/diamond.png" style="width:100px; display:none"><br>
+	<div id="hilbertsgardenhs"></div>
+	<script>
+		if(true){ // so vars are not global
+			var hs = getCookie("maps/hilbertsgarden.svg");
+			if(hs != ""){
+				var award = medal("maps/hilbertsgarden.svg", hs*1);
+				if(award != null){
+					get("hilbertsgardenmedal").src = "media/images/" + award + ".png";
+					get("hilbertsgardenmedal").style.display = "inline";
+				}
+				get("hilbertsgardenhs").innerHTML = Math.floor(hs/60) + ":" + pad(Math.floor(hs%60),2) + "." + pad(Math.round(1000*(hs%1)),3);
+			}
+		}
+	</script>
   </td>
  </tr>
 </table>
+
 
 <br><br>
 	<div id="spoptions" class="std" style="background-color:white; padding:5px; width:300px">
