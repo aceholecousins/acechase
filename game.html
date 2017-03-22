@@ -56,19 +56,20 @@
 				var key = PARAMS[i].split(':')[0];
 				var value = PARAMS[i].split(':')[1];
 
-				if(key == "game"){GAME_MODE = value;}
-				if(key == "player"){NUM_PLAYERS++;} // players are read later
-				if(key == "debug"){DEBUG = 1*value;}
-				if(key == "map"){MAP = value;}
+				// the ..0 items are for single player mode
+				if(key == "game" || key == "game0"){GAME_MODE = value;}
+				if(key == "player" || key == "player0"){NUM_PLAYERS++;} // players are read later
 				if(key == "hp"){HITPOINTS = value * 1;}
 				if(key == "shld"){SHIELD = value *1;}
 				if(key == "shldreg"){SHIELD_REGEN = value * 1;}
 				if(key == "ammo"){PHASER_AMMO = value * 1;}
 				if(key == "ammoreg"){PHASER_REGEN = value * 1;}
 				if(key == "time"){ROUND_TIME = value * 1;}
-				if(key == "bump"){TERRAIN_BUMP_MAPPING = value=="1";}
-				if(key == "h2o"){FANCY_WATER = value=="1";}
-				if(key == "vol"){MUSIC_VOLUME = 0.01*value;}
+				if(key == "map" || key == "map0"){MAP = value;}
+				if(key == "bump" || key == "bump0"){TERRAIN_BUMP_MAPPING = value=="1";}
+				if(key == "h2o" || key == "h2o0"){FANCY_WATER = value=="1";}
+				if(key == "vol" || key == "vol0"){MUSIC_VOLUME = 0.01*value;}
+				if(key == "debug" || key == "debug0"){DEBUG = 1*value;}
 			}
 		</script>
 
@@ -143,7 +144,7 @@
 					var key = PARAMS[i].split(':')[0];
 					var value = PARAMS[i].split(':')[1];
 
-					if(key=="player"){
+					if(key=="player" || key=="player0"){
 						hovers[iPlayer] = new Hovercraft(
 								new THREE.Color(value.split(',')[1]),
 								Control.createControl(value));

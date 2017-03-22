@@ -215,7 +215,7 @@ function Arena(filename){
 			DISTANCE_MAP_CURV.map = ASL.curvdistancemap;
 
 			// draw border lines
-			if(DEBUG >= 2){
+			if(DEBUG >= 3){
 				for(var iil=0; iil<poly.length; iil++){
 					var mat = new THREE.LineBasicMaterial({color: 0x00ffff});
 					var geom = new THREE.Geometry();
@@ -238,7 +238,7 @@ function Arena(filename){
 				for (var i=0; i<body.shapes.length; i++) {
 					body.shapes[i].material = MAP_MATERIAL;
 
-					if(DEBUG >= 3){ // draw convex shape decomposition
+					if(DEBUG >= 4){ // draw convex shape decomposition
 						var mat = new THREE.LineBasicMaterial({color: 0xff8000});
 						var geom = new THREE.Geometry();
 

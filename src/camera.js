@@ -22,7 +22,7 @@ function onWindowResize() {
 	}
 }
 
-if(DEBUG>2){ // render camera frustum
+if(DEBUG>3){ // render camera frustum
 	var material = new THREE.LineBasicMaterial({color: 0xffff00});
 	var geometry = new THREE.Geometry();
 	var camdir = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camdir);
@@ -151,12 +151,12 @@ function updateCam(){
 	}
 	var lookat = new THREE.Vector3().addVectors(campos, dir);
 
-	if(DEBUG<=2){
+	if(DEBUG<2){
 		CAMERA.position.copy(campos);
 		CAMERA.lookAt(lookat);
 	}
 
-	if(DEBUG>2){ // render camera frustum
+	if(DEBUG>3){ // render camera frustum
 
 		var cammtx = new THREE.Matrix4();
 		cammtx.set(

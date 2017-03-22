@@ -14,6 +14,23 @@
 	font-family:sans-serif;
 	background-color:#f0f8ff;
 }
+.campaign {
+	box-shadow: 1px 1px 4px #404850;
+	margin: 2px;
+	border-style:none;
+	border-width:2px;
+	border-radius:3px;
+	border-color:#cccccc;
+	font-size:13pt;
+	font-family:sans-serif;
+	background-color:white;
+	width:540px;
+	padding:7px;
+	cursor:pointer;
+}
+.campaign:hover{
+	background-color:skyblue;
+}
 body { 
   background: url(media/images/vs.jpg) no-repeat center center fixed; 
   -webkit-background-size: cover;
@@ -43,6 +60,8 @@ input[type=checkbox]
 <script>
 
 var CFGVERSION = 1; // version of the config string pattern
+var SINGLEMULTI = 0; // 1 for single, 2 for multiplayer
+var MAP0 = ""; // selected singleplayer level
 
 /////////////////////////
 // HTML for one player //
@@ -71,7 +90,7 @@ var playerDisplayTemplate = `
    <img id="ctlmd_$" class="std" src="media/images/mobile.png" style="width:60px;"
 	onclick="ctlSelect(idx(this), 'md')"><br><br>
    <button id="remove_$" class="std" style="background-color:#ff9977"
-        onclick="get('disparea').removeChild(get('playerbox_' + idx(this)))">Remove Player
+        onclick="get('mpdisparea').removeChild(get('playerbox_' + idx(this)))">Remove Player
    </button>
   </td>
   <td id="ctloptions_$" align="right" style="width:200px;">
@@ -134,12 +153,24 @@ var playerDisplayTemplate = `
 // add player //
 ////////////////
 
-var playerIndex = 0;
+var mplayerIndex = 1; // index 0 is for single player
 
-function addPlayer(){
+function addPlayer(multiplayer){
+	var playerIndex;
+
+	if(multiplayer){playerIndex = mplayerIndex;}
+	else{playerIndex = 0;}
+
 	var p = make("p");
 	p.id = "playerbox_" + playerIndex;
-	get("disparea").insertBefore(p, get("disparea").childNodes[0]);
+
+	if(multiplayer){
+		get("mpdisparea").insertBefore(p, get("mpdisparea").childNodes[0]);
+	}
+	else{
+		get("spdisparea").appendChild(p);
+	}
+
 	var html = playerDisplayTemplate.replaceAll("$", playerIndex);
 	p.innerHTML = html;
 
@@ -188,7 +219,10 @@ function addPlayer(){
 	get("kbspcl_" + playerIndex).dataset.code = 17;
 	get("kbspcl_" + playerIndex).innerHTML = keyNames[17];
 
-	playerIndex++;
+	if(multiplayer){mplayerIndex++;}
+	if(!multiplayer){get("remove_" + playerIndex).style.display = "none";}
+
+	return playerIndex;
 }
 
 //////////////////////
@@ -225,6 +259,23 @@ function ctlSelect(index, element){ // takes the player index and "gp/ms/kb/md"
 	get("ctl" + element + "_" + index).style.backgroundColor = "skyblue";
 
 	get("ctltype_" + index).dataset.selected = element;
+}
+
+function spmpSelect(spmp){ // sp for singleplayer, mp for multiplayer
+	if(spmp == "sp"){
+		get("singleplayercfg").style.display = "inline";
+		get("sp").style.backgroundColor = "skyblue";
+		get("multiplayercfg").style.display = "none";
+		get("mp").style.backgroundColor = "#f0f8ff";
+		SINGLEMULTI = 1;	
+	}
+	else if(spmp == "mp"){
+		get("singleplayercfg").style.display = "none";
+		get("sp").style.backgroundColor = "#f0f8ff";
+		get("multiplayercfg").style.display = "inline";
+		get("mp").style.backgroundColor = "skyblue";
+		SINGLEMULTI = 2;
+	}
 }
 
 var assignKeyToButton='';
@@ -280,11 +331,11 @@ function getCookie(cname) {
 }
 
 function flipOptions(){
-	if(get("options").style.display == "block"){
-		get("options").style.display = "none";
+	if(get("mpoptions").style.display == "block"){
+		get("mpoptions").style.display = "none";
 	}
 	else{
-		get("options").style.display = "block";
+		get("mpoptions").style.display = "block";
 	}
 }
 
@@ -318,24 +369,50 @@ function startgame(){
 // store and load //
 ////////////////////
 
-function config2string(complete){ // incomplete does not contain key mappings for unselected control types
+function config2string(complete){ // incomplete only contains stuff necessary for starting the game
 	var result = 'adcfgv:' + CFGVERSION + ';';
 
-	result += 'time:' + get('time').value + ';';
-	result += 'hp:' + get('hp').value + ';';
-	result += 'shld:' + get('shld').value + ';';
-	result += 'shldreg:' + get('shldreg').value + ';';
-	result += 'ammo:' + get('ammo').value + ';';
-	result += 'ammoreg:' + get('ammoreg').value + ';';
-	result += 'vol:' + get('vol').value + ';';
-	result += 'bump:' + get('bump').checked * 1 + ';';
-	result += 'h2o:' + get('h2o').checked * 1 + ';';
-	result += 'debug:' + get('debug').value + ';';
-	result += 'map:' + get('map').value + ';';	
+	if(SINGLEMULTI == 2 || complete){
+		result += 'time:' + get('time').value + ';';
+		result += 'hp:' + get('hp').value + ';';
+		result += 'shld:' + get('shld').value + ';';
+		result += 'shldreg:' + get('shldreg').value + ';';
+		result += 'ammo:' + get('ammo').value + ';';
+		result += 'ammoreg:' + get('ammoreg').value + ';';
+		result += 'vol:' + get('vol').value + ';';
+		result += 'bump:' + get('bump').checked * 1 + ';';
+		result += 'h2o:' + get('h2o').checked * 1 + ';';
+		result += 'debug:' + get('debug').value + ';';
+		result += 'map:' + get('map').value + ';';
+		result += 'game:D;'; // multiplayer only supports death match so far
+	}
 
-	for(var i=0; i<get("disparea").childNodes.length; i++){
-		var index = idx(get("disparea").childNodes[i]);
-		result += "player:" + get("name_"+index).value + ",";
+	if(SINGLEMULTI == 1 || complete){
+		result += 'vol0:' + get('vol0').value + ';';
+		result += 'bump0:' + get('bump0').checked * 1 + ';';
+		result += 'h2o0:' + get('h2o0').checked * 1 + ';';
+		result += 'debug0:' + get('debug0').value + ';';
+		result += 'map0:' + MAP0 + ';';
+		result += 'game0:T;'; // multiplayer only supports death match so far
+	}
+
+
+
+	for(var i=-1; i<get("mpdisparea").childNodes.length; i++){ // -1 for the single player
+		if( i==-1 && SINGLEMULTI == 2 && !complete ){continue;}
+		if( i>-1 && SINGLEMULTI == 1 && !complete ){break;}
+		
+		var index;
+		if( i==-1 ){
+			index = 0;
+			result += "player0:";
+		}
+		else{
+			index = idx(get("mpdisparea").childNodes[i]);
+			result += "player:";
+		}
+
+		result += get("name_"+index).value + ",";
 		result += get("color_"+index).value + ",";
 		var ctl = get("ctltype_"+index).dataset.selected;
 		result += ctl;
@@ -370,6 +447,7 @@ function config2string(complete){ // incomplete does not contain key mappings fo
 		result += ";";
 	}
 
+
 	return result;
 }
 
@@ -381,7 +459,9 @@ function string2config(string, warning){ // string must be complete
 		return;
 	}
 
-	get("disparea").innerHTML = '';
+	get("spdisparea").innerHTML = '';
+	addPlayer(false); // add random single player
+	get("mpdisparea").innerHTML = '';
 
 	var cfg = string.split(';');
 
@@ -398,11 +478,11 @@ function string2config(string, warning){ // string must be complete
 			get(key).checked = value=="1";
 		}
 
-		if(key == "player"){
+		if(key == "player" || key == "player0"){
 			var ip = 0; // index of part
 			var part = value.split(',');
-			addPlayer();
-			var index = playerIndex-1;
+			var index = 0;
+			if(key == "player"){index = addPlayer(true)};
 			get("name_"+index).value = part[ip];
 			selectItem(get("color_"+index), part[++ip]);
 			get("color_"+index).onchange();
@@ -484,40 +564,82 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 <img src="media/images/mouse.png" style="display:none">
 <img src="media/images/mobile.png" style="display:none">
 
-<img src="media/images/addplr.png" title="add player" onclick="addPlayer()" class="std" style="background-color:#77ff99; width:80px">
-<img src="media/images/settings.png" title="settings" onclick="flipOptions()" class="std" style="background-color:#3355ff; width:80px">
-<img src="media/images/start.png" title="start game"
-	onclick="setCookie('adcfg', config2string(true), 3650); startgame()" class="std" style="background-color:#ff7755; width:80px"><br>
-
-<div id="options" class="std" style="background-color:white; padding:5px; width:530px; display:none">
-<br>
-<table>
-<tr class="optionline"><td>Round Time:</td><td><input id="time" type="number" value=120 class="std" style="width:50px"> s</td></tr>
-<tr class="optionline"><td>Hitpoints:</td><td><input id="hp" type="number" value=10 class="std" style="width:50px"></td></tr>
-<tr class="optionline"><td>Shield:</td><td><input id="shld" type="number" value=6 class="std" style="width:50px"> hits</td></tr>
-<tr class="optionline"><td>Shield Regen.:</td><td><input id="shldreg" type="number" value=1 class="std" style="width:50px"> hits/s</td></tr>
-<tr class="optionline"><td>Phaser Ammo:</td><td><input id="ammo" type="number" value=30 class="std" style="width:50px"> shots</td></tr>
-<tr class="optionline"><td>Phaser Regen.:</td><td><input id="ammoreg" type="number" value=10 class="std" style="width:50px"> shots/s</td></tr>
-<tr class="optionline"><td>Music Vol.:</td><td><input id="vol" type="range"  min="0" max="100" value="40"/></td></tr>
-<tr class="optionline"><td>Fancy Terrain:</td><td><input id="bump" type="checkbox" checked="true"></td></tr> <!-- taken out -->
-<tr class="optionline"><td>Reactive Water:</td><td><input id="h2o" type="checkbox" checked="true"></td></tr>
-<tr class="optionline"><td>Debug Level:</td><td><input id="debug" type="number" value=0 class="std" style="width:50px"></td></tr>
+<table id="spmptable" class="std" style="padding:7px; background-color:white; border-color:#cccccc; width:540px">
+<tr><td style="text-align:center">
+<img id="sp" src="media/images/singleplayer.png" title="singleplayer" onclick="spmpSelect('sp')" class="std" style="background-color:#f0f8ff; width:200px">
+</td><td style="text-align:center">
+<img id="mp" src="media/images/multiplayer.png" title="multiplayer" onclick="spmpSelect('mp')" class="std" style="background-color:#f0f8ff; width:200px">
+</td></tr>
 </table>
 <br>
-<button id="restore" class="std" style="background-color:#ff9977" onclick="defaultOptions()">Restore Default</button>
-<br>&nbsp;
+<div id="singleplayercfg" style = "display:none">
+	<div id="spdisparea"></div>
+
+<table id="sp1" class="campaign">
+ <tr>
+  <td align="center" style = "width:100px">
+	<img src="maps/hilbertsgarden.jpg" title="Hilbert's Garden" class="std" style="width:100px"
+		onclick="setCookie('adcfg', config2string(true), 3650); MAP0='maps/hilbertsgarden.svg'; startgame()">
+  </td>
+  <td style = "width:200px">
+<b>Hilbert's Garden</b><br>
+Hustle through the second order Hilbert curve (preferably without touching the walls) and beat your own time because we didn't implement a high score server!
+  </td>
+  <td align="center" style = "width:100px">
+	<!--<img src="media/images/diamond.png" title="Diamond Medal!!!!11" onclick="" style="width:100px"><br>
+	1:00.000-->
+  </td>
+ </tr>
+</table>
+
+<br><br>
+	<div id="spoptions" class="std" style="background-color:white; padding:5px; width:300px">
+		<table>
+		<tr class="optionline"><td>Music Vol.:</td><td><input id="vol0" type="range"  min="0" max="100" value="40"/></td></tr>
+		<tr class="optionline"><td>Fancy Terrain:</td><td><input id="bump0" type="checkbox" checked="true"></td></tr>
+		<tr class="optionline"><td>Fancy Water:</td><td><input id="h2o0" type="checkbox" checked="true"></td></tr>
+		<tr class="optionline"><td>Debug Level:</td><td><input id="debug0" type="number" value=0 class="std" style="width:50px"></td></tr>
+		</table>
+	</div>
 </div>
 
-<div class="std" style="background-color:white; display:block; width:540px">
-MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="maps/hackerland.svg">
-<datalist id="arenanames">
-    <option>maps/grassiceislands.svg</option>
-    <option>maps/hackerland.svg</option>
-    <option>maps/honeycombs.svg</option>
-</datalist>
+<div id="multiplayercfg" style="display:none">
+	<img src="media/images/addplr.png" title="add player" onclick="addPlayer(true)" class="std" style="background-color:#77ff99; width:80px">
+	<img src="media/images/settings.png" title="settings" onclick="flipOptions()" class="std" style="background-color:#3355ff; width:80px">
+	<img src="media/images/start.png" title="start game"
+		onclick="setCookie('adcfg', config2string(true), 3650); startgame()" class="std" style="background-color:#ff7755; width:80px"><br>
+
+	<div id="mpoptions" class="std" style="background-color:white; padding:5px; width:530px; display:none">
+	<br>
+	<table>
+	<tr class="optionline"><td>Round Time:</td><td><input id="time" type="number" value=120 class="std" style="width:50px"> s</td></tr>
+	<tr class="optionline"><td>Hitpoints:</td><td><input id="hp" type="number" value=10 class="std" style="width:50px"></td></tr>
+	<tr class="optionline"><td>Shield:</td><td><input id="shld" type="number" value=6 class="std" style="width:50px"> hits</td></tr>
+	<tr class="optionline"><td>Shield Regen.:</td><td><input id="shldreg" type="number" value=1 class="std" style="width:50px"> hits/s</td></tr>
+	<tr class="optionline"><td>Phaser Ammo:</td><td><input id="ammo" type="number" value=30 class="std" style="width:50px"> shots</td></tr>
+	<tr class="optionline"><td>Phaser Regen.:</td><td><input id="ammoreg" type="number" value=10 class="std" style="width:50px"> shots/s</td></tr>
+	<tr class="optionline"><td>Music Vol.:</td><td><input id="vol" type="range"  min="0" max="100" value="40"/></td></tr>
+	<tr class="optionline"><td>Fancy Terrain:</td><td><input id="bump" type="checkbox" checked="true"></td></tr>
+	<tr class="optionline"><td>Fancy Water:</td><td><input id="h2o" type="checkbox" checked="true"></td></tr>
+	<tr class="optionline"><td>Debug Level:</td><td><input id="debug" type="number" value=0 class="std" style="width:50px"></td></tr>
+	</table>
+	<br>
+	<button id="restore" class="std" style="background-color:#ff9977" onclick="defaultOptions()">Restore Default</button>
+	<br>&nbsp;
+	</div>
+
+	<div class="std" style="background-color:white; display:block; width:540px">
+	MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="maps/hackerland.svg">
+	<datalist id="arenanames">
+		<option>maps/grassiceislands.svg</option>
+		<option>maps/hackerland.svg</option>
+		<option>maps/honeycombs.svg</option>
+	</datalist>
+	</div>
+
+	<div id="mpdisparea"></div>
 </div>
 
-<div id="disparea"></div>
 </center>
 
 <!--Trouble with key-presses getting ignored? Read <a href="https://www.microsoft.com/appliedsciences/antighostingexplained.mspx">this</a>!<br>
