@@ -153,6 +153,9 @@ Hovercraft.prototype.unhide = function(){
 
 Hovercraft.prototype.update = function(){
 
+	//this.mesh.position.z = coastDistance(this.body.position[0], this.body.position[1]);
+	//if(coastDistance(this.body.position[0], this.body.position[1])>0){breakpoint();}
+
 	if(this.hidden){return;}
 
 	var localdt = DT;
@@ -223,7 +226,8 @@ Hovercraft.prototype.update = function(){
 
 		if(GAME_MODE != "T"){ // don't respawn in time trials after suicide
 			ingameTimeout(RESPAWN_TIME, function(){
-				var startPos = findAccessiblePosition(2);
+				var startPos = findAccessiblePosition(-2);
+
 				this.body.position[0] = startPos.x;
 				this.body.position[1] = startPos.y;
 				this.beamed = true;

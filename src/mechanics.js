@@ -250,3 +250,7 @@ function getCookie(cname) {
     }
     return "";
 }
+
+function breakpoint(){
+	var a=0; // place a breakpoint here in the browser debugger
+}
