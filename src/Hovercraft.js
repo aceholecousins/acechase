@@ -18,7 +18,7 @@ function Hovercraft(color, control){
 	this.hitpoints = 0;
 	this.shield = 0;
 	this.ammo = 0;
-	this.radius = 0.4;
+	this.radius = HOVER_RADIUS;
 	this.control = control;
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
 	this.kills = 0;

@@ -291,7 +291,7 @@
 
 					for(var i=0; i<hovers.length; i++){
 						SCORETABLE.line([hovers[i].playerName, 
-								hovers[i].kills*1.1 - hovers[i].deaths,
+								Math.round((hovers[i].kills*1.1 - hovers[i].deaths)*10)/10, // prevents 1.100000000002
 								hovers[i].kills,
 								hovers[i].deaths],
 								hovers[i].color);			

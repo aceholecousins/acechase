@@ -81,7 +81,7 @@ var QUOTES = [
 "It's easier to get forgiveness than permission.",
 "No matter how far you've gone down the wrong road, turn back.",
 "What will you wish you would have done in 20 years?",
-"Don't be an idiot!",
+"Don't be an idiot!", // someone on WaitButWhy
 "Don't let a video game dictate your life!",
 "Everything changes.",
 "Act yourself into a feeling, don't feel yourself into an action.",
@@ -92,7 +92,8 @@ var QUOTES = [
 "Don't listen to other people's advice! Think for yourself!",
 "Prevent cake from getting dry by eating it all at once!",
 "Be honest!",
-"Don't try so hard. Let it come to you."
+"Don't try so hard. Let it come to you.", // Ron Swanson
+"Is what you're currently doing getting you where you want to be?" // AvE on youtube
 ];
 
 //sources: hagakure, common knowledge, http://inktank.fi/28-of-the-best-pieces-of-advice-about-life-youll-ever-read/ hackschooling, tim minchin, http://waitbutwhy.com/table/best-advice, https://questionofmindfulness.wordpress.com/2009/04/08/sheldon-kopps-eschatological-laundry-list/, friends, http://www.boredpanda.com/shitty-life-pro-tips/?afterlogin=savecommentvote&comment=997233&score=1

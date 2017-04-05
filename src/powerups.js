@@ -39,7 +39,7 @@ function Pubox(pos, pu){ // powerup box class
 
 	// physics
 
-	var shape = new p2.Circle(0.7);
+	var shape = new p2.Circle(PUBOX_SIZE*0.7);
 
 	var vphi = Math.random()*10000;
 	var v = Math.random()*3+0.1;
@@ -61,14 +61,15 @@ function Pubox(pos, pu){ // powerup box class
 	// graphics
 
 	this.mesh = new THREE.Mesh(
-		new THREE.BoxGeometry(1,1,1),
+		new THREE.BoxGeometry(PUBOX_SIZE, PUBOX_SIZE, PUBOX_SIZE),
 		new THREE.MeshLambertMaterial({
 			map: pu.tex,
 			emissiveMap: pu.tex,
 			emissive: new THREE.Color(0.3,0.3,0.3)
 		}));
 	var contour = new THREE.Mesh(
-		new THREE.BoxGeometry(1.16,1.16,1.16),
+		new THREE.BoxGeometry(PUBOX_SIZE*1.16,PUBOX_SIZE*1.16,PUBOX_SIZE*1.16),
+		//new THREE.BoxGeometry(2,2,2),
 		new THREE.MeshBasicMaterial({color:pu.color})
 	);
 	contour.material.side = THREE.BackSide;

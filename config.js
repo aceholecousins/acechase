@@ -3,6 +3,10 @@ var GAME_MODE = "D"; // R for race, T for time trial, D for deathmatch
 
 var MAP = 'maps/islandisle.svg';
 
+var HOVER_RADIUS = 0.4;
+var PHASER_LENGTH = 0.8;
+var PUBOX_SIZE = 1.0;
+
 var HITPOINTS = 10;
 var SHIELD = 6;
 var SHIELD_REGEN = 1;
