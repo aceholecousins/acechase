@@ -1,12 +1,19 @@
 
 
-function medal(map, time){
+function medal(map, score){
 
 	if(map == "maps/hilbertsgarden.svg"){
-		if(time <= 15){return "diamond";}
-		if(time <= 16){return "gold";}
-		if(time <= 18){return "silver";}
-		if(time <= 20){return "bronze";}
+		if(score <= 15){return "diamond";}
+		if(score <= 16){return "gold";}
+		if(score <= 18){return "silver";}
+		if(score <= 20){return "bronze";}
+	}
+
+	if(map == "maps/shootingrange.svg"){
+		if(score >= 20){return "diamond";}
+		if(score >= 16){return "gold";}
+		if(score >= 13){return "silver";}
+		if(score >= 10){return "bronze";}
 	}
 
 	return null;

@@ -1,12 +1,12 @@
-![AceDroids banner](/media/images/banner.jpg)
+![AceChase banner](/media/images/banner.jpg)
 
-# [>> PLAY! <<](https://aceholecousins.github.io/acedroids/)
+# [>> PLAY! <<](https://aceholecousins.github.io/acechase/)
 
 (Go ahead, click it! Nothing to install and totes for free!)
 
 # About
 
-__AceDroids__ is a Massive Multiplayer Couch Vehicular Combat Game. Hard facts:
+__AceChase__ is a Massive Multiplayer Couch Vehicular Combat Game. Hard facts:
 
 * free and open source so Richard Stallman is proud of us
 * up to 129 local players (technically your PC can handle 127 USB gamepads plus keyboard plus mouse (if not also connected via USB (then only 127 players, sorry)))
@@ -23,7 +23,7 @@ However, we want to add
 
 ### Other game modes
 
-team deathmatch / race / asteroids / capture the flag / Davids vs. Goliath / carball / super mean boss fights / maybe a single player campaign (maybe even for the phone) / who knows what else
+team deathmatch / race / capture the flag / Davids vs. Goliath / carball / super mean boss fights / a single player campaign (maybe even for the phone) / who knows what else
 
 ### Other vehicles
 

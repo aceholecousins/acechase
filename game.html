@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link rel="icon" href="media/images/adfav.ico" type="image/vnd.microsoft.icon">
-		<title>AceDroids</title>
+		<link rel="icon" href="media/images/hbfav.ico" type="image/vnd.microsoft.icon">
+		<title>AceChase</title>
 		<style>
 			body {
 				margin: 0px;
@@ -38,14 +38,14 @@
 
 			var PARAMS = location.hash;
 			if(PARAMS == ""){
-				PARAMS = "#adcfgv:" + CFGVERSION
+				PARAMS = "#hbcfgv:" + CFGVERSION
 					+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
 					+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
 			}
 			PARAMS = PARAMS.slice(1).split(';');
-			if(PARAMS[0] != 'adcfgv:' + CFGVERSION){
+			if(PARAMS[0] != 'hbcfgv:' + CFGVERSION){
 				alert("Link contains invalid or outdated game configuration!");
-				PARAMS = "#adcfgv:" + CFGVERSION
+				PARAMS = "#hbcfgv:" + CFGVERSION
 					+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
 					+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
 			}
@@ -112,6 +112,7 @@
 		<script src="src/Water.js"></script>
 		<script src="src/camera.js"></script>
 		<script src="src/powerups.js"></script>
+		<script src="src/targets.js"></script>
 		<script src="src/scoretable.js"></script>
 		<script src="medals.js"></script>
 
@@ -129,7 +130,10 @@
 			
 			var STARTLINE, FINISHLINE;
 
+
+
 			function start() {
+				
 				onWindowResize(); // call to initially adjust camera
 				document.getElementById("splashscreen").style.visibility = "hidden";
 				RENDERER.setClearColor( FOG_COLOR );
@@ -154,17 +158,22 @@
 					}
 				}
 
-				if(GAME_MODE == "T" || GAME_MODE == "R"){
+				if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trials or race
 					SCORETABLE.prepare(NUM_PLAYERS+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
 				}
-				else if(GAME_MODE == "D"){
+				else if(GAME_MODE == "D"){ // deathmatch
 					SCORETABLE.prepare(NUM_PLAYERS+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
+				}
+				else if(GAME_MODE == "X"){ // shooting range
+					SCORETABLE.prepare(NUM_PLAYERS+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 				}
 				
 				newRound();
 				gameloop();
 			}
 			LOADING_LIST.setCallback(start);
+
+
 
 			function gameloop() {
 
@@ -206,7 +215,7 @@
 						var continus = 0;
 						for(var i=0; i<hovers.length; i++){
 							hovers[i].control.update();
-							if(hovers[i].control.fire){hovers[i].continu = true;}
+							if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 							if(hovers[i].continu){continus++;}
 						}
 						if(continus > NUM_PLAYERS/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
@@ -234,6 +243,8 @@
 				
 			}
 
+
+
 			function endRound(){ // display results
 
 				GAME_PHASE = "R";
@@ -260,15 +271,16 @@
 						if(highscore == ""){highscore = 1e6;}
 						highscore *= 1; // string to numba
 						if(hovers[i].racetime < highscore){
-							setCookie(MAP, hovers[i].racetime + "", 3650); // numba 2 string
-							SCORETABLE.line(["", "Highscore!"], hovers[i].color);
-							var award = medal(MAP, hovers[i].racetime);
-							if(award == "bronze"){SCORETABLE.line(["", "Bronze."], new THREE.Color("firebrick"));}
-							if(award == "silver"){SCORETABLE.line(["", "Silver!"], new THREE.Color("silver"));}
-							if(award == "gold"){SCORETABLE.line(["", "Gold!!!"], new THREE.Color("gold"));}
-							if(award == "bronze"){SCORETABLE.line(["", "DIAMOND!!!1"], new THREE.Color("azure"));}
+							setCookie(MAP, hovers[i].racetime + "", 3650); // +"" for numba 2 string
+							SCORETABLE.centeredLine("Highscore!", hovers[i].color);
 							highscore = hovers[i].racetime;
 						}
+
+						var award = medal(MAP, hovers[i].racetime);
+						if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
+						if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
+						if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
+						if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
 		
 					}
 					
@@ -279,7 +291,6 @@
 							new THREE.Color("black"));
 
 					SCORETABLE.plane.visible = true;
-
 				}
 
 				else if(GAME_MODE == "D"){ // death match
@@ -298,7 +309,44 @@
 					}
 					SCORETABLE.plane.visible = true;
 				}
+
+				if(GAME_MODE == "X"){ // shooting range
+
+					hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
+					SCORETABLE.clear();
+					SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
+					SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
+
+					var highscore = 0;
+
+					for(var i=0; i<hovers.length; i++){
+						var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
+
+						SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
+
+						highscore = getCookie(MAP);
+						if(highscore == ""){highscore = 0;}
+						highscore *= 1; // string to numba
+						if(score > highscore){
+							setCookie(MAP, score + "", 3650); // +"" for numba 2 string
+							SCORETABLE.centeredLine("Highscore!", hovers[i].color);
+							highscore = score;
+						}
+
+						var award = medal(MAP, score);
+						if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
+						if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
+						if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
+						if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
+
+					}
+					
+					SCORETABLE.line(["Highscore", highscore, "", ""], new THREE.Color("black"));
+					SCORETABLE.plane.visible = true;
+				}
 			}
+
+
 
 			function newRound(){
 				GAME_PHASE = "S";
@@ -332,10 +380,17 @@
 
 				ingameTimeout(1, function(){GAME_PHASE = "G";});
 
-				if(GAME_MODE == "D"){ // death match
+				if(GAME_MODE == "D" || GAME_MODE == "X"){ // death match or shooting range
 					ingameTimeout(ROUND_TIME+1, function(){
 						endRound();
 					}); // time limit
+				}
+
+				if(GAME_MODE == "X"){ // spawn targets for shooting range
+					ingameTimeout(1, function(){spawnTarget(false);});
+					ingameTimeout(2, function(){spawnTarget(false);});
+					ingameTimeout(3, function(){spawnTarget(false);});
+					ingameTimeout(5, function(){spawnTarget(true);});
 				}
 			}
 

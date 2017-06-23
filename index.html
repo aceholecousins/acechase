@@ -1,7 +1,7 @@
 
-<html><head><title>AceDroids:Configuration</title>
+<html><head><title>AceChase:Configuration</title>
 <meta charset="utf-8">
-<link rel="icon" href="media/images/adfav.ico" type="image/vnd.microsoft.icon">
+<link rel="icon" href="media/images/hbfav.ico" type="image/vnd.microsoft.icon">
 <style type="text/css">
 .std {
 	box-shadow: 1px 1px 4px #404850;
@@ -63,6 +63,7 @@ input[type=checkbox]
 var CFGVERSION = 1; // version of the config string pattern
 var SINGLEMULTI = 0; // 1 for single, 2 for multiplayer
 var MAP0 = ""; // selected singleplayer level
+var GAME0 = ""; // selected singleplayer game mode
 
 /////////////////////////
 // HTML for one player //
@@ -356,7 +357,7 @@ function defaultOptions(){
 
 function startgame(){
 
-	setCookie('adcfg', config2string(true), 3650);
+	setCookie('hbcfg', config2string(true), 3650);
 
 	var urltail = "#" + config2string(false);
 
@@ -374,7 +375,7 @@ function startgame(){
 ////////////////////
 
 function config2string(complete){ // incomplete only contains stuff necessary for starting the game
-	var result = 'adcfgv:' + CFGVERSION + ';';
+	var result = 'hbcfgv:' + CFGVERSION + ';';
 
 	if(SINGLEMULTI == 2 || complete){
 		result += 'time:' + get('time').value + ';';
@@ -397,7 +398,7 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 		result += 'h2o0:' + get('h2o0').checked * 1 + ';';
 		result += 'debug0:' + get('debug0').value + ';';
 		result += 'map0:' + MAP0 + ';';
-		result += 'game0:T;'; // multiplayer only supports death match so far
+		result += 'game0:' + GAME0 + ';';
 	}
 
 
@@ -461,8 +462,8 @@ function string2config(string, warning){ // string must be complete
 	addPlayer(false); // add random single player
 	get("mpdisparea").innerHTML = '';
 
-	if(string.split(';')[0] != 'adcfgv:' + CFGVERSION){
-		if(warning){alert("Data does not store AceDroids configuration or version is incompatible!");}
+	if(string.split(';')[0] != 'hbcfgv:' + CFGVERSION){
+		if(warning){alert("Data does not store AceChase configuration or version is incompatible!");}
 		console.log("Data: " + string);
 		return;
 	}
@@ -580,7 +581,8 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 	<div id="spdisparea"></div>
 
 
-<table class="campaign" onclick="MAP0='maps/hilbertsgarden.svg'; startgame()">
+
+<table class="campaign" onclick="MAP0='maps/hilbertsgarden.svg'; GAME0='T'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
 	<img src="maps/hilbertsgarden.jpg" title="Hilbert's Garden" class="std" style="width:100px">
@@ -609,34 +611,37 @@ Hustle through the second order Hilbert curve (preferably without touching the w
  </tr>
 </table>
 
-<table class="campaign" onclick="MAP0='maps/asteroids.svg'; startgame()">
+
+
+<table class="campaign" onclick="MAP0='maps/shootingrange.svg'; GAME0='X'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
-	<img src="maps/asteroids.jpg" title="Asteroids" class="std" style="width:100px">
+	<img src="maps/shootingrange.png" title="Shooting Range" class="std" style="width:100px">
   </td>
   <td style = "width:200px">
-<b>Asteroids</b><br>
-Shoot as many asteroids into pieces as you can without touching them!
+<b>Shooting Range</b><br>
+Shoot as many targets as you can! Avoid shooting or touching the magnet mine though.
   </td>
   <td align="center" style = "width:100px">
-	<img id="asteroidsmedal" style="width:100px; display:none"><br>
-	<div id="asteroidshs"></div>
+	<img id="shootingrangemedal" style="width:100px; display:none"><br>
+	<div id="shootingrangehs"></div>
 	<script>
 		if(true){ // so vars are not global
-			var hs = getCookie("maps/asteroids.svg");
+			var hs = getCookie("maps/shootingrange.svg");
 			if(hs != ""){
-				var award = medal("maps/asteroids.svg", hs*1);
+				var award = medal("maps/shootingrange.svg", hs*1);
 				if(award != null){
-					get("asteroidsmedal").src = "media/images/" + award + ".png";
-					get("asteroidsmedal").style.display = "inline";
+					get("shootingrangemedal").src = "media/images/" + award + ".png";
+					get("shootingrangemedal").style.display = "inline";
 				}
-				get("asteroidshs").innerHTML = Math.floor(hs/60) + ":" + pad(Math.floor(hs%60),2) + "." + pad(Math.round(1000*(hs%1)),3);
+				get("shootingrangehs").innerHTML = hs;
 			}
 		}
 	</script>
   </td>
  </tr>
 </table>
+
 
 
 <br><br>
@@ -697,7 +702,7 @@ Just saying.
 Note that some mice sneakily register as USB controllers.-->
 
 <script>
-string2config(getCookie('adcfg'), false);
+string2config(getCookie('hbcfg'), false);
 </script>
 
 </body></html>

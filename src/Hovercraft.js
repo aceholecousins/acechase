@@ -98,7 +98,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 
 	var startPos;
 
-	if(GAME_MODE == "T" || GAME_MODE == "R"){ // place players along start line
+	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trial or race: place players along start line
 		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(NUM_PLAYERS+1));
 		this.control.direction = this.body.angle =
 			Math.atan2(STARTLINE.p1.y-STARTLINE.p0.y, STARTLINE.p1.x-STARTLINE.p0.x)+Math.PI/2;
@@ -107,9 +107,13 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 		this.lastPosition.copy(startPos); // for line crossing tests
 		this.newPosition.copy(startPos);
 	}
-	else if(GAME_MODE == "D"){ // place randomly on map
+	else if(GAME_MODE == "D" || GAME_MODE == "X"){ // death match or shooting range: place randomly on map
 		startPos = findAccessiblePosition(-1);
 		this.control.direction = this.body.angle = Math.random() * 2 * Math.PI;
+	}
+	if(GAME_MODE == "X"){ // shooting range
+		this.targets = 0;
+		this.mines = 0;
 	}
 
 	this.continu = false; // whether the player has voted to continue the game during result display
@@ -306,7 +310,7 @@ Hovercraft.prototype.update = function(){
 		//}
 
 		if(this.control.fire){
-			if((GAME_MODE == "R" || GAME_MODE == "D") && GAME_PHASE == "G"){ // race or death match ongoing
+			if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){ // race or death match or shooting range ongoing
 				this.shootPhaser();
 			}
 			else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial

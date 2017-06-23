@@ -93,7 +93,8 @@ var QUOTES = [
 "Prevent cake from getting dry by eating it all at once!",
 "Be honest!",
 "Don't try so hard. Let it come to you.", // Ron Swanson
-"Is what you're currently doing getting you where you want to be?" // AvE on youtube
+"Is what you're currently doing getting you where you want to be?", // AvE on youtube
+"Here's a new situation. Do!" // Tomba
 ];
 
 //sources: hagakure, common knowledge, http://inktank.fi/28-of-the-best-pieces-of-advice-about-life-youll-ever-read/ hackschooling, tim minchin, http://waitbutwhy.com/table/best-advice, https://questionofmindfulness.wordpress.com/2009/04/08/sheldon-kopps-eschatological-laundry-list/, friends, http://www.boredpanda.com/shitty-life-pro-tips/?afterlogin=savecommentvote&comment=997233&score=1

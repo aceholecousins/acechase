@@ -128,5 +128,46 @@ function ScoreTable(){ // use .prepare to prepare and .line to add lines and add
 		this.iline++;
 		this.tex.needsUpdate = true;
 	}
+
+	this.centeredLine = function(txt, color){
+
+		var w = this.canvas.width;
+
+		var cdark = color.clone().lerp(new THREE.Color("black"), 0.6);
+
+		this.ctx.lineJoin="round";
+		this.ctx.textBaseline="middle"; 
+
+		var textw = this.ctx.measureText(txt).width;
+		var anchorx = w/2;
+		var anchory = this.yoffset + (this.iline+0.5)*this.lineHeight;
+		this.ctx.textAlign = "center";
+
+		if(textw > w*0.7){
+			var s = w*0.7/textw;
+			this.ctx.scale(s,s);
+			anchorx /= s;
+			anchory /= s;
+		}
+
+		this.ctx.lineWidth = 13;	
+		this.ctx.filter = "blur(3px)";
+		this.ctx.strokeStyle = color.getStyle();
+		this.ctx.strokeText(txt, anchorx, anchory);
+
+		this.ctx.lineWidth = 8;	
+		this.ctx.filter = "none";
+		this.ctx.strokeStyle = "white";
+		this.ctx.strokeText(txt, anchorx, anchory);
+
+		this.ctx.filter = "none";
+		this.ctx.fillStyle = cdark.getStyle();
+		this.ctx.fillText  (txt, anchorx, anchory);
+
+		this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+		this.iline++;
+		this.tex.needsUpdate = true;
+	}
 }
 

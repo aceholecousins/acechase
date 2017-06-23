@@ -55,7 +55,6 @@ function Pubox(pos, pu){ // powerup box class
 		angularDamping:0.0
     	});
 
-	shape.material = PHASER_MATERIAL;
 	this.body.addShape(shape);
 
 	// graphics
@@ -103,9 +102,6 @@ Pubox.prototype.constructor = Pubox;
 
 Pubox.prototype.shot = function(){ // what happens on phaser impact
 	this.hitpoints--;
-	if(this.hitpoints == 0){
-		this.destroyed();
-	}
 }
 
 Pubox.prototype.destroyed = function(){ // when collected or destroyed by phaser
@@ -129,6 +125,10 @@ Pubox.prototype.destroyed = function(){ // when collected or destroyed by phaser
 }
 
 Pubox.prototype.specificUpdate=function(){
+	if(this.hitpoints <= 0){
+		this.destroyed();
+	}
+
 	this.mesh.rotation.x = Math.sin(INGAME_TIME*this.oscillation[0])*0.4;
 	this.mesh.rotation.y = Math.sin(INGAME_TIME*this.oscillation[1])*0.5;
 }
