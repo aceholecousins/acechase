@@ -5,7 +5,7 @@ var MAP = 'maps/islandisle.svg';
 
 var HOVER_RADIUS = 0.4;
 var PHASER_LENGTH = 0.8;
-var PUBOX_SIZE = 2.0; //1.0
+var PUBOX_SIZE = 1.4; //1.0
 
 var HITPOINTS = 10;
 var SHIELD = 6;

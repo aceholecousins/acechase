@@ -584,6 +584,8 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 </td></tr>
 </table>
 <br>
+
+
 <div id="singleplayercfg" style = "display:none">
 	<div id="spdisparea"></div>
 
@@ -688,12 +690,23 @@ Shoot as many targets as you can! Avoid shooting or touching the magnet mine tho
 	</div>
 
 	<div class="std" style="background-color:white; display:block; width:540px">
-	MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="maps/hackerland.svg">
+	<!--MapURL: <input id="map" type="text" list="arenanames" class="std" style="width:300px" value="maps/hackerland.svg">
 	<datalist id="arenanames">
 		<option>maps/grassiceislands.svg</option>
 		<option>maps/hackerland.svg</option>
 		<option>maps/honeycombs.svg</option>
-	</datalist>
+	</datalist>-->
+	<table height=35><tr><td>Map:</td><td width=300 style="position:relative">
+			<select id="map" class="std" style="position:absolute; top:0px; left:0px; width:300px">
+				<option value="maps/grassiceislands.svg">Grass Ice Islands</option>
+				<option value="maps/hackerland.svg">Hackerland</option>
+				<option value="maps/honeycombs.svg">Honeycombs</option>
+				<!--<option value="custom">Custom URL...</option>-->
+  			</select>
+			<!--<input type="text" id="custommap" class="std" style="position:absolute; top:0px; left:0px; width:250px"> -->
+	</td></tr></table>
+
+
 	</div>
 
 	<div id="mpdisparea"></div>

@@ -197,7 +197,9 @@ RENDER_ORDER.explosion = ro++;
 var TIMEOUT_LIST = [];
 
 function ingameTimeout(seconds, callback){ // timeout function using in-game time
-	TIMEOUT_LIST.push({seconds, callback});
+	var timeoutObject = {seconds, callback};
+	TIMEOUT_LIST.push(timeoutObject);
+	return timeoutObject;
 }
 
 function updateIngameTimeouts(){

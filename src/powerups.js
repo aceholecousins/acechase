@@ -16,7 +16,8 @@ var PUARRAY=[POWERUPS.aloevera, POWERUPS.beans, POWERUPS.blueberry, POWERUPS.bon
 			POWERUPS.cannabis, POWERUPS.carrot, POWERUPS.cigarette, POWERUPS.coffee,
 			POWERUPS.garlic];
 
-var GLOBAL_POWERUP_TARGET = {pu:POWERUPS.nothing, victim:[]}; // garlic or bonbon
+var GLOBAL_POWERUP_TARGET = {pu:POWERUPS.nothing, victim:[], timeout:null}; // garlic or bonbon
+var COFFEE_TIMEOUT = null;
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 

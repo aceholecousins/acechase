@@ -447,23 +447,42 @@ Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;
 	this.powerupLasts = pu.duration; // coffeestretch applied at timers
 
-	if(pu == POWERUPS.aloevera){this.hitpoints = HITPOINTS;}
-	if(pu == POWERUPS.cigarette){this.hitpoints = 0.0001;}
+	if(pu == POWERUPS.aloevera){
+		this.hitpoints = HITPOINTS;
+		this.powerup = POWERUPS.nothing;	
+	}
+	if(pu == POWERUPS.cigarette){
+		this.hitpoints = 0.0001;
+		this.powerup = POWERUPS.nothing;
+	}
 
 	if(pu == POWERUPS.bonbon || pu == POWERUPS.garlic){
 		GLOBAL_POWERUP_TARGET.pu = pu;
 		GLOBAL_POWERUP_TARGET.victim = this;
-		ingameTimeout(pu.duration, function(){
-			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
-			GLOBAL_POWERUP_TARGET.victim = [];
-		});
+		if(GLOBAL_POWERUP_TARGET.timeout == null){
+			GLOBAL_POWERUP_TARGET.timeout = ingameTimeout(pu.duration, function(){
+				GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
+				GLOBAL_POWERUP_TARGET.victim = [];
+			});
+		}
+		else{
+			GLOBAL_POWERUP_TARGET.timeout.seconds = pu.duration;
+		}
 	}
 
 	if(pu == POWERUPS.coffee){
 		DT = DT_ORIGINAL / COFFEE_STRETCH;
-		ingameTimeout(pu.duration / COFFEE_STRETCH, function(){
-			DT = DT_ORIGINAL;
-		});
+		if(COFFEE_TIMEOUT == null){
+			COFFEE_TIMEOUT = ingameTimeout(pu.duration / COFFEE_STRETCH, function(){
+				COFFEE_TIMEOUT == null;
+				DT = DT_ORIGINAL;
+				WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
+			});
+			WATER_MATERIAL.uniforms.waterColor.value.set(0.15,0.07,0,1);
+		}
+		else{
+			COFFEE_TIMEOUT.seconds = pu.duration / COFFEE_STRETCH;
+		}
 	}
 }
 
