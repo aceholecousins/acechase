@@ -591,6 +591,37 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 
 
 
+<table class="campaign" onclick="MAP0='maps/cactus.svg'; GAME0='T'; startgame()">
+ <tr>
+  <td align="center" style = "width:100px">
+	<img src="maps/cactus.jpg" title="Cactus" class="std" style="width:100px">
+  </td>
+  <td style = "width:200px">
+<b>Cactus</b><br>
+Hustle through the cactus (preferably without touching the walls) and beat your own time because we didn't implement a high score server!
+  </td>
+  <td align="center" style = "width:100px">
+	<img id="cactusmedal" style="width:100px; display:none"><br>
+	<div id="cactushs"></div>
+	<script>
+		if(true){ // so vars are not global
+			var hs = getCookie("maps/cactus.svg");
+			if(hs != ""){
+				var award = medal("maps/cactus.svg", hs*1);
+				if(award != null){
+					get("cactusmedal").src = "media/images/" + award + ".png";
+					get("cactusmedal").style.display = "inline";
+				}
+				get("cactushs").innerHTML = Math.floor(hs/60) + ":" + pad(Math.floor(hs%60),2) + "." + pad(Math.round(1000*(hs%1)),3);
+			}
+		}
+	</script>
+  </td>
+ </tr>
+</table>
+
+
+
 <table class="campaign" onclick="MAP0='maps/hilbertsgarden.svg'; GAME0='T'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
@@ -598,7 +629,7 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
   </td>
   <td style = "width:200px">
 <b>Hilbert's Garden</b><br>
-Hustle through the second order Hilbert curve (preferably without touching the walls) and beat your own time because we didn't implement a high score server!
+Speedrun the second order Hilbert curve! It's even more meaner!
   </td>
   <td align="center" style = "width:100px">
 	<img id="hilbertsgardenmedal" style="width:100px; display:none"><br>

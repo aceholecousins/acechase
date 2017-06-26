@@ -315,7 +315,7 @@ function Arena(filename){
 				if(nrmlstruct == null){
 					nrmlstruct = {tex:monotex(128,128,255,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
 				if(specstruct == null){
-					specstruct = {tex:monotex(100,100,100,255), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
+					specstruct = {tex:monotex(255,255,255,100), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}
 			}
 			if(overstruct == null){
 				overstruct = {tex:monotex(0,0,0,0), pos:new THREE.Vector4(0,0,1,1), tfinv:new THREE.Vector4(1,0,0,1)};}

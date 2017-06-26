@@ -379,7 +379,10 @@
 				NPUBOXES = 0;
 				GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
 				GLOBAL_POWERUP_TARGET.victim = [];
+				GLOBAL_POWERUP_TARGET.timeout = null;
+				COFFEE_TIMEOUT == null;
 				DT = DT_ORIGINAL;
+				WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
 				updateAllHBObjects();				
 
