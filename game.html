@@ -400,7 +400,8 @@
 					ingameTimeout(1, function(){spawnTarget(false);});
 					ingameTimeout(2, function(){spawnTarget(false);});
 					ingameTimeout(3, function(){spawnTarget(false);});
-					ingameTimeout(5, function(){spawnTarget(true);});
+					ingameTimeout(5, function(){spawnTarget(true, 50);});
+					ingameTimeout(7, function(){spawnTarget(true, 100);});
 				}
 			}
 

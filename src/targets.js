@@ -3,7 +3,7 @@ var TARGET_TEX = loadTexture("media/textures/target.png");
 var MINE_TEX = loadTexture("media/textures/mine.png");
 var TARGETS = [];
 
-function spawnTarget(isMine){
+function spawnTarget(isMine, attractforce){
 
 	var pos;
 	var posok = false;
@@ -34,11 +34,11 @@ function spawnTarget(isMine){
 		}
 	}
 
-	new Target(pos, isMine);
+	new Target(pos, isMine, attractforce);
 
 }
 
-function Target(pos, isMine){ // powerup box class
+function Target(pos, isMine, attractforce){ // powerup box class
 	HBObject.call(this); // inheritance
 	this.destroyedBy = null;
 
@@ -51,6 +51,7 @@ function Target(pos, isMine){ // powerup box class
 	else{
 		this.type = 'mine';
 		this.hitpoints = PUBOX_HITPOINTS/3;
+		this.attractforce = attractforce;
 		mineSizeFactor = 2;
 	}
 	TARGETS.push(this);
@@ -134,7 +135,7 @@ Target.prototype.destroyed = function(){
 	if(this.type == "mine"){
 		explosion(this.mesh.position, new THREE.Color("red"));
 		playSound(SOUNDS.explosion, 2.0, 0.67, 0.0);
-		ingameTimeout(4, function(){spawnTarget(true);});
+		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);});
 	}
 	this.despawn();
 
@@ -160,8 +161,6 @@ Target.prototype.specificUpdate=function(){
 
 	if(this.type=="mine"){
 
-		var fmine = 50;
-
 		var mindist = 1e100;
 		var imin;
 		for(var i=0; i<hovers.length; i++){
@@ -173,8 +172,8 @@ Target.prototype.specificUpdate=function(){
 			}
 		}
 
-		this.body.force[0] = (hovers[imin].body.position[0]-this.body.position[0])/mindist * fmine;
-		this.body.force[1] = (hovers[imin].body.position[1]-this.body.position[1])/mindist * fmine;
+		this.body.force[0] = (hovers[imin].body.position[0]-this.body.position[0])/mindist * this.attractforce;
+		this.body.force[1] = (hovers[imin].body.position[1]-this.body.position[1])/mindist * this.attractforce;
 
 	}
 
