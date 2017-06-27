@@ -116,7 +116,7 @@ var playerDisplayTemplate = `
 	Up/Down: <select id="gpud_$" class="std" style="width:100px;"></select><br>
 	Thrust: <select id="gpthrust_$" class="std" style="width:100px;"></select><br>
 	Fire: <select id="gpfire_$" class="std" style="width:100px;"></select><br>
-	Special: <select id="gpspcl_$" class="std" style="width:100px;"></select>
+	<div style="display:none">Special: <select id="gpspcl_$" class="std" style="width:100px;"></select></div>
    </div>
    <div id="kboptions_$">
 	Control: <select id="kbrelabs_$" class="std" style="width:100px;">
@@ -135,8 +135,8 @@ var playerDisplayTemplate = `
 		onclick="assignKey(this)">&nbsp</button><br>
 	Fire: <button id="kbfire_$" class="std" style="width:100px;"
 		onclick="assignKey(this)">&nbsp</button><br>
-	Special: <button id="kbspcl_$" class="std" style="width:100px;"
-		onclick="assignKey(this)">&nbsp</button>
+	<div style="display:none">Special: <button id="kbspcl_$" class="std" style="width:100px;"
+		onclick="assignKey(this)">&nbsp</button></div>
    </div>
    <div id="msoptions_$">
 	Control: <select id="msrelabs_$" class="std" style="width:100px;">
@@ -147,11 +147,11 @@ var playerDisplayTemplate = `
 	 <option data-code="rl">R/L</option>
 	 <option data-code="lr">L/R</option>
 	</select><br>
-	Special: <select id="msspcl_$" class="std" style="width:100px;">
+	<div style="display:none">Special: <select id="msspcl_$" class="std" style="width:100px;">
 	 <option data-code="lr">L+R simult.</option>
 	 <option data-code="wp">Wheel press</option>
 	 <option data-code="ws">Wheel scroll</option>
-	</select><br>
+	</select><br></div>
    </div>
     <div id="mdoptions_$">        
    </div>
