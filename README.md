@@ -1,4 +1,4 @@
-![AceChase banner](/media/images/banner.png)
+![AceChase banner](/media/images/banner.jpg)
 
 # [>> PLAY! <<](https://aceholecousins.github.io/acechase/)
 
