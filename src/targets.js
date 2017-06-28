@@ -135,7 +135,7 @@ Target.prototype.destroyed = function(){
 	if(this.type == "mine"){
 		explosion(this.mesh.position, new THREE.Color("red"));
 		playSound(SOUNDS.explosion, 2.0, 0.67, 0.0);
-		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);});
+		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);}.bind(this));
 	}
 	this.despawn();
 
