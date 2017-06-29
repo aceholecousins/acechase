@@ -64,7 +64,10 @@
 				var value = PARAMS[i].split(':')[1];
 
 				// the ..0 items are for single player mode
-				if(key == "game" || key == "game0"){GAME_MODE = value;}
+				if(key == "game" || key == "game0"){
+					GAME_MODE = value[0];
+					if(key.length > 1){GAME_LEVEL = value[1];}
+				}
 				if(key == "player" || key == "player0"){NUM_PLAYERS++;} // players are read later
 				if(key == "hp"){HITPOINTS = value * 1;}
 				if(key == "shld"){SHIELD = value *1;}
@@ -397,11 +400,21 @@
 				}
 
 				if(GAME_MODE == "X"){ // spawn targets for shooting range
-					ingameTimeout(1, function(){spawnTarget(false);});
-					ingameTimeout(2, function(){spawnTarget(false);});
-					ingameTimeout(3, function(){spawnTarget(false);});
-					ingameTimeout(5, function(){spawnTarget(true, 50);});
-					ingameTimeout(7, function(){spawnTarget(true, 100);});
+					if(GAME_LEVEL == "1"){
+						ingameTimeout(1, function(){spawnTarget(false);});
+						ingameTimeout(2, function(){spawnTarget(false);});
+						ingameTimeout(3, function(){spawnTarget(false);});
+						ingameTimeout(4, function(){spawnTarget(false);});
+						ingameTimeout(5, function(){spawnTarget(true, 50);});
+					}
+					if(GAME_LEVEL == "2"){
+						ingameTimeout(1, function(){spawnTarget(false);});
+						ingameTimeout(2, function(){spawnTarget(false);});
+						ingameTimeout(3, function(){spawnTarget(false);});
+						ingameTimeout(5, function(){spawnTarget(true, 20);});
+						ingameTimeout(6, function(){spawnTarget(true, 60);});
+						ingameTimeout(7, function(){spawnTarget(true, 120);});
+					}
 				}
 			}
 

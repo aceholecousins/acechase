@@ -656,28 +656,59 @@ Speedrun the second order Hilbert curve! It's even more meaner!
 
 
 
-<table class="campaign" onclick="MAP0='maps/shootingrange.svg'; GAME0='X'; startgame()">
+<table class="campaign" onclick="MAP0='maps/shootingrange1.svg'; GAME0='X1'; startgame()">
  <tr>
   <td align="center" style = "width:100px">
-	<img src="maps/shootingrange.png" title="Shooting Range" class="std" style="width:100px">
+	<img src="maps/shootingrange1.png" title="Shooting Range I" class="std" style="width:100px">
   </td>
   <td style = "width:200px">
-<b>Shooting Range</b><br>
+<b>Shooting Range I</b><br>
 Shoot as many targets as you can! Avoid shooting or touching the magnet mine though.
   </td>
   <td align="center" style = "width:100px">
-	<img id="shootingrangemedal" style="width:100px; display:none"><br>
-	<div id="shootingrangehs"></div>
+	<img id="shootingrange1medal" style="width:100px; display:none"><br>
+	<div id="shootingrange1hs"></div>
 	<script>
 		if(true){ // so vars are not global
-			var hs = getCookie("maps/shootingrange.svg");
+			var hs = getCookie("maps/shootingrange1.svg");
 			if(hs != ""){
-				var award = medal("maps/shootingrange.svg", hs*1);
+				var award = medal("maps/shootingrange1.svg", hs*1);
 				if(award != null){
-					get("shootingrangemedal").src = "media/images/" + award + ".png";
-					get("shootingrangemedal").style.display = "inline";
+					get("shootingrange1medal").src = "media/images/" + award + ".png";
+					get("shootingrange1medal").style.display = "inline";
 				}
-				get("shootingrangehs").innerHTML = hs;
+				get("shootingrange1hs").innerHTML = hs;
+			}
+		}
+	</script>
+  </td>
+ </tr>
+</table>
+
+
+
+<table class="campaign" onclick="MAP0='maps/shootingrange2.svg'; GAME0='X2'; startgame()">
+ <tr>
+  <td align="center" style = "width:100px">
+	<img src="maps/shootingrange2.png" title="Shooting Range II" class="std" style="width:100px">
+  </td>
+  <td style = "width:200px">
+<b>Shooting Range II</b><br>
+Same procedure as last Shooting Range, just difficulter.
+  </td>
+  <td align="center" style = "width:100px">
+	<img id="shootingrange2medal" style="width:100px; display:none"><br>
+	<div id="shootingrange2hs"></div>
+	<script>
+		if(true){ // so vars are not global
+			var hs = getCookie("maps/shootingrange2.svg");
+			if(hs != ""){
+				var award = medal("maps/shootingrange2.svg", hs*1);
+				if(award != null){
+					get("shootingrange2medal").src = "media/images/" + award + ".png";
+					get("shootingrange2medal").style.display = "inline";
+				}
+				get("shootingrange2hs").innerHTML = hs;
 			}
 		}
 	</script>

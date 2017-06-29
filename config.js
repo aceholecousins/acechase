@@ -1,5 +1,6 @@
 
 var GAME_MODE = "D"; // R for race, T for time trial, D for deathmatch, X for shooting range
+var GAME_LEVEL = 0; // for different levels of the same game mode
 
 var MAP = 'maps/islandisle.svg';
 
