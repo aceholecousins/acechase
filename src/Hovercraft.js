@@ -173,6 +173,46 @@ Hovercraft.prototype.update = function(){
 		this.shield = SHIELD;
 		this.shieldMesh.material.opacity = 0.7;
 	}
+ 
+	if(FRAME_COUNTER % 7 == 0
+			&& GLOBAL_POWERUP_TARGET.victim == this
+			&& GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic){ // garlic smell
+		var effect = new Effect();
+		effect.type = 'smoke';
+		effect.mesh = SMOKE_MESH.clone();
+		effect.mesh.position.copy(this.mesh.position);
+		effect.mesh.transparent = true;
+		effect.mesh.renderOrder = SMOKE_MESH.renderOrder;
+		effect.mesh.material = SMOKE_MESH.material.clone();
+		effect.mesh.rotation.z = Math.random()*1000;
+		effect.mesh.position.z = 0.4;
+		effect.velocity.z = 6;
+		effect.mesh.material.color = new THREE.Color("tan");
+		effect.growth = 16;
+		effect.decay = 1;
+		effect.spawn();
+	}
+
+	if(FRAME_COUNTER % 7 == 0
+			&& GLOBAL_POWERUP_TARGET.victim == this
+			&& GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon){ // garlic smell
+		var effect = new Effect();
+		effect.type = 'sparkles';
+		effect.mesh = SPARKLE_MESH.clone();
+		effect.mesh.position.copy(this.mesh.position);
+		effect.mesh.transparent = true;
+		effect.mesh.renderOrder = SPARKLE_MESH.renderOrder;
+		effect.mesh.material = SPARKLE_MESH.material.clone();
+		effect.mesh.rotation.z = Math.random()*1000;
+		effect.mesh.position.z = 0.4;
+		effect.velocity.z = 6;
+		effect.mesh.material.color = new THREE.Color("hotpink");
+		effect.mesh.material.color.lerp(new THREE.Color("white"), Math.random());
+		effect.strength = 3;
+		effect.growth = 8;
+		effect.decay = 3;
+		effect.spawn();
+	}
 
 	this.ammo += PHASER_REGEN*localdt;
 	if(this.ammo >= PHASER_AMMO){
@@ -457,10 +497,12 @@ Hovercraft.prototype.collect = function(pu){
 	}
 
 	if(pu == POWERUPS.bonbon || pu == POWERUPS.garlic){
+		this.powerup = POWERUPS.nothing;
 		GLOBAL_POWERUP_TARGET.pu = pu;
 		GLOBAL_POWERUP_TARGET.victim = this;
 		if(GLOBAL_POWERUP_TARGET.timeout == null){
 			GLOBAL_POWERUP_TARGET.timeout = ingameTimeout(pu.duration, function(){
+				GLOBAL_POWERUP_TARGET.timeout = null;
 				GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
 				GLOBAL_POWERUP_TARGET.victim = [];
 			});
@@ -474,7 +516,7 @@ Hovercraft.prototype.collect = function(pu){
 		DT = DT_ORIGINAL / COFFEE_STRETCH;
 		if(COFFEE_TIMEOUT == null){
 			COFFEE_TIMEOUT = ingameTimeout(pu.duration / COFFEE_STRETCH, function(){
-				COFFEE_TIMEOUT == null;
+				COFFEE_TIMEOUT = null;
 				DT = DT_ORIGINAL;
 				WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 			});

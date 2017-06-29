@@ -23,6 +23,7 @@ var PUBOX_HITPOINTS = 7;
 var PUBOX_LIMIT = 4;
 
 var MUSIC_VOLUME = 0.2;
+var RESOLUTION = 1;
 
 var RESPAWN_TIME = 3;
 var ROUND_TIME = 40;

@@ -69,7 +69,7 @@ a{
 
 <script src="medals.js"></script>
 <script>
-
+	
 var CFGVERSION = 1; // version of the config string pattern
 var SINGLEMULTI = 0; // 1 for single, 2 for multiplayer
 var MAP0 = ""; // selected singleplayer level
@@ -361,6 +361,7 @@ function defaultOptions(){
 	get("ammo").value = 30;
 	get("ammoreg").value = 10;
 	get("vol").value = 40;
+	get("res").value = 100;
 	get("debug").value = 0;
 
 }
@@ -395,6 +396,7 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 		result += 'ammo:' + get('ammo').value + ';';
 		result += 'ammoreg:' + get('ammoreg').value + ';';
 		result += 'vol:' + get('vol').value + ';';
+		result += 'res:' + get('res').value + ';';
 		result += 'bump:' + get('bump').checked * 1 + ';';
 		result += 'h2o:' + get('h2o').checked * 1 + ';';
 		result += 'debug:' + get('debug').value + ';';
@@ -404,14 +406,13 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 
 	if(SINGLEMULTI == 1 || complete){
 		result += 'vol0:' + get('vol0').value + ';';
+		result += 'res0:' + get('res0').value + ';';
 		result += 'bump0:' + get('bump0').checked * 1 + ';';
 		result += 'h2o0:' + get('h2o0').checked * 1 + ';';
 		result += 'debug0:' + get('debug0').value + ';';
 		result += 'map0:' + MAP0 + ';';
 		result += 'game0:' + GAME0 + ';';
 	}
-
-
 
 	for(var i=-1; i<get("mpdisparea").childNodes.length; i++){ // -1 for the single player
 		if( i==-1 && SINGLEMULTI == 2 && !complete ){continue;}
@@ -485,11 +486,12 @@ function string2config(string, warning){ // string must be complete
 		var value = cfg[i].split(':')[1];
 
 		if(key=="time" || key=="hp" || key=="shld" || key=="shldreg" || key=="ammo" || key=="ammoreg"
-				|| key=="vol" || key=="debug" || key=="map"){
+				|| key=="vol" || key=="res" || key=="debug" || key=="map"
+				|| key=="vol0" || key=="res0" || key=="debug0"){
 			get(key).value = value;
 		}
 
-		if(key=="bump" || key=="h2o"){
+		if(key=="bump" || key=="h2o" || key=="bump0" || key=="h2o0"){
 			get(key).checked = value=="1";
 		}
 
@@ -719,9 +721,14 @@ Same procedure as last Shooting Range, just difficulter.
 
 
 <br><br>
-	<div id="spoptions" class="std" style="background-color:white; padding:5px; width:300px">
+	<div id="spoptions" class="std" style="background-color:white; padding:5px; width:370px">
 		<table>
-		<tr class="optionline"><td>Music Vol.:</td><td><input id="vol0" type="range"  min="0" max="100" value="40"/></td></tr>
+		<tr class="optionline"><td>Music Vol.:</td><td>
+			<table><tr><td width="35" align="right">0</td><td><input id="vol0" type="range"  min="0" max="100" value="40"/></td><td>100</td></tr></table>
+		</td></tr>
+		<tr class="optionline"><td>Resolution:</td><td>
+			<table><tr><td width="35" align="right">25%</td><td><input id="res0" type="range"  min="25" max="100" value="100"/></td><td>100%</td></tr></table>
+		</td></tr>
 		<tr class="optionline"><td>Fancy Terrain:</td><td><input id="bump0" type="checkbox" checked="true"></td></tr>
 		<tr class="optionline"><td>Fancy Water:</td><td><input id="h2o0" type="checkbox" checked="true"></td></tr>
 		<tr class="optionline"><td>Debug Level:</td><td><input id="debug0" type="number" value=0 class="std" style="width:50px"></td></tr>
@@ -744,7 +751,12 @@ Same procedure as last Shooting Range, just difficulter.
 	<tr class="optionline"><td>Shield Regen.:</td><td><input id="shldreg" type="number" value=1 class="std" style="width:50px"> hits/s</td></tr>
 	<tr class="optionline"><td>Phaser Ammo:</td><td><input id="ammo" type="number" value=30 class="std" style="width:50px"> shots</td></tr>
 	<tr class="optionline"><td>Phaser Regen.:</td><td><input id="ammoreg" type="number" value=10 class="std" style="width:50px"> shots/s</td></tr>
-	<tr class="optionline"><td>Music Vol.:</td><td><input id="vol" type="range"  min="0" max="100" value="40"/></td></tr>
+	<tr class="optionline"><td>Music Vol.:</td><td>
+		<table><tr><td width="35" align="right">0</td><td><input id="vol" type="range"  min="0" max="100" value="40"/></td><td>100</td></tr></table>
+	</td></tr>
+	<tr class="optionline"><td>Resolution:</td><td>
+		<table><tr><td width="35" align="right">25%</td><td><input id="res" type="range"  min="25" max="100" value="100"/></td><td>100%</td></tr></table>
+	</td></tr>
 	<tr class="optionline"><td>Fancy Terrain:</td><td><input id="bump" type="checkbox" checked="true"></td></tr>
 	<tr class="optionline"><td>Fancy Water:</td><td><input id="h2o" type="checkbox" checked="true"></td></tr>
 	<tr class="optionline"><td>Debug Level:</td><td><input id="debug" type="number" value=0 class="std" style="width:50px"></td></tr>

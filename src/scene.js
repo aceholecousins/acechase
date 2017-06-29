@@ -1,5 +1,6 @@
 
 var RENDERER = new THREE.WebGLRenderer();
+RENDERER.setPixelRatio(RESOLUTION);
 RENDERER.setSize( window.innerWidth, window.innerHeight );
 //RENDERER.setClearColor( 0x808080, 1);
 RENDERER.setClearColor( 0x000000 );

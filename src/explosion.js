@@ -115,7 +115,6 @@ var SMOKE_MESH = new THREE.Mesh( smokeGeometry, smokeMaterial );
 SMOKE_MESH.position.set(0,0,0.1);
 SMOKE_MESH.renderOrder = RENDER_ORDER.smoke;
 
-
 // star
 
 var starMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/star.png'), transparent:true} );

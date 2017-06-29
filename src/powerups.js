@@ -21,6 +21,16 @@ var COFFEE_TIMEOUT = null;
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 
+// sparkles
+
+var sparkleMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/sparkles.png'), transparent:true} );
+var sparkleGeometry = new THREE.PlaneGeometry( 1, 1 );
+var SPARKLE_MESH = new THREE.Mesh( sparkleGeometry, sparkleMaterial );
+SPARKLE_MESH.position.set(0,0,0.1);
+SPARKLE_MESH.renderOrder = RENDER_ORDER.smoke;
+
+
+
 function maybeSpawnPowerup(){
 	if(Math.random()<DT/AVG_SECONDS_BETWEEN_POWERUPS && NPUBOXES < PUBOX_LIMIT){
 		var pos = findAccessiblePosition(-1);
