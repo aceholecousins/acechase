@@ -49,6 +49,7 @@ function Hovercraft(color, control){
 	this.mesh.getObjectByName('bumper').material = HOVERCRAFT_MESH.getObjectByName('bumper').material.clone();
 	//this.mesh.getObjectByName('halo').material = HOVERCRAFT_MESH.getObjectByName('halo').material.clone();
 	this.mesh.getObjectByName('halo').material = new THREE.MeshBasicMaterial();
+	this.mesh.getObjectByName('arrow').material = this.mesh.getObjectByName('halo').material;
 
 	this.mesh.getObjectByName('body').material.color.copy(this.color);
 	this.mesh.getObjectByName('bumper').material.color.copy(this.color);
@@ -440,7 +441,7 @@ Hovercraft.prototype.shootPhaser = function(){
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
 		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
-		playSound(SOUNDS.phaserShot, 0.12, Math.random()*0.2 + 1.0, false) // this was first phaser
+		playSound(SOUNDS.phaserShot, 0.12, Math.random()*0.1 + 0.5, false) // this was first phaser
 	}
 }
 
