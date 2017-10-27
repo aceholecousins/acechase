@@ -22,14 +22,15 @@ function playSound(buffer, volume, pitch, loop){
     gainNode.gain.value = volume;
 
     source.start(0);
-	return source;
+	return {src:source; gn:gainNode};
 }
 
 sfxBufferLoader = new BufferLoader(
     AUDIO_CONTEXT, [
         'media/sound/phaser2.ogg',
         'media/sound/216277__rsilveira-88__synthesized-explosion-02.ogg',
-		'media/sound/110393__soundscalpel-com__water-splash.ogg'],
+		'media/sound/110393__soundscalpel-com__water-splash.ogg',
+		'media/sound/thrust.wav'],
     sfxLoadedCallback);
 
 sfxBufferLoader.load();
@@ -39,6 +40,7 @@ function sfxLoadedCallback(bufferList) {
     SOUNDS.phaserShot = bufferList[0];
     SOUNDS.explosion = bufferList[1];
     SOUNDS.splash = bufferList[2];
+	SOUNDS.thrust = bufferList[3];
 
     LOADING_LIST.checkItem('sounds');
 
@@ -87,7 +89,7 @@ function loadNextSoundtrack(){
 function manageSoundtrack(){
 	
 	if(!SOUNDTRACK_PLAYING && NEXT_SOUNDTRACK_READY){
-		source = playSound(NEXT_SOUNDTRACK_BUFFER, MUSIC_VOLUME, 1.0, false);
+		nodes = playSound(NEXT_SOUNDTRACK_BUFFER, MUSIC_VOLUME, 1.0, false);
 		SOUNDTRACK_PLAYING = true;
 
 		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA' target='_blank' href='" + 
@@ -104,7 +106,7 @@ function manageSoundtrack(){
 		NEXT_SOUNDTRACK_BUFFER = undefined;
 		NEXT_SOUNDTRACK_READY = false;
 
-		source.onended = function(){
+		nodes.src.onended = function(){
 			console.log('current soundtrack ended')
 			SOUNDTRACK_PLAYING = false;
 		}
