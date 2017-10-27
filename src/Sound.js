@@ -47,12 +47,12 @@ function sfxLoadedCallback(bufferList) {
 
 SOUNDTRACK_LIST = [
 	'media/music/nutcracker.mp3',
-	'media/music/Facing_Your_Nemesis.mp3',
-	'media/music/Mission_A.mp3',
+	'media/music/Facing_Your_Nemesis_lq.ogg',
+	'media/music/Mission_A_lq.ogg',
 	'media/music/SectaInstrumental.ogg',
-	'media/music/Basic_Metal_4.mp3',
-	'media/music/Takeoff.mp3',
-	'media/music/Industrial_Rage.mp3'];
+	'media/music/Basic_Metal_4_lq.ogg',
+	'media/music/Takeoff_lq.ogg',
+	'media/music/Industrial_Rage_lq.ogg'];
 
 SOUNDTRACK_PLAYING = false;
 NEXT_SOUNDTRACK = undefined;
