@@ -250,12 +250,12 @@ setInterval(function(){
 function checkZeroPlayers(){ // deactivate the start button if there are no players
 	if(get("mpdisparea").childNodes.length == 0){
 		get("gogogobutton").style.backgroundColor = '#cccccc';
-		get("gogogobutton").onclick=""
+		get("gogogobutton").onclick = "";
 		ADDPLAYER_BLINK = true;
 	}
 	else{
 		get("gogogobutton").style.backgroundColor = '#ff7755';
-		get("gogogobutton").onclick="startgame()"
+		get("gogogobutton").onclick = startgame;
 		get("addplayerbutton").style.boxShadow = '';
 		ADDPLAYER_BLINK = false;
 	}	
@@ -412,6 +412,10 @@ function startgame(){
 function config2string(complete){ // incomplete only contains stuff necessary for starting the game
 	var result = 'hbcfgv:' + CFGVERSION + ';';
 
+	if(complete){
+		result += 'sm:' + SINGLEMULTI + ';';
+	}
+
 	if(SINGLEMULTI == 2 || complete){
 		result += 'time:' + get('time').value + ';';
 		result += 'hp:' + get('hp').value + ';';
@@ -508,6 +512,11 @@ function string2config(string, warning){ // string must be complete
 	for(var i=cfg.length-1; i>=0; i--){ // back to front cuz players are added on top
 		var key = cfg[i].split(':')[0];
 		var value = cfg[i].split(':')[1];
+
+		if(key=="sm"){
+			if(value == 1){spmpSelect('sp');}
+			if(value == 2){spmpSelect('mp');}
+		}
 
 		if(key=="time" || key=="hp" || key=="shld" || key=="shldreg" || key=="ammo" || key=="ammoreg"
 				|| key=="vol" || key=="res" || key=="debug" || key=="vol0" || key=="res0" || key=="debug0"){
@@ -811,7 +820,7 @@ Same procedure as last Shooting Range, just difficulter.
 				<option value="maps/honeycombs.svg|D">Honeycombs (Deathmatch)</option>
 				<option value="maps/cactus.svg|R">Cactus (Race)</option>
 				<option value="maps/hilbertsgarden.svg|R">Hilbert's Garden (Race)</option>
-				<!--<option value="custom">Custom URL...</option>-->swwwww
+				<!--<option value="custom">Custom URL...</option>-->
   			</select>
 			<!--<input type="text" id="custommap" class="std" style="position:absolute; top:0px; left:0px; width:250px"> -->
 	</td></tr></table>
