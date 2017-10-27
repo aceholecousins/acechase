@@ -338,7 +338,7 @@
 					SCORETABLE.plane.visible = true;
 				}
 
-				if(GAME_MODE == "X"){ // shooting range
+				if(GAME_MODE == "X" && NUM_PLAYERS == 1){ // shooting range, single player
 
 					hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
 					SCORETABLE.clear();
@@ -370,6 +370,20 @@
 					}
 					
 					SCORETABLE.line(["Highscore", highscore, "", ""], new THREE.Color("black"));
+					SCORETABLE.plane.visible = true;
+				}
+
+				if(GAME_MODE == "X" && NUM_PLAYERS > 1){ // shooting range, multiplayer
+
+					hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
+					SCORETABLE.clear();
+					SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
+					SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
+
+					for(var i=0; i<hovers.length; i++){
+						var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
+						SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
+					}
 					SCORETABLE.plane.visible = true;
 				}
 			}
