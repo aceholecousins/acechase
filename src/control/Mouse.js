@@ -131,5 +131,6 @@ RENDERER.domElement.requestPointerLock =
 RENDERER.domElement.onclick = function () {
     if (DEBUG < 2) {
         RENDERER.domElement.requestPointerLock();
+		ScreenControl.enterFullScreen();
     }
 }
