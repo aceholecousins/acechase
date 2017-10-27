@@ -52,6 +52,8 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 		damping:0.0,
 		angularDamping:0.0
     	});
+	
+	if(GAME_MODE == "R"){this.body.mass = 3.0;} // hard pushing phasers
 
 	PHYSICS_WORLD.disableBodyCollision(this.body, shooter.body);
 

@@ -268,7 +268,7 @@ Hovercraft.prototype.update = function(){
 			GLOBAL_POWERUP_TARGET.victim = [];
 		}
 
-		if(GAME_MODE != "T"){ // don't respawn in time trials after suicide
+		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
 				var startPos = findAccessiblePosition(-2);
 
@@ -439,13 +439,17 @@ Hovercraft.prototype.shootPhaser = function(){
 		}
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
-		playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false)
+		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
+		playSound(SOUNDS.phaserShot, 0.12, Math.random()*0.2 + 1.0, false) // this was first phaser
 	}
 }
 
 Hovercraft.prototype.hitBy = function(thing){
 	
-	this.shield -= 1;
+	if(GAME_MODE != "R"){ // no damage during race
+		this.shield -= 1;
+	}
+
 	if(this.shield<=0){
 		this.hitpoints += this.shield;
 		this.shield = 0;

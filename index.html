@@ -400,8 +400,8 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 		result += 'bump:' + get('bump').checked * 1 + ';';
 		result += 'h2o:' + get('h2o').checked * 1 + ';';
 		result += 'debug:' + get('debug').value + ';';
-		result += 'map:' + get('map').value + ';';
-		result += 'game:D;'; // multiplayer only supports death match so far
+		result += 'map:' + get('map').value.split("|")[0] + ';';
+		result += 'game:' + get('map').value.split("|")[1] + ';';
 	}
 
 	if(SINGLEMULTI == 1 || complete){
@@ -486,9 +486,16 @@ function string2config(string, warning){ // string must be complete
 		var value = cfg[i].split(':')[1];
 
 		if(key=="time" || key=="hp" || key=="shld" || key=="shldreg" || key=="ammo" || key=="ammoreg"
-				|| key=="vol" || key=="res" || key=="debug" || key=="map"
-				|| key=="vol0" || key=="res0" || key=="debug0"){
+				|| key=="vol" || key=="res" || key=="debug" || key=="vol0" || key=="res0" || key=="debug0"){
 			get(key).value = value;
+		}
+
+		if(key=="map"){
+			for(i=0; i<get("map").options.length; i++){
+				if(get("map").options[i].value.indexOf(value) != -1){
+					get("map").selectedIndex = i;
+				}
+			}
 		}
 
 		if(key=="bump" || key=="h2o" || key=="bump0" || key=="h2o0"){
@@ -572,7 +579,7 @@ var keyNames={3:"break", 8:"backspace", 9:"tab", 12:'clear',13:"enter", 16:"shif
 
 <center>
 
-<div id="cookieinfo" class="std" style="background-color:white; padding:5px">This site uses cookies to store information on your computer (duh!). We only use them so that your carefully hand-crafted configuration is not lost. Pinky swear. <button onclick="get('cookieinfo').style.display = 'none'">I don't care.</button></div><br>
+<div id="cookieinfo" class="std" style="background-color:white; padding:5px">This site uses cookies to store information on your computer (duh!). We only use them so that your high score and your carefully hand-crafted configuration is not lost. Pinky swear. <button onclick="get('cookieinfo').style.display = 'none'">I don't care.</button></div><br>
 
 <img src="media/images/darken.png" style="display:none"><!-- preloading images -->
 <img src="media/images/lighten.png" style="display:none">
@@ -775,10 +782,12 @@ Same procedure as last Shooting Range, just difficulter.
 	</datalist>-->
 	<table height=35><tr><td>Map:</td><td width=300 style="position:relative">
 			<select id="map" class="std" style="position:absolute; top:0px; left:0px; width:300px">
-				<option value="maps/grassiceislands.svg">Grass Ice Islands</option>
-				<option value="maps/hackerland.svg">Hackerland</option>
-				<option value="maps/honeycombs.svg">Honeycombs</option>
-				<!--<option value="custom">Custom URL...</option>-->
+				<option value="maps/grassiceislands.svg|D">Grass Ice Islands (Deathmatch)</option>
+				<option value="maps/hackerland.svg|D">Hackerland (Deathmatch)</option>
+				<option value="maps/honeycombs.svg|D">Honeycombs (Deathmatch)</option>
+				<option value="maps/cactus.svg|R">Cactus (Race)</option>
+				<option value="maps/hilbertsgarden.svg|R">Hilbert's Garden (Race)</option>
+				<!--<option value="custom">Custom URL...</option>-->swwwww
   			</select>
 			<!--<input type="text" id="custommap" class="std" style="position:absolute; top:0px; left:0px; width:250px"> -->
 	</td></tr></table>
