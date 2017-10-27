@@ -46,7 +46,7 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 	var shape = new p2.Circle(radius);
 
 	this.body = new p2.Body({
-        mass: 0.2,
+        mass: 3.0, // 0.2 before
         position:shooter.body.position,
 		angle:shooter.body.angle,
 		damping:0.0,
