@@ -193,8 +193,9 @@
 
 			function initMobileDevice() {
 				document.getElementById("splashscreentext").innerHTML = 
-						"Hold your device in desired initial position and touch image!<br>" + 
-						"<a href='#' onclick='start();'><img src='media/images/hold_phone.png' alt='Hold Phone Image'></a>";
+						"Hold your device in desired initial position and touch screen!<br>" + 
+						"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>";
+				document.body.onclick = start;
 			}
 			
 			function captureMobileDevicesInitialPosition() {
@@ -208,6 +209,7 @@
 			function start() {
 				
 				if(isAtLeastOneMobileDevice()) {
+					document.body.onclick = null;
 					captureMobileDevicesInitialPosition();
 					ScreenControl.enterFullScreen();
 					ScreenControl.lockScreenToLandscape();					
