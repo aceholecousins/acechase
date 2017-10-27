@@ -118,7 +118,7 @@ setInterval(manageSoundtrack, 1000);
 ATTRIBUTION_DIV = document.createElement("div")
 ATTRIBUTION_DIV.style.position = "absolute";
 ATTRIBUTION_DIV.style.top = "90%";
-ATTRIBUTION_DIV.style.left = "50%";
+ATTRIBUTION_DIV.style.left = "5%";
 ATTRIBUTION_DIV.style.width = "90%";
 ATTRIBUTION_DIV.style.padding = "10px";
 ATTRIBUTION_DIV.style.textAlign = "center";

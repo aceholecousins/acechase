@@ -102,7 +102,7 @@ var playerDisplayTemplate = `
    <img id="ctlmd_$" class="std" src="media/images/mobile.png" style="width:60px;"
 	onclick="ctlSelect(idx(this), 'md')"><br><br>
    <button id="remove_$" class="std" style="background-color:#ff9977"
-        onclick="get('mpdisparea').removeChild(get('playerbox_' + idx(this)))">Remove Player
+        onclick="get('mpdisparea').removeChild(get('playerbox_' + idx(this))); checkZeroPlayers()">Remove Player
    </button>
   </td>
   <td id="ctloptions_$" align="right" style="width:200px;">
@@ -235,6 +235,30 @@ function addPlayer(multiplayer){
 	if(!multiplayer){get("remove_" + playerIndex).style.display = "none";}
 
 	return playerIndex;
+}
+
+ADDPLAYER_BLINK = false;
+BLINK_ON = true;
+setInterval(function(){
+	if(ADDPLAYER_BLINK){
+		BLINK_ON = !BLINK_ON;
+		if(BLINK_ON){get("addplayerbutton").style.boxShadow = '0px 0px 10px 4px #ff4000';}
+		else{get("addplayerbutton").style.boxShadow = '';}
+	}
+}, 300);
+
+function checkZeroPlayers(){ // deactivate the start button if there are no players
+	if(get("mpdisparea").childNodes.length == 0){
+		get("gogogobutton").style.backgroundColor = '#cccccc';
+		get("gogogobutton").onclick=""
+		ADDPLAYER_BLINK = true;
+	}
+	else{
+		get("gogogobutton").style.backgroundColor = '#ff7755';
+		get("gogogobutton").onclick="startgame()"
+		get("addplayerbutton").style.boxShadow = '';
+		ADDPLAYER_BLINK = false;
+	}	
 }
 
 //////////////////////
@@ -744,9 +768,9 @@ Same procedure as last Shooting Range, just difficulter.
 </div>
 
 <div id="multiplayercfg" style="display:none">
-	<img src="media/images/addplr.png" title="add player" onclick="addPlayer(true)" class="std" style="background-color:#77ff99; width:80px">
+	<img id="addplayerbutton" src="media/images/addplr.png" title="add player" onclick="addPlayer(true); checkZeroPlayers()" class="std" style="background-color:#77ff99; width:80px">
 	<img src="media/images/settings.png" title="settings" onclick="flipOptions()" class="std" style="background-color:#3355ff; width:80px">
-	<img src="media/images/start.png" title="start game"
+	<img id="gogogobutton" src="media/images/start.png" title="start game"
 		onclick="startgame()" class="std" style="background-color:#ff7755; width:80px"><br>
 
 	<div id="mpoptions" class="std" style="background-color:white; padding:5px; width:530px; display:none">
@@ -831,6 +855,7 @@ Note that some mice sneakily register as USB controllers.-->
 
 <script>
 string2config(getCookie('hbcfg'), false);
+checkZeroPlayers();
 </script>
 
 
