@@ -6,7 +6,6 @@ function MobileDevice(params) {
     this.deviceRotationMatrix = new THREE.Matrix4();
     this.gravityVector = new THREE.Vector3(0, 0, 1);
     this.touch = false;
-    this.rotationMatrixCaptured = false;
     
     window.addEventListener('touchstart', this.handleTouchStart.bind(this));
     window.addEventListener('touchend', this.handleTouchEnd.bind(this));
@@ -67,9 +66,4 @@ MobileDevice.prototype.handleDeviceMotion = function(event) {
     this.gravityVector.setY(acc.y);
     this.gravityVector.setZ(acc.z);
     this.gravityVector.divideScalar(gravity);
-    
-    if(!this.rotationMatrixCaptured) {        
-        this.captureRotationMatrix();
-        this.rotationMatrixCaptured = true;
-    }
 };

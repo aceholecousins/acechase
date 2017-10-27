@@ -196,12 +196,21 @@
 						"Hold your device in desired initial position and touch image!<br>" + 
 						"<a href='#' onclick='start();'><img src='media/images/hold_phone.png' alt='Hold Phone Image'></a>";
 			}
+			
+			function captureMobileDevicesInitialPosition() {
+				hovers.forEach(function(element, index, array) {
+					if(element.control instanceof MobileDevice) {
+						element.control.captureRotationMatrix();
+					}
+				});
+			}
 
 			function start() {
 				
 				if(isAtLeastOneMobileDevice()) {
+					captureMobileDevicesInitialPosition();
 					ScreenControl.enterFullScreen();
-					ScreenControl.lockScreenToLandscape();
+					ScreenControl.lockScreenToLandscape();					
 				}
 				
 				onWindowResize(); // call to initially adjust camera
