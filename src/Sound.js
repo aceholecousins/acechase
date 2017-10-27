@@ -22,7 +22,7 @@ function playSound(buffer, volume, pitch, loop){
     gainNode.gain.value = volume;
 
     source.start(0);
-	return {src:source; gn:gainNode};
+	return {src:source, gn:gainNode};
 }
 
 sfxBufferLoader = new BufferLoader(
