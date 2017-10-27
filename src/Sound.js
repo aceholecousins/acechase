@@ -7,7 +7,7 @@ LOADING_LIST.addItem('sounds');
 
 var SOUNDS = {};
 
-function playSound(buffer, volume, pitch, loop){
+function playSound(buffer, volume, pitch, loop, offset=0.0){
 
     var source = AUDIO_CONTEXT.createBufferSource();
     var gainNode = AUDIO_CONTEXT.createGain();
@@ -21,7 +21,7 @@ function playSound(buffer, volume, pitch, loop){
     source.playbackRate.value = pitch;
     gainNode.gain.value = volume;
 
-    source.start(0);
+    source.start(0, offset);
 	return {src:source, gn:gainNode};
 }
 

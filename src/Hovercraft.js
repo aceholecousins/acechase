@@ -28,6 +28,7 @@ function Hovercraft(color, control){
 	this.powerupLasts = 0; // time until powerup is over
 	this.lastPosition = new THREE.Vector2(0,0); // for line crossing tests
 	this.newPosition = new THREE.Vector2(0,0);
+	this.thrustSound = playSound(SOUNDS.thrust, 0.0, 1.0, true);
 
 	// physics
 
@@ -146,6 +147,7 @@ Hovercraft.prototype.hide = function(){
 	this.trail1.reposition(new THREE.Vector3(0,0,-10000)); // TODO little parts of the trail are remaining for some reason
 	this.trail2.reposition(new THREE.Vector3(0,0,-10000));
 	this.flame.mesh.visible = false;
+	this.thrustSound.gn.gain.value = 0.0;
 }
 
 Hovercraft.prototype.unhide = function(){
@@ -161,7 +163,9 @@ Hovercraft.prototype.update = function(){
 	//this.mesh.position.z = coastDistance(this.body.position[0], this.body.position[1]);
 	//if(coastDistance(this.body.position[0], this.body.position[1])>0){breakpoint();}
 
-	if(this.hidden){return;}
+	if(this.hidden){
+		return;
+	}
 
 	var localdt = DT;
 	if(this.powerup == POWERUPS.coffee){localdt *= COFFEE_STRETCH;}
@@ -294,7 +298,7 @@ Hovercraft.prototype.update = function(){
 				effect.decay = 40;
 				effect.growth = 30;
 
-				playSound(SOUNDS.splash, 0.5, 1.0, false);
+				playSound(SOUNDS.splash, 0.0, 1.0, false, Math.random());
 
 			}.bind(this));
 		}
@@ -341,6 +345,8 @@ Hovercraft.prototype.update = function(){
 		if(watchdog>6){
 			console.log("This should not have happened. Sorry.")
 		}
+
+		this.thrustSound.gn.gain.value = this.control.thrust*0.3;
 
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
@@ -441,7 +447,7 @@ Hovercraft.prototype.shootPhaser = function(){
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
 		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
-		playSound(SOUNDS.phaserShot, 0.12, Math.random()*0.1 + 0.5, false) // this was first phaser
+		playSound(SOUNDS.phaserShot, 0.25, Math.random()*0.1 + 0.5, false) // this was first phaser
 	}
 }
 
