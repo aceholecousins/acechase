@@ -38,7 +38,7 @@ Gamepad.prototype.update = function () {
     if (gp) {
         if (this.relative) {
             if (Math.abs(gp.axes[this.lraxis]) > 0.2) {
-                this.direction -= this.lrsign * gp.axes[this.lraxis] * 5.0 * DT;
+                this.direction -= this.lrsign * gp.axes[this.lraxis] * 5.0 * DT;				
             }
         } else { //absolute direction control
             if (gp.axes[this.lraxis] * gp.axes[this.lraxis] + gp.axes[this.udaxis] * gp.axes[this.udaxis] > 0.6 * 0.6) {

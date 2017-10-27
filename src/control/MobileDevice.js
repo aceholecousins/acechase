@@ -60,6 +60,7 @@ MobileDevice.prototype.handleTouchEnd = function(event) {
 };
 
 MobileDevice.prototype.handleDeviceMotion = function(event) {
+	
     var acc = event.accelerationIncludingGravity;
     const gravity = 9.807;
     this.gravityVector.setX(acc.x);
