@@ -46,22 +46,38 @@ function sfxLoadedCallback(bufferList) {
 }
 
 SOUNDTRACK_LIST = [
-	'media/music/nutcracker.mp3',
-	'media/music/Facing_Your_Nemesis_lq.ogg',
-	'media/music/Mission_A_lq.ogg',
-	'media/music/SectaInstrumental.ogg',
-	'media/music/Basic_Metal_4_lq.ogg',
-	'media/music/Takeoff_lq.ogg',
-	'media/music/Industrial_Rage_lq.ogg'];
+	{file:'media/music/nutcracker.mp3',
+	 attr:'S.Crack - Nutcracker',
+	 link:'https://www.youtube.com/channel/UCokEuO_Y-1gjqVa0mhgcawA'},
+	{file:'media/music/Facing_Your_Nemesis_lq.ogg',
+	 attr:'TeknoAXE - Facing Your Nemesis',
+	 link:'https://youtu.be/wewGsomVJNo'},
+	{file:'media/music/Mission_A_lq.ogg',
+	 attr:'TeknoAXE - Mission A',
+	 link:'https://www.youtube.com/watch?v=6jSLv1VWaMc'},
+	{file:'media/music/SectaInstrumental.ogg',
+	 attr:'Secta Instrumental - CONTRA (David Fau)',
+	 link:'https://www.youtube.com/watch?v=zhyrIt3l7hQ'},
+	{file:'media/music/Basic_Metal_4_lq.ogg',
+	 attr:'TeknoAXE - Basic Metal 4',
+	 link:'https://www.youtube.com/watch?v=HaZzgw9aWc8'},
+	{file:'media/music/Takeoff_lq.ogg',
+	 attr:'Ethan Meixsell - Takeoff',
+	 link:'https://youtu.be/dR4xIvrikQo'},
+	{file:'media/music/Industrial_Rage_lq.ogg',
+	 attr:'TeknoAXE - Industrial Rage',
+	 link:'https://www.youtube.com/watch?v=m6kJWnI3Uo8'}];
 
 SOUNDTRACK_PLAYING = false;
-NEXT_SOUNDTRACK = undefined;
+NEXT_SOUNDTRACK = SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)];
+NEXT_SOUNDTRACK_BUFFER = undefined;
 NEXT_SOUNDTRACK_READY = false;
 
-function loadSoundtrack(file){
+function loadNextSoundtrack(){
+	file = NEXT_SOUNDTRACK.file;
 	console.log('loading next soundtrack: ' + file)
 	soundtrackBufferLoader = new BufferLoader(AUDIO_CONTEXT, [file], function(bufferList){
-		NEXT_SOUNDTRACK = bufferList[0];
+		NEXT_SOUNDTRACK_BUFFER = bufferList[0];
 		NEXT_SOUNDTRACK_READY = true;
 		console.log('soundtrack ready')
 	})
@@ -71,16 +87,21 @@ function loadSoundtrack(file){
 function manageSoundtrack(){
 	
 	if(!SOUNDTRACK_PLAYING && NEXT_SOUNDTRACK_READY){
-		source = playSound(NEXT_SOUNDTRACK, MUSIC_VOLUME, 1.0, false);
+		source = playSound(NEXT_SOUNDTRACK_BUFFER, MUSIC_VOLUME, 1.0, false);
 		SOUNDTRACK_PLAYING = true;
 
-		console.log('loading next soundtrack in ' + (NEXT_SOUNDTRACK.duration-60.0) + 's')
+		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA' target='_blank' href='" + 
+			NEXT_SOUNDTRACK.link + "'>&sung; " + NEXT_SOUNDTRACK.attr + " &sung;</a>";
+		ATTRIBUTION_DIV.style.visibility = "visible";
 
-		setTimeout(function(){ // load another soundtrack 60 seconds before the next one is over
-			loadSoundtrack(SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)]);
-		}, (NEXT_SOUNDTRACK.duration-60.0)*1000.0);
+		setTimeout(function(){ATTRIBUTION_DIV.style.visibility = "hidden";}, 7500);
 
-		NEXT_SOUNDTRACK = undefined;
+		console.log('loading next soundtrack in ' + (NEXT_SOUNDTRACK_BUFFER.duration-60.0) + 's')
+
+		setTimeout(loadNextSoundtrack, (NEXT_SOUNDTRACK_BUFFER.duration-60.0)*1000.0);
+
+		NEXT_SOUNDTRACK = SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)];
+		NEXT_SOUNDTRACK_BUFFER = undefined;
 		NEXT_SOUNDTRACK_READY = false;
 
 		source.onended = function(){
@@ -91,6 +112,20 @@ function manageSoundtrack(){
 	}
 }
 
-loadSoundtrack(SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)]);
+loadNextSoundtrack();
 setInterval(manageSoundtrack, 1000);
+
+ATTRIBUTION_DIV = document.createElement("div")
+ATTRIBUTION_DIV.style.position = "absolute";
+ATTRIBUTION_DIV.style.top = "90%";
+ATTRIBUTION_DIV.style.left = "50%";
+ATTRIBUTION_DIV.style.width = "90%";
+ATTRIBUTION_DIV.style.padding = "10px";
+ATTRIBUTION_DIV.style.textAlign = "center";
+ATTRIBUTION_DIV.style.backgroundColor = "rgba(30,30,30,0.8)";
+ATTRIBUTION_DIV.style.fontSize = "18pt";
+ATTRIBUTION_DIV.style.fontFamily = "monospace";
+ATTRIBUTION_DIV.style.visibility = "hidden";
+
+document.body.appendChild(ATTRIBUTION_DIV)
 
