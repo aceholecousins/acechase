@@ -43,8 +43,6 @@ function sfxLoadedCallback(bufferList) {
 	SOUNDS.thrust = bufferList[3];
 
     LOADING_LIST.checkItem('sounds');
-
-    playSound(SOUNDS.background, MUSIC_VOLUME, 1.0, true);
 }
 
 SOUNDTRACK_LIST = [
@@ -114,8 +112,10 @@ function manageSoundtrack(){
 	}
 }
 
-loadNextSoundtrack();
-setInterval(manageSoundtrack, 1000);
+if(MUSIC_VOLUME > 0.0) {
+	loadNextSoundtrack();
+	setInterval(manageSoundtrack, 1000);
+}
 
 ATTRIBUTION_DIV = document.createElement("div")
 ATTRIBUTION_DIV.style.position = "absolute";
