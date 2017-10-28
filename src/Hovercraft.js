@@ -39,7 +39,7 @@ function Hovercraft(color, control){
 	this.killedBy = {};
 	this.deaths = 0;
 	this.powerup = POWERUPS.nothing; // active powerup (-1 = none)
-	this.powerupLasts = 0; // time until powerup is over
+	this.powerupLasts = 0; // time/shots until powerup is over
 	this.lastPosition = new THREE.Vector2(0,0); // for line crossing tests
 	this.newPosition = new THREE.Vector2(0,0);
 	this.thrustSound = playSound(SOUNDS.thrust, 0.0, 1.0, true);
@@ -144,6 +144,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 	this.ammo = PHASER_AMMO;
 	this.powerup = POWERUPS.nothing;
 	this.powerupLasts = 0;
+	this.fireReleased = false;
 
 	this.body.position[0] = startPos.x;
 	this.body.position[1] = startPos.y;
@@ -209,10 +210,12 @@ Hovercraft.prototype.update = function(){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = false;
 	}
 
-	this.powerupLasts -= localdt;
-	if(this.powerupLasts<0){
-		this.powerup = POWERUPS.nothing;
-		this.powerupLasts = 0;
+	if(this.powerup == POWERUPS.shield || this.powerup == POWERUPS.adrenaline){
+		this.powerupLasts -= localdt;
+		if(this.powerupLasts<0){
+			this.powerup = POWERUPS.nothing;
+			this.powerupLasts = 0;
+		}
 	}
 
 	// smoke
@@ -327,35 +330,40 @@ Hovercraft.prototype.controlHover = function() {
 		//}
 
 		if(this.control.fire){
-
 			if(this.powerup == POWERUPS.missile){
-				var m = new Missile(this);
+				if(this.fireReleased){
+					var m = new Missile(this);
 
-				var locktarget = null;
-				var deltamin = 1000;
+					var locktarget = null;
+					var deltamin = 1000;
 
-				for(var i=0; i<hovers.length; i++){
-					if(hovers[i] == this || hovers[i].hidden){continue;}
-					var targetdir = Math.atan2( // this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
-						hovers[i].body.position[1] - this.body.position[1],
-						hovers[i].body.position[0] - this.body.position[0]);
-					var dir = this.body.angle;
-					var delta = targetdir - dir;
-					if(delta >  Math.PI){delta -= 2*Math.PI;}
-					if(delta < -Math.PI){delta += 2*Math.PI;}
-					if(Math.abs(delta) < deltamin){
-						deltamin = Math.abs(delta);
-						locktarget = hovers[i];
+					for(var i=0; i<hovers.length; i++){
+						if(hovers[i] == this || hovers[i].hidden){continue;} // don't aim at yourself or hidden hovers
+						var targetdir = Math.atan2( // TODO this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
+							hovers[i].body.position[1] - this.body.position[1],
+							hovers[i].body.position[0] - this.body.position[0]);
+						var dir = this.body.angle;
+						var delta = targetdir - dir;
+						if(delta >  Math.PI){delta -= 2*Math.PI;}
+						if(delta < -Math.PI){delta += 2*Math.PI;}
+						if(Math.abs(delta) < deltamin){
+							deltamin = Math.abs(delta);
+							locktarget = hovers[i];
+						}
+					}
+				
+					m.lock = locktarget;
+					
+					this.powerupLasts--;
+					if(this.powerupLasts <= 0.000001){
+						this.powerupLasts = 0;
+						this.powerup = POWERUPS.nothing;
 					}
 				}
-				
-				m.lock = locktarget;
-				
-				this.powerup = POWERUPS.nothing;
-				
 			}
 			else{
-				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){ // race or death match or shooting range ongoing
+				// race or death match or shooting range ongoing?
+				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){
 					this.shootPhaser();
 				}
 				else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
@@ -364,6 +372,10 @@ Hovercraft.prototype.controlHover = function() {
 					ingameTimeout(1, function(){newRound();});
 				}
 			}
+			this.fireReleased = false;
+		}
+		else{
+			this.fireReleased = true;
 		}
 
 	}
@@ -376,35 +388,14 @@ Hovercraft.prototype.shootPhaser = function(){
 		var p;
 		var locktarget;
 
-/* Homing:
-		if(this.powerup == POWERUPS.carrot){
-			var deltamin = 1000;
+        p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
+        //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
 
-			for(var i=0; i<hovers.length; i++){
-				if(hovers[i] == this || hovers[i].hidden){continue;}
-				var targetdir = Math.atan2( // this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
-					hovers[i].body.position[1] - this.body.position[1],
-					hovers[i].body.position[0] - this.body.position[0]);
-				var dir = this.body.angle;
-				var delta = targetdir - dir;
-				if(delta >  Math.PI){delta -= 2*Math.PI;}
-				if(delta < -Math.PI){delta += 2*Math.PI;}
-				if(Math.abs(delta) < deltamin){
-					deltamin = Math.abs(delta);
-					locktarget = hovers[i];
-				}
-			}
-		}
-*/
-
-                p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
-                //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-		
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
 
-                p = new Phaser(this);
-                //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-     
+        p = new Phaser(this);
+        //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
+
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
 		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
@@ -461,16 +452,15 @@ Hovercraft.prototype.wallhit = function(){
 } 
 
 Hovercraft.prototype.collect = function(pu){
-	this.powerup = pu;
-	this.powerupLasts = pu.duration; // coffeestretch applied at timers
 
-/* medipack
-	if(pu == POWERUPS.aloevera){
+	if(pu == POWERUPS.repair){
 		this.hitpoints = HITPOINTS;
 		this.powerup = POWERUPS.nothing;	
 	}
-*/
-
+	else{
+		this.powerup = pu;
+		this.powerupLasts = pu.count;
+	}
 }
 
 

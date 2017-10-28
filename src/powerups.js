@@ -1,16 +1,16 @@
 
 var ipu = 0;
 var POWERUPS = {
-	nothing:    {tex:null, color:null, duration:0},
+	nothing:    {tex:null, color:null, count:0},
 
-	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), duration:Infinity},
-	mine:       {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), duration:0},
-	shield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), duration:6},
-	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), duration:6}
+	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), count:3},
+	mine:       {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1},
+	shield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:6},
+	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), count:6},
+	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0},
 };
 
-//var PUARRAY=[POWERUPS.missile, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline];
-var PUARRAY=[POWERUPS.missile];
+var PUARRAY=[POWERUPS.missile, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline, POWERUPS.repair];
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 
