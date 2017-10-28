@@ -18,7 +18,7 @@ var HEADLIGHT_MESH = new THREE.Mesh(
 		depthWrite: false,
 		side: THREE.FrontSide}));
 HEADLIGHT_MESH.renderOrder = RENDER_ORDER.phaser;
-HEADLIGHT_MESH.position.set(4,0,0.1);
+HEADLIGHT_MESH.position.set(4.7,0,0.1);
 HEADLIGHT_MESH.scale.set(7,3.5,1);
 
 
@@ -185,55 +185,15 @@ Hovercraft.prototype.update = function(){
 	}
 
 	var localdt = DT;
-	if(this.powerup == POWERUPS.coffee){localdt *= COFFEE_STRETCH;}
+	
 
 	this.shield += SHIELD_REGEN*localdt;
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
 
-	if(this.powerup == POWERUPS.blueberry){
+	if(this.powerup == POWERUPS.shield){
 		this.shield = SHIELD;
 		this.shieldMesh.material.opacity = 0.7;
-	}
- 
-	if(FRAME_COUNTER % 7 == 0
-			&& GLOBAL_POWERUP_TARGET.victim == this
-			&& GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic){ // garlic smell
-		var effect = new Effect();
-		effect.type = 'smoke';
-		effect.mesh = SMOKE_MESH.clone();
-		effect.mesh.position.copy(this.mesh.position);
-		effect.mesh.transparent = true;
-		effect.mesh.renderOrder = SMOKE_MESH.renderOrder;
-		effect.mesh.material = SMOKE_MESH.material.clone();
-		effect.mesh.rotation.z = Math.random()*1000;
-		effect.mesh.position.z = 0.4;
-		effect.velocity.z = 6;
-		effect.mesh.material.color = new THREE.Color("tan");
-		effect.growth = 16;
-		effect.decay = 1;
-		effect.spawn();
-	}
-
-	if(FRAME_COUNTER % 7 == 0
-			&& GLOBAL_POWERUP_TARGET.victim == this
-			&& GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon){ // garlic smell
-		var effect = new Effect();
-		effect.type = 'sparkles';
-		effect.mesh = SPARKLE_MESH.clone();
-		effect.mesh.position.copy(this.mesh.position);
-		effect.mesh.transparent = true;
-		effect.mesh.renderOrder = SPARKLE_MESH.renderOrder;
-		effect.mesh.material = SPARKLE_MESH.material.clone();
-		effect.mesh.rotation.z = Math.random()*1000;
-		effect.mesh.position.z = 0.4;
-		effect.velocity.z = 6;
-		effect.mesh.material.color = new THREE.Color("hotpink");
-		effect.mesh.material.color.lerp(new THREE.Color("white"), Math.random());
-		effect.strength = 3;
-		effect.growth = 8;
-		effect.decay = 3;
-		effect.spawn();
 	}
 
 	this.ammo += PHASER_REGEN*localdt;
@@ -282,14 +242,6 @@ Hovercraft.prototype.update = function(){
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
 
-		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;}
-		this.powerup = POWERUPS.nothing;
-		this.powerupLasts = 0;
-		if(GLOBAL_POWERUP_TARGET.victim == this){
-			GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
-			GLOBAL_POWERUP_TARGET.victim = [];
-		}
-
 		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
 				var startPos = findAccessiblePosition(-2);
@@ -325,32 +277,11 @@ Hovercraft.prototype.update = function(){
 
 	if(typeof(this.control) != "undefined"){
 
-		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL;} // temporarily revert to normal DT for control update
-
 		this.control.update();
 
 		if(GAME_PHASE != "G"){this.control.thrust = 0;} // game not going
 
-		if(this.powerup == POWERUPS.beans){this.control.thrust = 2;}
-		if(this.powerup == POWERUPS.coffee){this.control.thrust *= COFFEE_STRETCH;}
-
-		if((GLOBAL_POWERUP_TARGET.pu == POWERUPS.bonbon
-				|| GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic)
-				&& GLOBAL_POWERUP_TARGET.victim != this){
-			this.control.direction = Math.atan2(
-				GLOBAL_POWERUP_TARGET.victim.body.position[1] - this.body.position[1],
-				GLOBAL_POWERUP_TARGET.victim.body.position[0] - this.body.position[0]);
-			if(GLOBAL_POWERUP_TARGET.pu == POWERUPS.garlic){
-				this.control.direction += Math.PI;
-			}
-			this.control.thrust = 1;
-		}
-
 		var tau = 0.1; // for rotation lowpass filter
-		if(this.powerup == POWERUPS.cannabis){
-			this.control.thrust*=0.3;
-			tau*=4;
-		}
 		var q = 1.0 - Math.exp(-DT/tau);
 
 		var watchdog = 0;
@@ -384,8 +315,6 @@ Hovercraft.prototype.update = function(){
 			}
 		}
 
-		if(this.powerup == POWERUPS.coffee){DT = DT_ORIGINAL/COFFEE_STRETCH;} // go back to coffee dt
-
 	}
 
 	HBObject.prototype.update.call(this);
@@ -407,20 +336,12 @@ Hovercraft.prototype.update = function(){
 
 Hovercraft.prototype.shootPhaser = function(){
 
-	var cannabisfactor = 1;
-	if(this.powerup == POWERUPS.cannabis){
-		cannabisfactor = 1.5;
-	}
-	var coffeefactor = 1;
-	if(this.powerup == POWERUPS.coffee){
-		coffeefactor = 1/COFFEE_STRETCH;
-	}
-
-	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE*cannabisfactor*coffeefactor && this.ammo > 2){ // can I fire already?
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE && this.ammo > 2){ // can I fire already?
 		this.ammo -= 2;
 		var p;
 		var locktarget;
 
+/* Homing:
 		if(this.powerup == POWERUPS.carrot){
 			var deltamin = 1000;
 
@@ -439,28 +360,16 @@ Hovercraft.prototype.shootPhaser = function(){
 				}
 			}
 		}
+*/
 
-		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){ // have some blocking when on cannabis
-			p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
-			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){p.lock = this;} // lock on self
-			if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-			if(this.powerup == POWERUPS.coffee){
-				p.velocity *= COFFEE_STRETCH;
-				p.body.velocity[0] *= COFFEE_STRETCH; 
-				p.body.velocity[1] *= COFFEE_STRETCH;
-			}
-		}
+                p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
+                //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
+		
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
-		if(this.powerup != POWERUPS.cannabis || Math.random()<0.7){
-			p = new Phaser(this);
-			if(this.powerup == POWERUPS.cannabis && Math.random()<0.2){p.lock = this;} // lock on self
-			if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-			if(this.powerup == POWERUPS.coffee){
-				p.velocity *= COFFEE_STRETCH;
-				p.body.velocity[0] *= COFFEE_STRETCH; 
-				p.body.velocity[1] *= COFFEE_STRETCH;
-			}
-		}
+
+                p = new Phaser(this);
+                //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
+     
 		this.phaserYOffset *= -1;
 		this.lastPhaserShot = INGAME_TIME;
 		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
@@ -515,45 +424,13 @@ Hovercraft.prototype.collect = function(pu){
 	this.powerup = pu;
 	this.powerupLasts = pu.duration; // coffeestretch applied at timers
 
+/* medipack
 	if(pu == POWERUPS.aloevera){
 		this.hitpoints = HITPOINTS;
 		this.powerup = POWERUPS.nothing;	
 	}
-	if(pu == POWERUPS.cigarette){
-		this.hitpoints = 0.0001;
-		this.powerup = POWERUPS.nothing;
-	}
+*/
 
-	if(pu == POWERUPS.bonbon || pu == POWERUPS.garlic){
-		this.powerup = POWERUPS.nothing;
-		GLOBAL_POWERUP_TARGET.pu = pu;
-		GLOBAL_POWERUP_TARGET.victim = this;
-		if(GLOBAL_POWERUP_TARGET.timeout == null){
-			GLOBAL_POWERUP_TARGET.timeout = ingameTimeout(pu.duration, function(){
-				GLOBAL_POWERUP_TARGET.timeout = null;
-				GLOBAL_POWERUP_TARGET.pu = POWERUPS.nothing;
-				GLOBAL_POWERUP_TARGET.victim = [];
-			});
-		}
-		else{
-			GLOBAL_POWERUP_TARGET.timeout.seconds = pu.duration;
-		}
-	}
-
-	if(pu == POWERUPS.coffee){
-		DT = DT_ORIGINAL / COFFEE_STRETCH;
-		if(COFFEE_TIMEOUT == null){
-			COFFEE_TIMEOUT = ingameTimeout(pu.duration / COFFEE_STRETCH, function(){
-				COFFEE_TIMEOUT = null;
-				DT = DT_ORIGINAL;
-				WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
-			});
-			WATER_MATERIAL.uniforms.waterColor.value.set(0.15,0.07,0,1);
-		}
-		else{
-			COFFEE_TIMEOUT.seconds = pu.duration / COFFEE_STRETCH;
-		}
-	}
 }
 
 

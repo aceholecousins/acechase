@@ -2,22 +2,14 @@
 var ipu = 0;
 var POWERUPS = {
 	nothing:    {tex:null, color:null, duration:0},
-	aloevera:   {tex:loadTexture("media/textures/aloevera.png"),   color:new THREE.Color(0x00dd00), duration:0},
-	beans:      {tex:loadTexture("media/textures/beans.png"),      color:new THREE.Color(0xdd0000), duration:8},
-	blueberry:  {tex:loadTexture("media/textures/blueberry.png"),  color:new THREE.Color(0x0000ff), duration:6},
-	bonbon:     {tex:loadTexture("media/textures/bonbon.png"),     color:new THREE.Color(0x8000ff), duration:2},
-	cannabis:   {tex:loadTexture("media/textures/cannabis.png"),   color:new THREE.Color(0xffff00), duration:6},
-	carrot:     {tex:loadTexture("media/textures/carrot.png"),     color:new THREE.Color(0xff8000), duration:8},
-	cigarette:  {tex:loadTexture("media/textures/cigarette.png"),  color:new THREE.Color(0xAAAAAA), duration:0},
-	coffee:     {tex:loadTexture("media/textures/coffee.png"),     color:new THREE.Color(0x804000), duration:7},
-	garlic:     {tex:loadTexture("media/textures/garlic.png"),     color:new THREE.Color(0xf0e0d0), duration:4}
-};
-var PUARRAY=[POWERUPS.aloevera, POWERUPS.beans, POWERUPS.blueberry, POWERUPS.bonbon,
-			POWERUPS.cannabis, POWERUPS.carrot, POWERUPS.cigarette, POWERUPS.coffee,
-			POWERUPS.garlic];
 
-var GLOBAL_POWERUP_TARGET = {pu:POWERUPS.nothing, victim:[], timeout:null}; // garlic or bonbon
-var COFFEE_TIMEOUT = null;
+	rocket:     {tex:loadTexture("media/textures/rocket.png"),     color:new THREE.Color(0xff8000), duration:0},
+	mine:       {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), duration:0},
+	shield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), duration:6},
+	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), duration:6}
+};
+
+var PUARRAY=[POWERUPS.rocket, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline];
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 
