@@ -8,6 +8,20 @@ loadObjMtl( 'media/objects/glider.obj', 'media/objects/glider.mtl', function (ob
 	LOADING_LIST.checkItem('hovercraftmesh');
 });
 
+
+var HEADLIGHT_MESH = new THREE.Mesh(
+	new THREE.PlaneGeometry( 1, 1),
+	new THREE.MeshBasicMaterial({
+		map: loadTexture( 'media/textures/headlight.png' ),
+		color: 0xffffff,
+		transparent: true,
+		depthWrite: false,
+		side: THREE.FrontSide}));
+HEADLIGHT_MESH.renderOrder = RENDER_ORDER.phaser;
+HEADLIGHT_MESH.position.set(4,0,0.1);
+HEADLIGHT_MESH.scale.set(7,3.5,1);
+
+
 function Hovercraft(color, control){
 	HBObject.call(this); // inheritance
 
@@ -50,7 +64,7 @@ function Hovercraft(color, control){
 	this.mesh.getObjectByName('bumper').material = HOVERCRAFT_MESH.getObjectByName('bumper').material.clone();
 	//this.mesh.getObjectByName('halo').material = HOVERCRAFT_MESH.getObjectByName('halo').material.clone();
 	this.mesh.getObjectByName('halo').material = new THREE.MeshBasicMaterial();
-	this.mesh.getObjectByName('arrow').material = this.mesh.getObjectByName('halo').material;
+	//this.mesh.getObjectByName('arrow').material = this.mesh.getObjectByName('halo').material;
 
 	this.mesh.getObjectByName('body').material.color.copy(this.color);
 	this.mesh.getObjectByName('bumper').material.color.copy(this.color);
@@ -76,6 +90,9 @@ function Hovercraft(color, control){
 	this.trail2 = new Trail(this.mesh.position,0.1,color,0.8);
 
 	this.flame = new Flame(this);
+
+	this.headlight = HEADLIGHT_MESH.clone();
+	this.mesh.add(this.headlight);
 
 	this.phaserGlow1 = PHASER_IMPACT_MESH.clone();
 	this.phaserGlow1.material = PHASER_IMPACT_MESH.material.clone();
