@@ -61,7 +61,7 @@ function Pubox(pos, pu){ // powerup box class
 			emissive: new THREE.Color(0.3,0.3,0.3)
 		}));
 	var contour = new THREE.Mesh(
-		new THREE.BoxGeometry(PUBOX_SIZE*1.16,PUBOX_SIZE*1.16,PUBOX_SIZE*1.16),
+		new THREE.BoxGeometry(PUBOX_SIZE*1.05,PUBOX_SIZE*1.05,PUBOX_SIZE*1.05),
 		//new THREE.BoxGeometry(2,2,2),
 		new THREE.MeshBasicMaterial({color:pu.color})
 	);
