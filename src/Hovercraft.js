@@ -164,7 +164,7 @@ Hovercraft.prototype.hide = function(){
 	this.trail1.reposition(new THREE.Vector3(0,0,-10000)); // TODO little parts of the trail are remaining for some reason
 	this.trail2.reposition(new THREE.Vector3(0,0,-10000));
 	this.flame.mesh.visible = false;
-	this.thrustSound.gn.gain.value = 0.0;
+	this.setThrustGain(0.0);
 }
 
 Hovercraft.prototype.unhide = function(){
@@ -173,6 +173,10 @@ Hovercraft.prototype.unhide = function(){
 	this.mesh.visible = true;
 	this.beamed = true;
 	this.flame.mesh.visible = true;
+}
+
+Hovercraft.prototype.setThrustGain = function(gain) {
+	this.thrustSound.gn.gain.value = gain;
 }
 
 Hovercraft.prototype.update = function(){
@@ -294,7 +298,7 @@ Hovercraft.prototype.update = function(){
 			console.log("This should not have happened. Sorry.")
 		}
 
-		this.thrustSound.gn.gain.value = this.control.thrust*0.3;
+		this.setThrustGain(this.control.thrust*0.3);
 
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
