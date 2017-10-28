@@ -361,7 +361,18 @@ Hovercraft.prototype.controlHover = function() {
 					}
 				}
 			}
-			else{
+			else if(this.powerup == POWERUPS.seamine){
+				if(this.fireReleased){
+					var m = new Seamine(this);
+
+					this.powerupLasts--;
+					if(this.powerupLasts <= 0.000001){
+						this.powerupLasts = 0;
+						this.powerup = POWERUPS.nothing;
+					}
+				}
+			}
+			else{ // phaser
 				// race or death match or shooting range ongoing?
 				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){
 					this.shootPhaser();
@@ -411,6 +422,9 @@ Hovercraft.prototype.hitBy = function(thing){
 		}
 		if(thing.type == "missile"){
 			this.shield -= MISSILE_DAMAGE;
+		}
+		if(thing.type == "seamine"){
+			this.shield -= SEAMINE_DAMAGE;
 		}
 	}
 

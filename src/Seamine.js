@@ -1,181 +1,67 @@
 
-var TARGET_TEX = loadTexture("media/textures/target.png");
-var MINE_TEX = loadTexture("media/textures/mine.png");
-var TARGETS = [];
 
-function spawnTarget(isMine, attractforce){
 
-	var pos;
-	var posok = false;
-	var ntrials = 0;
+var SEAMINE_MESH;
+LOADING_LIST.addItem('seaminemesh');
 
-	while(!posok){ // find a position away from gliders and other targets
-		pos = findAccessiblePosition(-3);
-		posok = true;
+OBJ_LOADER.load( 'media/objects/seamine.obj', function (object) {
+	SEAMINE_MESH = object;
+	LOADING_LIST.checkItem('seaminemesh');
+	SEAMINE_MESH.scale.set(0.5,0.5,0.5);
+	SEAMINE_MESH.getObjectByName('mine').material = new THREE.MeshLambertMaterial({color:new THREE.Color(0.0,1.0,1.0)});
 
-		for(var i=0; i<TARGETS.length; i++){
-			if(Math.pow(pos.x - TARGETS[i].body.position[0], 2)
-					+ Math.pow(pos.y - TARGETS[i].body.position[1], 2) < Math.pow(MAP_WIDTH/5,2)){
-				posok = false;
-				break;
-			}
-		}
-		for(var i=0; i<hovers.length; i++){
-			if(Math.pow(pos.x - hovers[i].body.position[0], 2)
-					+ Math.pow(pos.y - hovers[i].body.position[1], 2) < Math.pow(MAP_WIDTH/5,2)){
-				posok = false;
-				break;
-			}
-		}
-		ntrials ++;
-		if(ntrials > 1000){
-			console.error("No suitable spawning location for target found!")
-			break;
-		}
-	}
+	SEAMINE_MESH.position.z = 0.1;
+});
 
-	new Target(pos, isMine, attractforce);
 
-}
-
-function Target(pos, isMine, attractforce){ // powerup box class
+function Seamine(shooter){ // seamine shot class, needs the HBObject of the shooter for creation
 	HBObject.call(this); // inheritance
-	this.destroyedBy = null;
 
-	var mineSizeFactor = 1; // how much mines are bigger
+	this.type = 'seamine';
 
-	if(!isMine){
-		this.type = 'target';
-		this.hitpoints = PUBOX_HITPOINTS;
-	}
-	else{
-		this.type = 'mine';
-		this.hitpoints = PUBOX_HITPOINTS/3;
-		this.attractforce = attractforce;
-		mineSizeFactor = 2;
-	}
-	TARGETS.push(this);
+	this.shooter = shooter;
 
 	// physics
 
-	var shape = new p2.Circle(PUBOX_SIZE*0.5*mineSizeFactor);
-
-	var vphi = Math.random()*10000;
-	var v = Math.random()*3+0.1;
-	this.oscillation = [Math.random()*4, Math.random()*4];
+	var shape = new p2.Circle(HOVER_RADIUS);
 
 	this.body = new p2.Body({
-        mass: 8,
-        position: [pos.x, pos.y],
-		velocity: [v*Math.cos(vphi), v*Math.sin(vphi)],
-		angle:Math.random()*10000,
-		angularVelocity: Math.random()-0.5,
-		damping:isMine ? 0.6 : 0.0,
-		angularDamping:0.0
+        mass: 1000.0,
+        position:shooter.body.position,
+		angle:shooter.body.angle,
+		damping:0.9995,
+		angularDamping:0.9995
     	});
 
+	PHYSICS_WORLD.disableBodyCollision(this.body, this.shooter.body);
+	ingameTimeout(1.0, function(){
+		PHYSICS_WORLD.enableBodyCollision(this.body, this.shooter.body);
+	}.bind(this));
+	
 	this.body.addShape(shape);
 
 	// graphics
 
-	this.mesh = new THREE.Mesh(
-		new THREE.IcosahedronGeometry(PUBOX_SIZE/2*mineSizeFactor, 2),
-		//new THREE.SphereGeometry(2,8,8),
-		new THREE.MeshLambertMaterial({
-			map: isMine? MINE_TEX : TARGET_TEX,
-			emissiveMap: isMine? MINE_TEX : TARGET_TEX,
-			emissive: new THREE.Color(0.3,0.3,0.3)
-		}));
-	this.mesh.position.z = 0.3;
+	this.mesh = SEAMINE_MESH.clone();
+	this.mesh.getObjectByName('mine').material =
+		new THREE.MeshLambertMaterial({color:this.shooter.color.clone().lerp(new THREE.Color("black"), 0.5)});
 
-	// spawnstar
-	
-	effect = new Effect();
-	effect.type = 'star';
-	effect.mesh = STAR_MESH.clone();
-	effect.mesh.position.x = pos.x;
-	effect.mesh.position.y = pos.y;
-	effect.mesh.position.z = 0.2;
-	effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
-	effect.mesh.material = STAR_MESH.material.clone();
-	effect.mesh.material.color = new THREE.Color(isMine? "red" : "blue");
-	effect.mesh.scale.set(2,2,1);
-	effect.spawn();
-	effect.strength = 5;
-	effect.decay = 80;
-	effect.growth = 30;
-
-	playSound(SOUNDS.splash, 0.3, 1.3, false);
+	this.oscillation = [Math.random()*4, Math.random()*4];
 
 	this.spawn();
 
 }
 
-Target.prototype = Object.create(HBObject.prototype); // Target inherits from HBObject
-Target.prototype.constructor = Target;
+Seamine.prototype = Object.create(HBObject.prototype); // Phaser inherits from HBObject
+Seamine.prototype.constructor = Seamine;
 
-Target.prototype.shotBy = function(shooter){ // what happens on phaser impact
-	this.hitpoints--;
-	this.destroyedBy = shooter; // stores the last hover that hit this thing
-}
-
-Target.prototype.destroyed = function(){
-
-	for(var i=0; i<TARGETS.length; i++){
-		if(TARGETS[i] == this){
-			TARGETS.splice(i,1);
-			break;
-		}
-	}
-	if(this.type == "target"){
-		explosion(this.mesh.position, new THREE.Color("blue"));
-		playSound(SOUNDS.explosion, 1.4, 1.0, 0.0);
-		ingameTimeout(2, function(){spawnTarget(false);});
-	}
-	if(this.type == "mine"){
-		explosion(this.mesh.position, new THREE.Color("red"));
-		playSound(SOUNDS.explosion, 2.0, 0.67, 0.0);
-		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);}.bind(this));
-	}
-	this.despawn();
-
-}
-
-
-Target.prototype.specificUpdate=function(){
+Seamine.prototype.specificUpdate = function(){
 	this.mesh.rotation.x = Math.sin(INGAME_TIME*this.oscillation[0])*0.4;
-	this.mesh.rotation.y = Math.sin(INGAME_TIME*this.oscillation[1])*0.4;
+	this.mesh.rotation.y = Math.sin(INGAME_TIME*this.oscillation[1])*0.5;
+}
 
-	if(this.hitpoints <= 0){
-		if(this.destroyedBy != null){
-			if(this.type == 'mine'){
-				this.destroyedBy.mines++;
-			}
-			if(this.type == 'target'){
-				this.destroyedBy.targets++;
-			}
-		}
-		this.destroyed();
-		return;
-	}
-
-	if(this.type=="mine"){
-
-		var mindist = 1e100;
-		var imin;
-		for(var i=0; i<hovers.length; i++){
-			var dist = Math.sqrt(Math.pow(hovers[i].body.position[0]-this.body.position[0], 2) + 
-					Math.pow(hovers[i].body.position[1]-this.body.position[1], 2));
-			if(dist < mindist){
-				mindist = dist;
-				imin = i;
-			}
-		}
-
-		this.body.force[0] = (hovers[imin].body.position[0]-this.body.position[0])/mindist * this.attractforce;
-		this.body.force[1] = (hovers[imin].body.position[1]-this.body.position[1])/mindist * this.attractforce;
-
-	}
-
+Seamine.prototype.impact = function(){ // what happens on impact
+	explosion(this.mesh.position.clone(), this.shooter.color.clone(), 0.5);
+	this.despawn();
 }
 

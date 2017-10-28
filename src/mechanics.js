@@ -78,6 +78,8 @@ BROADPHASE.boundingVolumeCheck = function(bodyA, bodyB){
     return result;
 };
 
+//TODO: do the filtering with collision groups https://github.com/schteppe/p2.js/wiki
+
 // override pre collision check to exclude phasershots by one and the same player
 var canCollideOld = p2.Broadphase.canCollide;
 p2.Broadphase.canCollide = function(bodyA, bodyB){
@@ -86,6 +88,20 @@ p2.Broadphase.canCollide = function(bodyA, bodyB){
 			return false;
 		}
 	}
+
+	var firstBody; // alphabetically sort by type to simplify checks
+	var secondBody;
+	if(bodyA.HBO.type <= bodyB.HBO.type){
+		firstBody = bodyA;
+		secondBody = bodyB;
+	}else{
+		firstBody = bodyB;
+		secondBody = bodyA;
+	}
+
+	if(firstBody.HBO.type == "phaser" && secondBody.HBO.type == "seamine"){return false;}
+	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == "seamine"){return false;}
+
 	return canCollideOld(bodyA, bodyB);
 }
 
@@ -169,6 +185,15 @@ PHYSICS_WORLD.on('impact', function(event){
 		}
 	}
 	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'missile'){
+		firstBody.HBO.hitBy(secondBody.HBO);
+	}
+	if(firstBody.HBO.type == "seamine"){
+		firstBody.HBO.impact();
+	}
+	if(secondBody.HBO.type == "seamine"){
+		secondBody.HBO.impact();
+	}
+	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'seamine'){
 		firstBody.HBO.hitBy(secondBody.HBO);
 	}
 });

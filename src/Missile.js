@@ -2,17 +2,6 @@
 // depends on HBObject.js and Effect.js
 
 
-var MISSILE_MESH = new THREE.Mesh( // every new instance of a phaser shot copies from this mesh
-	new THREE.PlaneGeometry( 1, 1),
-	new THREE.MeshBasicMaterial({
-		map: loadTexture( 'media/textures/missiletex.png' ),
-		color: 0x00ff00,
-		transparent: true,
-		depthWrite: false,
-		side: THREE.FrontSide}));
-
-
-
 var MISSILE_MESH;
 LOADING_LIST.addItem('missilemesh');
 
@@ -26,16 +15,14 @@ OBJ_LOADER.load( 'media/objects/missile.obj', function (object) {
 			emissive:new THREE.Color(0.5,0.5,0.5)});
 	MISSILE_MESH.getObjectByName('bodyb').material = new THREE.MeshLambertMaterial({color:new THREE.Color(0.0,0.0,0.0)});
 	MISSILE_MESH.getObjectByName('wings').material = new THREE.MeshLambertMaterial({color:new THREE.Color(0.0,1.0,0.0)});
+
+	MISSILE_MESH.position.z = 0.1;
 });
 
 
 
 
-MISSILE_MESH.renderOrder = RENDER_ORDER.phaser;
-MISSILE_MESH.position.z = 0.1;
-
-
-function Missile(shooter){ // phaser shot class, needs the HBObject of the shooter for creation
+function Missile(shooter){ // missile shot class, needs the HBObject of the shooter for creation
 	HBObject.call(this); // inheritance
 
 	this.type = 'missile';
@@ -131,8 +118,9 @@ Missile.prototype.specificUpdate = function(){
 		effect.spawn();
 	}
 
-
 }
+
+//TODO: sometimes "this" is undefined here:
 
 Missile.prototype.impact = function(){ // what happens on impact
 	explosion(this.mesh.position.clone(), this.shooter.color.clone(), 0.5);
