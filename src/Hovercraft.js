@@ -326,13 +326,42 @@ Hovercraft.prototype.controlHover = function() {
 		//}
 
 		if(this.control.fire){
-			if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){ // race or death match or shooting range ongoing
-				this.shootPhaser();
+
+			if(this.powerup == POWERUPS.missile){
+				var m = new Missile(this);
+
+				var locktarget = null;
+				var deltamin = 1000;
+
+				for(var i=0; i<hovers.length; i++){
+					if(hovers[i] == this || hovers[i].hidden){continue;}
+					var targetdir = Math.atan2( // this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
+						hovers[i].body.position[1] - this.body.position[1],
+						hovers[i].body.position[0] - this.body.position[0]);
+					var dir = this.body.angle;
+					var delta = targetdir - dir;
+					if(delta >  Math.PI){delta -= 2*Math.PI;}
+					if(delta < -Math.PI){delta += 2*Math.PI;}
+					if(Math.abs(delta) < deltamin){
+						deltamin = Math.abs(delta);
+						locktarget = hovers[i];
+					}
+				}
+				
+				m.lock = locktarget;
+				
+				this.powerup = POWERUPS.nothing;
+				
 			}
-			else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
-				this.hitpoints = 0; // explode
-				GAME_PHASE = "O"; // round over
-				ingameTimeout(1, function(){newRound();});
+			else{
+				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){ // race or death match or shooting range ongoing
+					this.shootPhaser();
+				}
+				else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
+					this.hitpoints = 0; // explode
+					GAME_PHASE = "O"; // round over
+					ingameTimeout(1, function(){newRound();});
+				}
 			}
 		}
 
@@ -385,7 +414,12 @@ Hovercraft.prototype.shootPhaser = function(){
 Hovercraft.prototype.hitBy = function(thing){
 	
 	if(GAME_MODE != "R"){ // no damage during race
-		this.shield -= 1;
+		if(thing.type == "phaser"){
+			this.shield -= 1;
+		}
+		if(thing.type == "missile"){
+			this.shield -= MISSILE_DAMAGE;
+		}
 	}
 
 	if(this.shield<=0){

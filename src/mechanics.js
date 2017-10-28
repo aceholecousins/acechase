@@ -157,6 +157,20 @@ PHYSICS_WORLD.on('impact', function(event){
 	if(firstBody.HBO.type == "arena" && secondBody.HBO.type == "hover"){
 		secondBody.HBO.wallhit();
 	}
+	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == 'phaser'){
+		firstBody.HBO.hitpoints--;
+	}
+	else{
+		if(firstBody.HBO.type == "missile"){
+			firstBody.HBO.impact();
+		}
+		if(secondBody.HBO.type == "missile"){
+			secondBody.HBO.impact();
+		}
+	}
+	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'missile'){
+		firstBody.HBO.hitBy(secondBody.HBO);
+	}
 });
 
 // GRAPHICS

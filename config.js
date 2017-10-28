@@ -16,6 +16,10 @@ var PHASER_FIRE_RATE = 12;
 var PHASER_REGEN = 10;
 var PHASER_TURN = 0.7; // angular velocity for homing phasers
 
+var MISSILE_TURN = 2.0;
+var MISSILE_DAMAGE = SHIELD + HITPOINTS/2;
+var MISSILE_HITPOINTS = 7;
+
 var LAPS = 3;
 
 var AVG_SECONDS_BETWEEN_POWERUPS = 3;

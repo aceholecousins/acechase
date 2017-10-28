@@ -3,13 +3,14 @@ var ipu = 0;
 var POWERUPS = {
 	nothing:    {tex:null, color:null, duration:0},
 
-	rocket:     {tex:loadTexture("media/textures/rocket.png"),     color:new THREE.Color(0xff8000), duration:0},
+	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), duration:Infinity},
 	mine:       {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), duration:0},
 	shield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), duration:6},
 	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), duration:6}
 };
 
-var PUARRAY=[POWERUPS.rocket, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline];
+//var PUARRAY=[POWERUPS.missile, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline];
+var PUARRAY=[POWERUPS.missile];
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 
@@ -103,8 +104,8 @@ function Pubox(pos, pu){ // powerup box class
 Pubox.prototype = Object.create(HBObject.prototype); // Pubox inherits from HBObject
 Pubox.prototype.constructor = Pubox;
 
-Pubox.prototype.shot = function(){ // what happens on phaser impact
-	this.hitpoints--;
+Pubox.prototype.shot = function(damage = 1){ // what happens on phaser impact
+	this.hitpoints -= damage;
 }
 
 Pubox.prototype.destroyed = function(){ // when collected or destroyed by phaser
