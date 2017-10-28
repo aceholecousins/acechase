@@ -71,7 +71,7 @@ Missile.prototype.constructor = Missile;
 Missile.prototype.specificUpdate = function(){
 
 	if(this.hitpoints <= 0){
-		tihs.impact()
+		this.impact()
 	}
 
 	this.mesh.rotation.x += 10*DT;
@@ -119,8 +119,6 @@ Missile.prototype.specificUpdate = function(){
 	}
 
 }
-
-//TODO: sometimes "this" is undefined here:
 
 Missile.prototype.impact = function(){ // what happens on impact
 	explosion(this.mesh.position.clone(), this.shooter.color.clone(), 0.5);
