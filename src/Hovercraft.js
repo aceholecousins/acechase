@@ -165,6 +165,7 @@ Hovercraft.prototype.hide = function(){
 	this.trail2.reposition(new THREE.Vector3(0,0,-10000));
 	this.flame.mesh.visible = false;
 	this.setThrustGain(0.0);
+	console.log("Hide");
 }
 
 Hovercraft.prototype.unhide = function(){
@@ -176,6 +177,7 @@ Hovercraft.prototype.unhide = function(){
 }
 
 Hovercraft.prototype.setThrustGain = function(gain) {
+	console.log("Thrust gain: " + gain);
 	this.thrustSound.gn.gain.value = gain;
 }
 
@@ -235,6 +237,7 @@ Hovercraft.prototype.update = function(){
 		effect.spawn();
 	}
 
+	this.controlHover();
 
 	// explode and respawn after 3 seconds
 	if(this.hitpoints <= 0){
@@ -277,8 +280,24 @@ Hovercraft.prototype.update = function(){
 		}
 	}
 
-	
+	HBObject.prototype.update.call(this);
 
+	this.lastPosition.copy(this.newPosition);
+	this.newPosition.fromArray(this.body.position);
+
+	if(this.beamed){
+		this.trail1.reposition(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
+		this.trail2.reposition(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
+		this.beamed = false;
+	}
+	else{
+		this.trail1.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
+		this.trail2.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
+	}
+	this.flame.update();
+}
+
+Hovercraft.prototype.controlHover = function() {
 	if(typeof(this.control) != "undefined"){
 
 		this.control.update();
@@ -320,22 +339,6 @@ Hovercraft.prototype.update = function(){
 		}
 
 	}
-
-	HBObject.prototype.update.call(this);
-
-	this.lastPosition.copy(this.newPosition);
-	this.newPosition.fromArray(this.body.position);
-
-	if(this.beamed){
-		this.trail1.reposition(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
-		this.trail2.reposition(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
-		this.beamed = false;
-	}
-	else{
-		this.trail1.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
-		this.trail2.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
-	}
-	this.flame.update();
 }
 
 Hovercraft.prototype.shootPhaser = function(){
