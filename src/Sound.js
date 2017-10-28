@@ -56,7 +56,7 @@ SOUNDTRACK_LIST = [
 	 attr:'TeknoAXE - Mission A',
 	 link:'https://www.youtube.com/watch?v=6jSLv1VWaMc'},
 	{file:'media/music/SectaInstrumental.ogg',
-	 attr:'Secta Instrumental - CONTRA (David Fau)',
+	 attr:'CONTRA (David Fau) - Secta Instrumental',
 	 link:'https://www.youtube.com/watch?v=zhyrIt3l7hQ'},
 	{file:'media/music/Basic_Metal_4_lq.ogg',
 	 attr:'TeknoAXE - Basic Metal 4',
@@ -66,7 +66,13 @@ SOUNDTRACK_LIST = [
 	 link:'https://youtu.be/dR4xIvrikQo'},
 	{file:'media/music/Industrial_Rage_lq.ogg',
 	 attr:'TeknoAXE - Industrial Rage',
-	 link:'https://www.youtube.com/watch?v=m6kJWnI3Uo8'}];
+	 link:'https://www.youtube.com/watch?v=m6kJWnI3Uo8'},
+	{file:'media/music/Energy_Drink_lq.ogg',
+	 attr:'Virtual Riot - Energy Drink',
+	 link:'https://www.youtube.com/watch?v=efJQ1RAUNvU'},
+	{file:'media/music/SpeedChase_lq.ogg',
+	 attr:'Alex Lisi - Speed Chase',
+	 link:'https://www.youtube.com/watch?v=0iKBT9LRFPo'}];
 
 SOUNDTRACK_PLAYING = false;
 NEXT_SOUNDTRACK = SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)];
@@ -90,7 +96,7 @@ function manageSoundtrack(){
 		nodes = playSound(NEXT_SOUNDTRACK_BUFFER, MUSIC_VOLUME, 1.0, false);
 		SOUNDTRACK_PLAYING = true;
 
-		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA' target='_blank' href='" + 
+		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA; text-decoration:none; border-bottom: 1px solid gray;' target='_blank' href='" + 
 			NEXT_SOUNDTRACK.link + "'>&sung; " + NEXT_SOUNDTRACK.attr + " &sung;</a>";
 		ATTRIBUTION_DIV.style.visibility = "visible";
 

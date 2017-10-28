@@ -4,25 +4,15 @@ var POWERUPS = {
 	nothing:    {tex:null, color:null, count:0},
 
 	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), count:3},
-	mine:       {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1},
+	seamine:    {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1},
 	shield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:6},
 	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), count:6},
 	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0},
 };
 
-var PUARRAY=[POWERUPS.missile, POWERUPS.mine, POWERUPS.shield, POWERUPS.adrenaline, POWERUPS.repair];
+var PUARRAY=[POWERUPS.missile, POWERUPS.seamine, POWERUPS.shield, POWERUPS.adrenaline, POWERUPS.repair];
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
-
-// sparkles
-
-var sparkleMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/sparkles.png'), transparent:true} );
-var sparkleGeometry = new THREE.PlaneGeometry( 1, 1 );
-var SPARKLE_MESH = new THREE.Mesh( sparkleGeometry, sparkleMaterial );
-SPARKLE_MESH.position.set(0,0,0.1);
-SPARKLE_MESH.renderOrder = RENDER_ORDER.smoke;
-
-
 
 function maybeSpawnPowerup(){
 	if(Math.random()<DT/AVG_SECONDS_BETWEEN_POWERUPS && NPUBOXES < PUBOX_LIMIT){
