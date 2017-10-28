@@ -485,7 +485,7 @@ function string2config(string, warning){ // string must be complete
 
 	var cfg = string.split(';');
 
-	for(var i=cfg.length-1; i>=0; i--){ // back to front cuz players are added on top
+	for(let i=cfg.length-1; i>=0; i--){ // back to front cuz players are added on top
 		var key = cfg[i].split(':')[0];
 		var value = cfg[i].split(':')[1];
 
@@ -500,9 +500,9 @@ function string2config(string, warning){ // string must be complete
 		}
 
 		if(key=="map"){
-			for(i=0; i<get("map").options.length; i++){
-				if(get("map").options[i].value.indexOf(value) != -1){
-					get("map").selectedIndex = i;
+			for(let k=0; k<get("map").options.length; k++){
+				if(get("map").options[k].value.indexOf(value) != -1){
+					get("map").selectedIndex = k;
 				}
 			}
 		}
