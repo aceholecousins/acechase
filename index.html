@@ -67,6 +67,87 @@ a{
 
 </head><body>
 
+	<template id="playerDisplayTemplate" >
+		<table id="table_0000" class="std" style="padding:7px; background-color:white; border-color:#cccccc; height:210px; width:540px">
+			<tr>
+				<td id="vehicle_0000" align="center">
+					<div id="picbg_0000" style="width:160px; height:120px; background-color:#ff0000">
+						<img src="media/images/darken.png" style="width:100%; height:100%;">
+						<img src="media/images/lighten.png" style="position:relative; top:-100%; width:100%; height:100%; zIndex:4">
+					</div>
+					<input id="name_0000" class="std" style="width:160px; text-align:center" value=""><br>
+					<select id="color_0000" class="std" style="width:160px"
+							onchange="get('picbg_'+idx(this)).style.backgroundColor=this.value">
+					</select><br>
+				</td>
+				<td id="ctltype_0000" align="center">
+					<img id="ctlgp_0000" class="std" src="media/images/gamepad.png" style="width:60px;"
+						 onclick="ctlSelect(idx(this), 'gp')">
+					<img id="ctlkb_0000" class="std" src="media/images/keyboard.png" style="width:60px;"
+						 onclick="ctlSelect(idx(this), 'kb')"><br>
+					<img id="ctlms_0000" class="std" src="media/images/mouse.png" style="width:60px;"
+						 onclick="ctlSelect(idx(this), 'ms')">
+					<img id="ctlmd_0000" class="std" src="media/images/mobile.png" style="width:60px;"
+						 onclick="ctlSelect(idx(this), 'md')"><br><br>
+					<button id="remove_0000" class="std" style="background-color:#ff9977"
+							onclick="get('mpdisparea').removeChild(get('playerbox_' + idx(this))); checkZeroPlayers()">Remove Player
+					</button>
+				</td>
+				<td id="ctloptions_0000" align="right" style="width:200px;">
+					<div id="gpoptions_0000">
+						Pad #: <select id="gpidx_0000" class="std" style="width:100px;"></select><br>
+						Control: <select id="gprelabs_0000" class="std" style="width:100px;">
+							<option data-code="rel">Relative</option>
+							<option data-code="abs">Absolute</option>
+						</select><br>
+						Left/Right: <select id="gplr_0000" class="std" style="width:100px;"></select><br>
+						Up/Down: <select id="gpud_0000" class="std" style="width:100px;"></select><br>
+						Thrust: <select id="gpthrust_0000" class="std" style="width:100px;"></select><br>
+						Fire: <select id="gpfire_0000" class="std" style="width:100px;"></select><br>
+						<div style="display:none">Special: <select id="gpspcl_0000" class="std" style="width:100px;"></select></div>
+					</div>
+					<div id="kboptions_0000">
+						Control: <select id="kbrelabs_0000" class="std" style="width:100px;">
+							<option data-code="rel">Relative</option>
+							<option data-code="abs">Absolute</option>
+						</select><br>
+						Left/Right: <button id="kbl_0000" class="std" style="width:48px;"
+											onclick="assignKey(this)">&nbsp
+						</button><button id="kbr_0000" class="std" style="width:48px;"
+										 onclick="assignKey(this)">&nbsp</button><br>
+						Up/Down: <button id="kbu_0000" class="std" style="width:48px;"
+										 onclick="assignKey(this)">&nbsp
+						</button><button id="kbd_0000" class="std" style="width:48px;"
+										 onclick="assignKey(this)">&nbsp</button><br>
+						Thrust: <button id="kbthrust_0000" class="std" style="width:100px;"
+										onclick="assignKey(this)">&nbsp</button><br>
+						Fire: <button id="kbfire_0000" class="std" style="width:100px;"
+									  onclick="assignKey(this)">&nbsp</button><br>
+						<div style="display:none">Special: <button id="kbspcl_0000" class="std" style="width:100px;"
+																   onclick="assignKey(this)">&nbsp</button></div>
+					</div>
+					<div id="msoptions_0000">
+						Control: <select id="msrelabs_0000" class="std" style="width:100px;">
+							<option data-code="rel">Relative</option>
+							<option data-code="abs">Absolute</option>
+						</select><br>
+						Thrust/Fire: <select id="msthrustfire_0000" class="std" style="width:100px;">
+							<option data-code="rl">R/L</option>
+							<option data-code="lr">L/R</option>
+						</select><br>
+						<div style="display:none">Special: <select id="msspcl_0000" class="std" style="width:100px;">
+								<option data-code="lr">L+R simult.</option>
+								<option data-code="wp">Wheel press</option>
+								<option data-code="ws">Wheel scroll</option>
+							</select><br></div>
+					</div>
+					<div id="mdoptions_0000">        
+					</div>
+				</td>
+			</tr>
+		</table>
+	</template>
+	
 <script src="src/Tools.js"></script>
 <script src="medals.js"></script>
 <script>
@@ -80,87 +161,7 @@ var GAME0 = ""; // selected singleplayer game mode
 // HTML for one player //
 /////////////////////////
 
-var playerDisplayTemplate = `
-<table id="table_$" class="std" style="padding:7px; background-color:white; border-color:#cccccc; height:210px; width:540px">
- <tr>
-  <td id="vehicle_$" align="center">
-   <div id="picbg_$" style="width:160px; height:120px; background-color:#ff0000">
-    <img src="media/images/darken.png" style="width:100%; height:100%;">
-    <img src="media/images/lighten.png" style="position:relative; top:-100%; width:100%; height:100%; zIndex:4">
-   </div>
-   <input id="name_$" class="std" style="width:160px; text-align:center" value=""><br>
-   <select id="color_$" class="std" style="width:160px"
-        onchange="get('picbg_'+idx(this)).style.backgroundColor=this.value">
-   </select><br>
-  </td>
-  <td id="ctltype_$" align="center">
-   <img id="ctlgp_$" class="std" src="media/images/gamepad.png" style="width:60px;"
-	onclick="ctlSelect(idx(this), 'gp')">
-   <img id="ctlkb_$" class="std" src="media/images/keyboard.png" style="width:60px;"
-	onclick="ctlSelect(idx(this), 'kb')"><br>
-   <img id="ctlms_$" class="std" src="media/images/mouse.png" style="width:60px;"
-	onclick="ctlSelect(idx(this), 'ms')">
-   <img id="ctlmd_$" class="std" src="media/images/mobile.png" style="width:60px;"
-	onclick="ctlSelect(idx(this), 'md')"><br><br>
-   <button id="remove_$" class="std" style="background-color:#ff9977"
-        onclick="get('mpdisparea').removeChild(get('playerbox_' + idx(this))); checkZeroPlayers()">Remove Player
-   </button>
-  </td>
-  <td id="ctloptions_$" align="right" style="width:200px;">
-   <div id="gpoptions_$">
-	Pad #: <select id="gpidx_$" class="std" style="width:100px;"></select><br>
-	Control: <select id="gprelabs_$" class="std" style="width:100px;">
-	 <option data-code="rel">Relative</option>
-	 <option data-code="abs">Absolute</option>
-	</select><br>
-	Left/Right: <select id="gplr_$" class="std" style="width:100px;"></select><br>
-	Up/Down: <select id="gpud_$" class="std" style="width:100px;"></select><br>
-	Thrust: <select id="gpthrust_$" class="std" style="width:100px;"></select><br>
-	Fire: <select id="gpfire_$" class="std" style="width:100px;"></select><br>
-	<div style="display:none">Special: <select id="gpspcl_$" class="std" style="width:100px;"></select></div>
-   </div>
-   <div id="kboptions_$">
-	Control: <select id="kbrelabs_$" class="std" style="width:100px;">
-	 <option data-code="rel">Relative</option>
-	 <option data-code="abs">Absolute</option>
-	</select><br>
-	Left/Right: <button id="kbl_$" class="std" style="width:48px;"
-		onclick="assignKey(this)">&nbsp
-		</button><button id="kbr_$" class="std" style="width:48px;"
-		onclick="assignKey(this)">&nbsp</button><br>
-	Up/Down: <button id="kbu_$" class="std" style="width:48px;"
-		onclick="assignKey(this)">&nbsp
-		</button><button id="kbd_$" class="std" style="width:48px;"
-		onclick="assignKey(this)">&nbsp</button><br>
-	Thrust: <button id="kbthrust_$" class="std" style="width:100px;"
-		onclick="assignKey(this)">&nbsp</button><br>
-	Fire: <button id="kbfire_$" class="std" style="width:100px;"
-		onclick="assignKey(this)">&nbsp</button><br>
-	<div style="display:none">Special: <button id="kbspcl_$" class="std" style="width:100px;"
-		onclick="assignKey(this)">&nbsp</button></div>
-   </div>
-   <div id="msoptions_$">
-	Control: <select id="msrelabs_$" class="std" style="width:100px;">
-	 <option data-code="rel">Relative</option>
-	 <option data-code="abs">Absolute</option>
-	</select><br>
-	Thrust/Fire: <select id="msthrustfire_$" class="std" style="width:100px;">
-	 <option data-code="rl">R/L</option>
-	 <option data-code="lr">L/R</option>
-	</select><br>
-	<div style="display:none">Special: <select id="msspcl_$" class="std" style="width:100px;">
-	 <option data-code="lr">L+R simult.</option>
-	 <option data-code="wp">Wheel press</option>
-	 <option data-code="ws">Wheel scroll</option>
-	</select><br></div>
-   </div>
-    <div id="mdoptions_$">        
-   </div>
-  </td>
- </tr>
-</table>
-`;
-
+var playerDisplayTemplate = document.getElementById("playerDisplayTemplate").innerHTML;
 
 ////////////////
 // add player //
@@ -184,7 +185,7 @@ function addPlayer(multiplayer){
 		get("spdisparea").appendChild(p);
 	}
 
-	var html = playerDisplayTemplate.replaceAll("$", playerIndex);
+	var html = playerDisplayTemplate.replaceAll("0000", playerIndex);
 	p.innerHTML = html;
 
 	for(var i=0; i<colors.length; i++){
