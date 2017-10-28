@@ -35,7 +35,7 @@ function Missile(shooter){ // phaser shot class, needs the HBObject of the shoot
         position:shooter.body.position,
 		velocity:shooter.body.velocity,
 		angle:shooter.body.angle,
-		damping:0.9,
+		damping:MISSILE_DAMPING,
 		angularDamping:0.9995
     	});
 

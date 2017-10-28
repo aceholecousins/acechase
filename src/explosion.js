@@ -172,8 +172,8 @@ function explosion(position, color, scale=1.0){
 	effect.mesh.scale.set(3,3,1);
 	effect.spawn();
 	effect.strength = 5;
-	effect.decay = 10*scale;
-	effect.growth = 15;
+	effect.decay = 10;
+	effect.growth = 15*scale;
 
 	// little crumbs
 
