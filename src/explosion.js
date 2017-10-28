@@ -145,7 +145,7 @@ function explosion(position, color, scale=1.0){
 	effect.spawn();
 	effect.strength = 1.1;
 	effect.decay = 2;
-	effect.growth*scale = 10;
+	effect.growth = 10*scale;
 
 	// shockwave
 	
