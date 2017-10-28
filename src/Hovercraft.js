@@ -165,7 +165,6 @@ Hovercraft.prototype.hide = function(){
 	this.trail2.reposition(new THREE.Vector3(0,0,-10000));
 	this.flame.mesh.visible = false;
 	this.setThrustGain(0.0);
-	console.log("Hide");
 }
 
 Hovercraft.prototype.unhide = function(){
@@ -177,7 +176,6 @@ Hovercraft.prototype.unhide = function(){
 }
 
 Hovercraft.prototype.setThrustGain = function(gain) {
-	console.log("Thrust gain: " + gain);
 	this.thrustSound.gn.gain.value = gain;
 }
 
