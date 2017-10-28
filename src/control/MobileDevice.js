@@ -3,6 +3,8 @@
 function MobileDevice(params) {
     Control.call(this);
     
+	this.invertLeftRight = params[3] != 0 ? true : false;
+	this.invertUpDown = params[4] != 0 ? true : false;
     this.deviceRotationMatrix = new THREE.Matrix4();
     this.gravityVector = new THREE.Vector3(0, 0, 1);
     this.touch = false;
@@ -31,9 +33,9 @@ MobileDevice.prototype.update = function() {
     //Equalize device rotation
     // TODO: Make upside down working
     thrustVector3D.applyMatrix4(this.deviceRotationMatrix);
-    
+	
     //Use 2D components only
-    var thrustVector2D = new THREE.Vector2(-thrustVector3D.x, -thrustVector3D.y);
+    var thrustVector2D = new THREE.Vector2(this.getInverter(this.invertUpDown) * (-thrustVector3D.x), this.getInverter(this.invertLeftRight) * (-thrustVector3D.y));
     
     //Equalize device orientation (landscape/portrait)
     thrustVector2D.rotateAround(new THREE.Vector2(), window.orientation * Math.PI / 180);
@@ -48,6 +50,10 @@ MobileDevice.prototype.update = function() {
     if(length > 0.05) {
         this.direction = thrustVector2D.angle();
     }
+};
+
+MobileDevice.prototype.getInverter = function(invert) {
+	return invert ? -1.0 : 1.0;
 };
 
 MobileDevice.prototype.handleTouchStart = function(event) {
