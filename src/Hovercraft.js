@@ -202,6 +202,9 @@ Hovercraft.prototype.update = function(){
 	}
 
 	this.ammo += PHASER_REGEN*localdt;
+	if(this.powerup == POWERUPS.adrenaline){
+		this.ammo = PHASER_AMMO;
+	}
 	if(this.ammo >= PHASER_AMMO){
 		this.ammo = PHASER_AMMO;
 		this.phaserGlow1.visible = this.phaserGlow2.visible = true;
@@ -324,10 +327,12 @@ Hovercraft.prototype.controlHover = function() {
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
 
-		//if(this.control.thrust){
-			this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust;
-			this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust;
-		//}
+		var boost = 1.0;
+		if(this.powerup == POWERUPS.adrenaline){boost = 1.7;}
+
+		this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
+		this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
+
 
 		if(this.control.fire){
 			if(this.powerup == POWERUPS.missile){
@@ -394,20 +399,31 @@ Hovercraft.prototype.controlHover = function() {
 
 Hovercraft.prototype.shootPhaser = function(){
 
-	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE && this.ammo > 2){ // can I fire already?
+	var boost = 1.0;
+	if(this.powerup == POWERUPS.adrenaline){
+		boost = 2.0;
+	}
+
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo > 2){ // can I fire already?
 		this.ammo -= 2;
 		var p;
 		var locktarget;
 
         p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
-        //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-
+		if(this.powerup == POWERUPS.adrenaline){		
+			p.body.angle += 0.15*Math.random()-0.02;
+			p.body.velocity[0] = Math.cos(p.body.angle)*p.velocity;
+			p.body.velocity[1] = Math.sin(p.body.angle)*p.velocity;
+		}
 		this.phaserYOffset *= -1; // invert y offset to shoot from the other cannon
-
         p = new Phaser(this);
-        //if(this.powerup == POWERUPS.carrot){p.lock = locktarget;}
-
+		if(this.powerup == POWERUPS.adrenaline){		
+			p.body.angle -= 0.15*Math.random()-0.02;
+			p.body.velocity[0] = Math.cos(p.body.angle)*p.velocity;
+			p.body.velocity[1] = Math.sin(p.body.angle)*p.velocity;
+		}
 		this.phaserYOffset *= -1;
+
 		this.lastPhaserShot = INGAME_TIME;
 		// playSound(SOUNDS.phaserShot, 0.05, Math.random()*0.5 + 2.8, false) // this was first phaser
 		playSound(SOUNDS.phaserShot, 0.25, Math.random()*0.1 + 0.5, false) // this was first phaser
