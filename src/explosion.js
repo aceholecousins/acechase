@@ -124,7 +124,7 @@ STAR_MESH.position.set(0,0,0.1);
 STAR_MESH.renderOrder = RENDER_ORDER.smoke;
 
 
-function explosion(position, color){
+function explosion(position, color, scale=1.0){
 
 	// fireball
 
@@ -145,7 +145,7 @@ function explosion(position, color){
 	effect.spawn();
 	effect.strength = 1.1;
 	effect.decay = 2;
-	effect.growth = 10;
+	effect.growth*scale = 10;
 
 	// shockwave
 	
@@ -172,7 +172,7 @@ function explosion(position, color){
 	effect.mesh.scale.set(3,3,1);
 	effect.spawn();
 	effect.strength = 5;
-	effect.decay = 10;
+	effect.decay = 10*scale;
 	effect.growth = 15;
 
 	// little crumbs

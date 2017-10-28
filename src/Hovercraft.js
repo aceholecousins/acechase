@@ -246,6 +246,7 @@ Hovercraft.prototype.update = function(){
 		this.hide();
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
+		this.powerup = POWERUPS.nothing;
 
 		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
@@ -321,8 +322,8 @@ Hovercraft.prototype.controlHover = function() {
 		//this.body.angle = this.control.direction;
 
 		//if(this.control.thrust){
-			this.body.force[0] = Math.cos(this.body.angle)*17*this.body.mass * this.control.thrust;
-			this.body.force[1] = Math.sin(this.body.angle)*17*this.body.mass * this.control.thrust;
+			this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust;
+			this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust;
 		//}
 
 		if(this.control.fire){
@@ -432,7 +433,7 @@ Hovercraft.prototype.hitBy = function(thing){
 	}
 
 	if(this.hitpoints <= 0){
-		if(thing.type == "phaser"){		
+		if(thing.type == "phaser" || thing.type == "missile"){		
 			this.killedBy = thing.shooter;
 		}
 	}

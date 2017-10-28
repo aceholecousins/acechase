@@ -5,18 +5,19 @@ var GAME_LEVEL = 0; // for different levels of the same game mode
 var MAP = 'maps/islandisle.svg';
 
 var HOVER_RADIUS = 0.4;
-var PHASER_LENGTH = 0.8;
-var PUBOX_SIZE = 1.4; //1.0
-
+var HOVER_THRUST = 17.0;
 var HITPOINTS = 10;
 var SHIELD = 6;
 var SHIELD_REGEN = 1;
+
+var PHASER_LENGTH = 0.8;
 var PHASER_AMMO = 30;
 var PHASER_FIRE_RATE = 12;
 var PHASER_REGEN = 10;
 var PHASER_TURN = 0.7; // angular velocity for homing phasers
 
-var MISSILE_TURN = 2.0;
+var MISSILE_THRUST = 80;
+var MISSILE_TURN = 5.0;
 var MISSILE_DAMAGE = SHIELD + HITPOINTS/2;
 var MISSILE_HITPOINTS = 7;
 
@@ -25,6 +26,7 @@ var LAPS = 3;
 var AVG_SECONDS_BETWEEN_POWERUPS = 3;
 var PUBOX_HITPOINTS = 7;
 var PUBOX_LIMIT = 4;
+var PUBOX_SIZE = 1.2; //1.0
 
 var MUSIC_VOLUME = 0.2;
 var RESOLUTION = 1;

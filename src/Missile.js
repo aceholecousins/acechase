@@ -22,7 +22,6 @@ function Missile(shooter){ // phaser shot class, needs the HBObject of the shoot
 
 	this.hitpoints = MISSILE_HITPOINTS;
 
-	this.velocity = 15;
 	this.lock = null;
 
 	this.shooter = shooter;
@@ -34,15 +33,13 @@ function Missile(shooter){ // phaser shot class, needs the HBObject of the shoot
 	this.body = new p2.Body({
         mass: 3.0,
         position:shooter.body.position,
+		velocity:shooter.body.velocity,
 		angle:shooter.body.angle,
-		damping:0.5,
+		damping:0.9,
 		angularDamping:0.9995
     	});
 
 	PHYSICS_WORLD.disableBodyCollision(this.body, shooter.body);
-
-	this.body.velocity[0] = Math.cos(this.body.angle)*this.velocity;
-	this.body.velocity[1] = Math.sin(this.body.angle)*this.velocity;
 
 	this.body.addShape(shape);
 
@@ -83,13 +80,16 @@ Missile.prototype.specificUpdate = function(){
 		if(delta < -MISSILE_TURN*DT){delta = -MISSILE_TURN*DT;}
 
 		this.body.angle += delta;
-		this.body.velocity[0] = Math.cos(this.body.angle)*this.velocity;
-		this.body.velocity[1] = Math.sin(this.body.angle)*this.velocity;		
+		//this.body.velocity[0] = Math.cos(this.body.angle)*MISSILE_THRUST;
+		//this.body.velocity[1] = Math.sin(this.body.angle)*MISSILE_THRUST;
+
+		this.body.force[0] = Math.cos(this.body.angle)*MISSILE_THRUST*this.body.mass;
+		this.body.force[1] = Math.sin(this.body.angle)*MISSILE_THRUST*this.body.mass;	
 	}
 }
 
 Missile.prototype.impact = function(){ // what happens on impact
-	explosion(this.mesh.position.clone(), this.mesh.material.color.clone());
+	explosion(this.mesh.position.clone(), this.mesh.material.color.clone(), 0.5);
 	this.despawn();
 }
 
