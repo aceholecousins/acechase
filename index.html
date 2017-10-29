@@ -348,6 +348,13 @@ function selectItem(select, item){ // selects a string (text or data-code) in a 
 		}
 	}
 }
+
+function setValueIfDefined(element, value) { //sets value of the element only to value if value is defined
+	if(value !== undefined) {
+		element.value = value;
+	}
+}
+
 function getSelectedCode(select){ // returns the data-code of the selected option
 	return select.options[select.selectedIndex].dataset.code;
 }
@@ -567,7 +574,7 @@ function string2config(string, warning){ // string must be complete
 			
 			get("mdleftright_" + index).checked = part[++ip] == '1';
 			get("mdupdown_" + index).checked = part[++ip] == '1';
-			get("mdsensitivity_" + index).value = part[++ip];			
+			setValueIfDefined(get("mdsensitivity_" + index), part[++ip]);
 		}
 	}
 
