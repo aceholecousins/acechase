@@ -1,25 +1,42 @@
 
 var ipu = 0;
 var POWERUPS = {
-	nothing:    {tex:null, color:null, count:0},
+	nothing:    {tex:null, color:null, count:0, probability:0},
 
-	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), count:3},
-	seamine:    {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1},
-	powershield:{tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:7},
-	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), count:7},
-	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0},
+	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), count:3, prob:3},
+	seamine:    {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1, prob:3},
+	powershield:{tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:7, prob:1},
+	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), count:7, prob:2},
+	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0, prob:1}
 };
 
-//var PUARRAY=[POWERUPS.missile, POWERUPS.seamine, POWERUPS.powershield, POWERUPS.adrenaline, POWERUPS.repair];
+var PUARRAY=[POWERUPS.missile, POWERUPS.seamine, POWERUPS.powershield, POWERUPS.adrenaline, POWERUPS.repair];
 
-var PUARRAY=[POWERUPS.powershield];
+// manage powerup probabilities:
+var probsum = 0;
+for(var i=0; i<PUARRAY.length; i++){probsum += PUARRAY[i].prob;}
+var cumprob = 0;
+for(var i=0; i<PUARRAY.length; i++){
+	PUARRAY[i].problb = cumprob; // lower bound for random "dice roll"
+	cumprob += PUARRAY[i].prob/probsum;
+	PUARRAY[i].probub = cumprob; // upper bound for random "dice roll"
+}
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 
 function maybeSpawnPowerup(){
 	if(Math.random()<DT/AVG_SECONDS_BETWEEN_POWERUPS && NPUBOXES < PUBOX_LIMIT){
 		var pos = findAccessiblePosition(-1);
-		var pu = PUARRAY[Math.floor(Math.random()*PUARRAY.length)];
+
+		var dice = Math.random();
+		var pu;
+
+		for(var i=0; i<PUARRAY.length; i++){
+			if(dice >= PUARRAY[i].problb && dice < PUARRAY[i].probub){
+				pu = PUARRAY[i];
+				break;
+			}
+		}
 		new Pubox(pos, pu);
 	}
 }
