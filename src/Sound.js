@@ -72,7 +72,16 @@ SOUNDTRACK_LIST = [
 	 link:'https://www.youtube.com/watch?v=efJQ1RAUNvU'},
 	{file:'media/music/SpeedChase_lq.ogg',
 	 attr:'Alex Lisi - Speed Chase',
-	 link:'https://www.youtube.com/watch?v=0iKBT9LRFPo'}];
+	 link:'https://www.youtube.com/watch?v=0iKBT9LRFPo'},
+	{file:'media/music/Racing_Supercars_in_Japan_lq.ogg',
+	 attr:'TeknoAXE - Racing Supercars in Japan',
+	 link:'https://www.youtube.com/watch?v=a8RzVnVG-mw'},
+	{file:'media/music/When_it_Hits_the_Fan_lq.ogg',
+	 attr:'TeknoAXE - When it Hits the Fan',
+	 link:'https://youtu.be/cTt8-1v0I8A'},
+	{file:'media/music/racinghearts_lq.ogg',
+	 attr:'Martin Landh - Racing Hearts 1',
+	 link:'https://www.youtube.com/watch?v=fDXM442F9fY'}];
 
 SOUNDTRACK_PLAYING = false;
 NEXT_SOUNDTRACK = SOUNDTRACK_LIST[Math.floor(Math.random()*SOUNDTRACK_LIST.length)];

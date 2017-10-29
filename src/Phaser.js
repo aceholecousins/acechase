@@ -32,7 +32,8 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 
 	this.type = 'phaser';
 
-	this.velocity = 25;
+	this.velocity = PHASER_SPEED;
+
 	this.lock = null;
 
 	var length = PHASER_LENGTH/2;

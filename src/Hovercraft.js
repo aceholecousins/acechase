@@ -299,7 +299,15 @@ Hovercraft.prototype.update = function(){
 		this.trail1.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
 		this.trail2.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
 	}
+	//console.log(this.flame.mesh.scale.x)
 	this.flame.update();
+	//console.log(this.flame.mesh.scale.x)
+	if(this.powerup == POWERUPS.adrenaline){
+		//console.log(this.flame.mesh.scale.x)
+		this.flame.mesh.scale.x *= ADRENALINE_BOOST;
+		this.flame.mesh.scale.y *= ADRENALINE_BOOST;
+		//console.log(this.flame.mesh.scale.x)
+	}
 }
 
 Hovercraft.prototype.controlHover = function() {
@@ -328,7 +336,7 @@ Hovercraft.prototype.controlHover = function() {
 		//this.body.angle = this.control.direction;
 
 		var boost = 1.0;
-		if(this.powerup == POWERUPS.adrenaline){boost = 1.7;}
+		if(this.powerup == POWERUPS.adrenaline){boost = ADRENALINE_BOOST;}
 
 		this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
 		this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
@@ -401,7 +409,7 @@ Hovercraft.prototype.shootPhaser = function(){
 
 	var boost = 1.0;
 	if(this.powerup == POWERUPS.adrenaline){
-		boost = 2.0;
+		boost = ADRENALINE_BOOST;
 	}
 
 	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo > 2){ // can I fire already?
@@ -412,6 +420,7 @@ Hovercraft.prototype.shootPhaser = function(){
         p = new Phaser(this); // create new phaser shot with this hovercraft as its shooter
 		if(this.powerup == POWERUPS.adrenaline){		
 			p.body.angle += 0.15*Math.random()-0.02;
+			p.velocity *= ADRENALINE_BOOST;
 			p.body.velocity[0] = Math.cos(p.body.angle)*p.velocity;
 			p.body.velocity[1] = Math.sin(p.body.angle)*p.velocity;
 		}
@@ -419,6 +428,7 @@ Hovercraft.prototype.shootPhaser = function(){
         p = new Phaser(this);
 		if(this.powerup == POWERUPS.adrenaline){		
 			p.body.angle -= 0.15*Math.random()-0.02;
+			p.velocity *= ADRENALINE_BOOST;
 			p.body.velocity[0] = Math.cos(p.body.angle)*p.velocity;
 			p.body.velocity[1] = Math.sin(p.body.angle)*p.velocity;
 		}
@@ -454,7 +464,7 @@ Hovercraft.prototype.hitBy = function(thing){
 	}
 
 	if(this.hitpoints <= 0){
-		if(thing.type == "phaser" || thing.type == "missile"){		
+		if(thing.type == "phaser" || thing.type == "missile" || thing.type == "seamine"){		
 			this.killedBy = thing.shooter;
 		}
 	}
@@ -484,8 +494,7 @@ Hovercraft.prototype.wallhit = function(){
 Hovercraft.prototype.collect = function(pu){
 
 	if(pu == POWERUPS.repair){
-		this.hitpoints = HITPOINTS;
-		this.powerup = POWERUPS.nothing;	
+		this.hitpoints = HITPOINTS;	
 	}
 	else{
 		this.powerup = pu;

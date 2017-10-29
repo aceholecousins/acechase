@@ -58,7 +58,7 @@ function Flame(hover){
 		transparent:	true
 	});
 
-	this.mesh.scale.x = hover.radius;
+	this.mesh.scale.x = 0.5*this.len;
 	this.mesh.scale.y = this.len;
 	GRAPHICS_SCENE.add(this.mesh);
 }
@@ -66,6 +66,7 @@ function Flame(hover){
 Flame.prototype.update = function(){
 	this.mesh.position.x = this.hover.mesh.position.x;
 	this.mesh.position.copy(this.hover.localToWorld3(new THREE.Vector3(-this.hover.radius-this.hover.control.thrust*this.len/2,0,0.1)));
+	this.mesh.scale.x = 0.5 * this.len;
 	this.mesh.scale.y = (this.hover.control.thrust+0.000001) * this.len;
 	this.mesh.rotation.z = this.hover.mesh.rotation.z+1.57;
 	this.mesh.material.uniforms.index.value = Math.floor(Math.random()*8);

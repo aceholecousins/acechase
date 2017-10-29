@@ -12,6 +12,7 @@ var SHIELD_REGEN = 1;
 
 var PHASER_LENGTH = 0.8;
 var PHASER_AMMO = 30;
+var PHASER_SPEED = 30;
 var PHASER_FIRE_RATE = 12;
 var PHASER_REGEN = 10;
 var PHASER_TURN = 0.7; // angular velocity for homing phasers
@@ -24,11 +25,13 @@ var MISSILE_HITPOINTS = 3;
 
 var SEAMINE_DAMAGE = SHIELD + HITPOINTS/2;
 
+var ADRENALINE_BOOST = 1.6; // increases fire rate, phaser speed and thrust when green powerup collected
+
 var LAPS = 3;
 
-var AVG_SECONDS_BETWEEN_POWERUPS = 3;
+var AVG_SECONDS_BETWEEN_POWERUPS = 5;
 var PUBOX_HITPOINTS = 7;
-var PUBOX_LIMIT = 4;
+var PUBOX_LIMIT = 3;
 var PUBOX_SIZE = 1.2; //1.0
 
 var MUSIC_VOLUME = 0.2;
