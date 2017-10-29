@@ -3,13 +3,18 @@
 GamepadManager = function() {
 }
 
-GamepadManager.start = function (playerIndex) {
+GamepadManager.start = function (playerIndex, button) {
 	console.log("start gp manager");
 	if(this.gamepadTimer === undefined) {
 		this.gamepadTimer = setInterval(GamepadManager.update, 50);
 	}
 	
-	this.currentButton = document.getElementById("gpidx_" + playerIndex);
+	GamepadManager.initAllButtons(playerIndex);
+	
+	if(this.currentButton !== undefined) {
+		this.currentButton.style.backgroundColor = "#f0f8ff";
+	}
+	this.currentButton = button;
 	this.currentButton.style.backgroundColor = "yellow";
 }
 
@@ -18,6 +23,16 @@ GamepadManager.stop = function() {
 	if(this.gamepadTimer !== undefined) {
 		clearInterval(this.gamepadTimer);
 		this.gamepadTimer = undefined;
+	}
+}
+
+GamepadManager.initAllButtons = function(playerIndex) {
+	this.indexButton = get("gpidx_");
+	this.axisButtons = [get("gplr_"), get("gpud_"), get("gpthrust_")];
+	this.buttonButtons = [get("gpthrust_"), get("gpfire_"), get("gpspcl_")];
+	
+	function get(prefix) {
+		return document.getElementById(prefix + playerIndex);
 	}
 }
 
@@ -45,16 +60,41 @@ GamepadManager.update = function() {
 GamepadManager.triggered = function(gamepad, iGamepad, iAxis, iButton) {
 	console.log("Gamepad[" + i + "]: " + gamepad.index + ", " + gamepad.id + ", " + gamepad.connected);
 	
-	this.currentButton.innerHTML = iGamepad + 1;
-	this.currentButton.style.backgroundColor = "#f0f8ff";
-	
-	if(iAxis >= 0) {
-		console.log("	Axis[" + iAxis + "] " + gamepad.axes[iAxis]);
+	if(this.currentButton === this.indexButton) {
+		this.currentButton.dataset.code = iGamepad + 1;
+		finish(this.currentButton);
 	}
-	if(iButton >= 0) {
-		let button = gamepad.buttons[iButton];
-		console.log("	Button[" + iButton + "] " + button.pressed + ", " + button.value);
+	if(iAxis >= 0 && this.axisButtons.indexOf(this.currentButton) != -1) {		
+		let value = gamepad.axes[iAxis];
+		this.currentButton.dataset.code = "a" + (value > 0 ? "+" : "-") + iAxis;		
+		console.log("	Axis[" + iAxis + "] " + value);				
+		finish(this.currentButton);
+	}
+	if(iButton >= 0 && this.buttonButtons.indexOf(this.currentButton) != -1) {		
+		let value = gamepad.buttons[iButton].value;
+		this.currentButton.dataset.code = "b" + padWithZeroes(iButton);
+		console.log("	Button[" + iButton + "] " + value);		
+		finish(this.currentButton);
 	}
 	
-	GamepadManager.stop();
+	function finish(button) {
+		button.innerHTML = GamepadManager.codeToText(button.dataset.code);
+		button.style.backgroundColor = "#f0f8ff";
+		GamepadManager.stop();
+	}
+}
+
+GamepadManager.fillButtonText = function(button, code) {
+	button.dataset.code = code;
+	button.innerHTML = GamepadManager.codeToText(code);
+}
+
+GamepadManager.codeToText = function(code) {
+	if(code[0] == 'a') {
+		return code[1] + " Axis " + code.slice(2);
+	} else if(code[0] == 'b') {
+		return "Button " + (code.slice(1) * 1);
+	} else {
+		return code;
+	}
 }

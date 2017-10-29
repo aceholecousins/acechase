@@ -95,15 +95,15 @@ a{
 				</td>
 				<td id="ctloptions_0000" align="right" style="width:200px;">
 					<div id="gpoptions_0000">
-						Pad #: <button id="gpidx_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000)">1</button><br>
+						Pad #: <button id="gpidx_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000, this)"></button><br>						
+						Right: <button id="gplr_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000, this)"></button><br>
+						Up: <button id="gpud_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000, this)"></button><br>
+						Thrust: <button id="gpthrust_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000, this)"></button><br>
+						Fire: <button id="gpfire_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000, this)"></button><br>
 						Control: <select id="gprelabs_0000" class="std" style="width:100px;">
 							<option data-code="rel">Relative</option>
 							<option data-code="abs">Absolute</option>
 						</select><br>
-						Left/Right: <select id="gplr_0000" class="std" style="width:100px;"></select><br>
-						Up/Down: <select id="gpud_0000" class="std" style="width:100px;"></select><br>
-						Thrust: <select id="gpthrust_0000" class="std" style="width:100px;"></select><br>
-						Fire: <select id="gpfire_0000" class="std" style="width:100px;"></select><br>
 						<div style="display:none">Special: <select id="gpspcl_0000" class="std" style="width:100px;"></select></div>
 					</div>
 					<div id="kboptions_0000">
@@ -209,19 +209,15 @@ function addPlayer(multiplayer){
 	get("picbg_" + playerIndex).style.backgroundColor = c.value;
 	get("name_" + playerIndex).value = names[randint(names.length)];
 
-	fillOptions(get("gplr_" + playerIndex), axespm, axcode);
-	fillOptions(get("gpud_" + playerIndex), axespm, axcode);
-	fillOptions(get("gpthrust_" + playerIndex), axeshalf.concat(buttons), axcode.concat(butcode));
-	fillOptions(get("gpfire_" + playerIndex), buttons, butcode);
-	fillOptions(get("gpspcl_" + playerIndex), buttons, butcode);
-
 	ctlSelect(playerIndex, "kb");
-
-	get("gplr_" + playerIndex).selectedIndex = 0;
-	get("gpud_" + playerIndex).selectedIndex = 3;
-	get("gpthrust_" + playerIndex).selectedIndex = 19;
-	get("gpfire_" + playerIndex).selectedIndex = 0;
-	get("gpspcl_" + playerIndex).selectedIndex = 2;
+	
+	get("gpidx_" + playerIndex).dataset.code = playerIndex;
+	get("gpidx_" + playerIndex).innerHTML = playerIndex;
+	GamepadManager.fillButtonText(get("gplr_" + playerIndex), 'a+0');
+	GamepadManager.fillButtonText(get("gpud_" + playerIndex), 'a-1');
+	GamepadManager.fillButtonText(get("gpthrust_" + playerIndex), 'b07');
+	GamepadManager.fillButtonText(get("gpfire_" + playerIndex), 'b00');
+	GamepadManager.fillButtonText(get("gpspcl_" + playerIndex), 'b01');
 
 	get("kbl_" + playerIndex).dataset.code = 65;
 	get("kbl_" + playerIndex).innerHTML = keyNames[65];
@@ -454,13 +450,13 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 
 		if(ctl == "gp" || complete){
 			result += ",";
-			result += get("gpidx_" + index).innerHTML + ",";
+			result += get("gpidx_" + index).dataset.code + ",";
 			result += getSelectedCode(get("gprelabs_" + index)) + ",";
-			result += getSelectedCode(get("gplr_" + index)) + ",";
-			result += getSelectedCode(get("gpud_" + index)) + ",";
-			result += getSelectedCode(get("gpthrust_" + index)) + ",";
-			result += getSelectedCode(get("gpfire_" + index)) + ",";
-			result += getSelectedCode(get("gpspcl_" + index));
+			result += get("gplr_" + index).dataset.code + ",";
+			result += get("gpud_" + index).dataset.code + ",";
+			result += get("gpthrust_" + index).dataset.code + ",";
+			result += get("gpfire_" + index).dataset.code + ",";
+			result += get("gpspcl_" + index).dataset.code;
 		}
 		if(ctl == "kb" || complete){
 			result += ",";
@@ -542,13 +538,14 @@ function string2config(string, warning){ // string must be complete
 			get("color_"+index).onchange();
 			ctlSelect(index, part[++ip]);
 
-			get("gpidx_" + index).innerHTML = part[++ip];
-			selectItem(get("gprelabs_" + index), part[++ip]);
-			selectItem(get("gplr_" + index), part[++ip]);
-			selectItem(get("gpud_" + index), part[++ip]);
-			selectItem(get("gpthrust_" + index), part[++ip]);
-			selectItem(get("gpfire_" + index), part[++ip]);
-			selectItem(get("gpspcl_" + index), part[++ip]);
+			get("gpidx_" + index).dataset.code = part[++ip];
+			get("gpidx_" + index).innerHTML = part[ip];
+			selectItem(get("gprelabs_" + index), part[++ip]);			
+			GamepadManager.fillButtonText(get("gplr_" + index), part[++ip]);
+			GamepadManager.fillButtonText(get("gpud_" + index), part[++ip]);
+			GamepadManager.fillButtonText(get("gpthrust_" + index), part[++ip]);
+			GamepadManager.fillButtonText(get("gpfire_" + index), part[++ip]);
+			GamepadManager.fillButtonText(get("gpspcl_" + index), part[++ip]);
 
 			selectItem(get("kbrelabs_" + index), part[++ip]);
 			get("kbl_" + index).dataset.code = part[++ip];

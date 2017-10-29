@@ -74,3 +74,8 @@ function Checklist(){
         }, 50, this); // call every 50ms
     }
 }
+
+// Pad number with leading zero
+function padWithZeroes(n) {
+    return (n < 10) ? ("0" + n) : n;
+}
