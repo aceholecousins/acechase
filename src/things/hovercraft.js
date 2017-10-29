@@ -215,6 +215,7 @@ Hovercraft.prototype.update = function(){
 		this.powershieldMesh.visible = true;
 		this.body.mass = POWERSHIELD_MASS;
 	}
+	this.body.updateMassProperties();
 
 	this.ammo += PHASER_REGEN*localdt;
 	if(this.powerup == POWERUPS.adrenaline){
