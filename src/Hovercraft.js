@@ -22,6 +22,9 @@ HEADLIGHT_MESH.position.set(4.7,0,0.1);
 HEADLIGHT_MESH.scale.set(7,3.5,1);
 
 
+var POWERSHIELD_TEXTURE = loadTexture( 'media/textures/powershield.png' );
+
+
 function Hovercraft(color, control){
 	HBObject.call(this); // inheritance
 
@@ -47,7 +50,6 @@ function Hovercraft(color, control){
 	// physics
 
 	var shape = new p2.Circle(this.radius);
-
 	this.body = new p2.Body({
         mass: 6,
         position:[0,0],
@@ -84,7 +86,18 @@ function Hovercraft(color, control){
 				transparent:true}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
+	this.powershieldMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(2.0,9,9),
+            new THREE.MeshBasicMaterial({
+				map:POWERSHIELD_TEXTURE,
+				color:color.clone().lerp(new THREE.Color("white"), 0.5),
+				transparent:false,
+				alphaTest:0.5}));
+	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
+
 	this.mesh.add(this.shieldMesh);
+	this.mesh.add(this.powershieldMesh);
+	this.powershieldMesh.visible = false;
 
 	this.trail1 = new Trail(this.mesh.position,0.1,color,0.8);
 	this.trail2 = new Trail(this.mesh.position,0.1,color,0.8);
@@ -195,10 +208,12 @@ Hovercraft.prototype.update = function(){
 	this.shield += SHIELD_REGEN*localdt;
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
+	this.powershieldMesh.rotation.set(Math.random()*10000, Math.random()*10000, Math.random()*10000)
+	this.powershieldMesh.visibility = false;
 
-	if(this.powerup == POWERUPS.shield){
+	if(this.powerup == POWERUPS.powershield){
 		this.shield = SHIELD;
-		this.shieldMesh.material.opacity = 0.7;
+		this.powershieldMesh.visibility = true;
 	}
 
 	this.ammo += PHASER_REGEN*localdt;
@@ -213,7 +228,7 @@ Hovercraft.prototype.update = function(){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = false;
 	}
 
-	if(this.powerup == POWERUPS.shield || this.powerup == POWERUPS.adrenaline){
+	if(this.powerup == POWERUPS.powershield || this.powerup == POWERUPS.adrenaline){
 		this.powerupLasts -= localdt;
 		if(this.powerupLasts<0){
 			this.powerup = POWERUPS.nothing;
@@ -299,14 +314,10 @@ Hovercraft.prototype.update = function(){
 		this.trail1.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius,-0.7*this.radius,0.1)));
 		this.trail2.meshline.advance(this.localToWorld3(new THREE.Vector3(-0.7*this.radius, 0.7*this.radius,0.1)));
 	}
-	//console.log(this.flame.mesh.scale.x)
 	this.flame.update();
-	//console.log(this.flame.mesh.scale.x)
 	if(this.powerup == POWERUPS.adrenaline){
-		//console.log(this.flame.mesh.scale.x)
 		this.flame.mesh.scale.x *= ADRENALINE_BOOST;
 		this.flame.mesh.scale.y *= ADRENALINE_BOOST;
-		//console.log(this.flame.mesh.scale.x)
 	}
 }
 
@@ -442,7 +453,7 @@ Hovercraft.prototype.shootPhaser = function(){
 
 Hovercraft.prototype.hitBy = function(thing){
 	
-	if(GAME_MODE != "R"){ // no damage during race
+	if(GAME_MODE != "R" && this.powerup != POWERUPS.powershield){ // no damage during race or when powershield is on
 		if(thing.type == "phaser"){
 			this.shield -= 1;
 		}

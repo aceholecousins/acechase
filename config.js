@@ -25,6 +25,8 @@ var MISSILE_HITPOINTS = 3;
 
 var SEAMINE_DAMAGE = SHIELD + HITPOINTS/2;
 
+var POWERSHIELD_RADIUS = 1.6*HOVER_RADIUS;
+
 var ADRENALINE_BOOST = 1.6; // increases fire rate, phaser speed and thrust when green powerup collected
 
 var LAPS = 3;
