@@ -7,6 +7,12 @@ LOADING_LIST.addItem('sounds');
 
 var SOUNDS = {};
 
+var THRUST_SOUND = undefined;
+function addThrustSound(vol){
+	var vol0 = THRUST_SOUND.gn.gain.value;
+	THRUST_SOUND.gn.gain.value = Math.sqrt(vol0*vol0 + vol*vol);
+}
+
 function playSound(buffer, volume, pitch, loop, offset=0.0){
 
     var source = AUDIO_CONTEXT.createBufferSource();
@@ -47,6 +53,8 @@ function sfxLoadedCallback(bufferList) {
 	SOUNDS.fart = bufferList[5];
 
     LOADING_LIST.checkItem('sounds');
+
+	THRUST_SOUND = playSound(SOUNDS.thrust, 0.0, 1.0, true);
 }
 
 SOUNDTRACK_LIST = [

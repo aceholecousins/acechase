@@ -276,6 +276,7 @@
 						if(continus > NUM_PLAYERS/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
 					}
 
+					THRUST_SOUND.gn.gain.value = 0.0;
 					updateAllHBObjects();
 
 					updateCam();
@@ -301,8 +302,6 @@
 
 
 			function endRound(){ // display results
-
-				switchOffThrustSound();
 
 				GAME_PHASE = "R";
 				SCORETABLE_PROTECT = true;
@@ -432,12 +431,6 @@
 					}
 					SCORETABLE.plane.visible = true;
 				}
-			}
-
-			function switchOffThrustSound() {
-				hovers.forEach(function(hover, index, array) {
-					hover.setThrustGain(0.0);
-				})
 			}
 
 			function newRound(){

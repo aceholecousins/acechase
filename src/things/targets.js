@@ -195,8 +195,9 @@ Target.prototype.specificUpdate=function(){
 	if(this.type=="bomb"){
 
 		var mindist = 1e100;
-		var imin;
+		var imin = 0;
 		for(var i=0; i<hovers.length; i++){
+			if(hovers[i].hidden){continue;}
 			var dist = Math.sqrt(Math.pow(hovers[i].body.position[0]-this.body.position[0], 2) + 
 					Math.pow(hovers[i].body.position[1]-this.body.position[1], 2));
 			if(dist < mindist){

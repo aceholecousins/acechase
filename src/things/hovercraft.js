@@ -46,7 +46,6 @@ function Hovercraft(color, control){
 	this.powerupLasts = 0; // time/shots until powerup is over
 	this.lastPosition = new THREE.Vector2(0,0); // for line crossing tests
 	this.newPosition = new THREE.Vector2(0,0);
-	this.thrustSound = playSound(SOUNDS.thrust, 0.0, 1.0, true);
 
 	// physics
 
@@ -182,7 +181,6 @@ Hovercraft.prototype.hide = function(){
 	this.trail1.reposition(new THREE.Vector3(0,0,-10000)); // TODO little parts of the trail are remaining for some reason
 	this.trail2.reposition(new THREE.Vector3(0,0,-10000));
 	this.flame.mesh.visible = false;
-	this.setThrustGain(0.0);
 }
 
 Hovercraft.prototype.unhide = function(){
@@ -191,10 +189,6 @@ Hovercraft.prototype.unhide = function(){
 	this.mesh.visible = true;
 	this.beamed = true;
 	this.flame.mesh.visible = true;
-}
-
-Hovercraft.prototype.setThrustGain = function(gain) {
-	this.thrustSound.gn.gain.value = gain;
 }
 
 Hovercraft.prototype.update = function(){
@@ -368,7 +362,7 @@ Hovercraft.prototype.controlHover = function() {
 			console.log("This should not have happened. Sorry.")
 		}
 
-		this.setThrustGain(this.control.thrust*0.3);
+		addThrustSound(this.control.thrust*0.3);
 
 		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
 		//this.body.angle = this.control.direction;
