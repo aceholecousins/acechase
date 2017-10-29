@@ -1,6 +1,4 @@
 
-// depends on nothing
-
 // class for graphic effects (like particles) that have no influence on the physics
 
 var EFFECT_LIST = []; // array containing all effect objects
