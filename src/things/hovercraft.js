@@ -535,8 +535,10 @@ Hovercraft.prototype.collect = function(pu){
 		this.hitpoints = HITPOINTS;	
 	}
 	else{
-		this.powerup = pu;
-		this.powerupLasts = pu.count;
+		if(this.powerup == POWERUPS.nothing){
+			this.powerup = pu;
+			this.powerupLasts = pu.count;
+		}
 	}
 }
 
