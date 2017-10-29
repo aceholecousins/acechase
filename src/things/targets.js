@@ -1,6 +1,6 @@
 
 var TARGET_TEX = loadTexture("media/textures/target.png");
-var MINE_TEX = loadTexture("media/textures/bomb.png");
+//var MINE_TEX = loadTexture("media/textures/bomb.png");
 var TARGETS = [];
 
 function spawnTarget(isMine, attractforce){
@@ -86,14 +86,23 @@ function Target(pos, isMine, attractforce){ // powerup box class
 
 	// graphics
 
-	this.mesh = new THREE.Mesh(
-		new THREE.IcosahedronGeometry(PUBOX_SIZE/2*mineSizeFactor, 2),
-		//new THREE.SphereGeometry(2,8,8),
-		new THREE.MeshLambertMaterial({
-			map: isMine? MINE_TEX : TARGET_TEX,
-			emissiveMap: isMine? MINE_TEX : TARGET_TEX,
-			emissive: new THREE.Color(0.3,0.3,0.3)
-		}));
+	this.mesh = null;
+	if(!isMine){
+		this.mesh = new THREE.Mesh(
+			new THREE.IcosahedronGeometry(PUBOX_SIZE/2*mineSizeFactor, 2),
+			new THREE.MeshLambertMaterial({
+				map: TARGET_TEX,
+				emissiveMap: TARGET_TEX,
+				emissive: new THREE.Color(0.3,0.3,0.3)
+			}));
+	}
+	else{
+		this.mesh = SEAMINE_MESH.clone();
+		this.mesh.getObjectByName('mine').material =
+			new THREE.MeshLambertMaterial({color:new THREE.Color(0.5,0.5,0.5)});
+		this.mesh.scale.set(0.8,0.8,0.8);
+	}
+
 	this.mesh.position.z = 0.3;
 
 	// spawnstar

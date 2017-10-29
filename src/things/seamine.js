@@ -10,7 +10,7 @@ OBJ_LOADER.load( 'media/objects/seamine.obj', function (object) {
 	SEAMINE_MESH.scale.set(0.5,0.5,0.5);
 	SEAMINE_MESH.getObjectByName('mine').material = new THREE.MeshLambertMaterial({color:new THREE.Color(0.0,1.0,1.0)});
 
-	SEAMINE_MESH.position.z = 0.1;
+	SEAMINE_MESH.position.z = -0.3;
 });
 
 

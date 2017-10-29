@@ -276,10 +276,32 @@ Hovercraft.prototype.update = function(){
 
 		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
-				var startPos = findAccessiblePosition(-2);
 
-				this.body.position[0] = startPos.x;
-				this.body.position[1] = startPos.y;
+				var pos;
+				var posok = false;
+				var ntrials = 0;
+
+				while(!posok){ // find a position away from bombs
+					pos = findAccessiblePosition(-2);
+					posok = true;
+
+					for(var i=0; i<TARGETS.length; i++){
+						if(!TARGETS[i].isMine){continue;}
+						if(Math.pow(pos.x - TARGETS[i].body.position[0], 2)
+								+ Math.pow(pos.y - TARGETS[i].body.position[1], 2) < Math.pow(MAP_WIDTH/5,2)){
+							posok = false;
+							break;
+						}
+					}
+					ntrials ++;
+					if(ntrials > 1000){
+						console.error("No suitable spawning location for hover found!")
+						break;
+					}
+				}
+
+				this.body.position[0] = pos.x;
+				this.body.position[1] = pos.y;
 				this.beamed = true;
 				this.body.angle = Math.random()*2*Math.PI;
 				this.control.direction = this.body.angle;
