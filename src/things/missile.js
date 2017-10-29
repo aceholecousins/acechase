@@ -125,6 +125,7 @@ Missile.prototype.specificUpdate = function(){
 
 Missile.prototype.impact = function(){ // what happens on impact
 	explosion(this.mesh.position.clone(), this.shooter.color.clone(), 0.5);
+	playSound(SOUNDS.explosion, 1.0, 1.0, 0.0);
 	this.despawn();
 }
 
