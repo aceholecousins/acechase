@@ -45,6 +45,8 @@ function Phaser(shooter){ // phaser shot class, needs the HBObject of the shoote
 
 	//var shape = new p2.Capsule(length, radius); // capsule made the game too slow
 	var shape = new p2.Circle(radius);
+	shape.collisionGroup = CG_PHASER;
+	shape.collisionMask  = CM_PHASER;
 
 	this.body = new p2.Body({
         mass: 3.0, // 0.2 before

@@ -57,6 +57,8 @@ function Hovercraft(color, control){
 		angularDamping:0.9995
     	});
 	shape.material = HOVER_MATERIAL;
+	shape.collisionGroup = CG_HOVER;
+	shape.collisionMask  = CM_HOVER;
 	this.body.addShape(shape);
 
 	// graphics
@@ -209,11 +211,11 @@ Hovercraft.prototype.update = function(){
 	if(this.shield > SHIELD){this.shield = SHIELD;}
 	this.shieldMesh.material.opacity *= 0.98;
 	this.powershieldMesh.rotation.set(Math.random()*10000, Math.random()*10000, Math.random()*10000)
-	this.powershieldMesh.visibility = false;
+	this.powershieldMesh.visible = false;
 
 	if(this.powerup == POWERUPS.powershield){
 		this.shield = SHIELD;
-		this.powershieldMesh.visibility = true;
+		this.powershieldMesh.visible = true;
 	}
 
 	this.ammo += PHASER_REGEN*localdt;

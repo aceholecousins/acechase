@@ -1,6 +1,6 @@
 
 var TARGET_TEX = loadTexture("media/textures/target.png");
-var MINE_TEX = loadTexture("media/textures/mine.png");
+var MINE_TEX = loadTexture("media/textures/bomb.png");
 var TARGETS = [];
 
 function spawnTarget(isMine, attractforce){
@@ -49,7 +49,7 @@ function Target(pos, isMine, attractforce){ // powerup box class
 		this.hitpoints = PUBOX_HITPOINTS;
 	}
 	else{
-		this.type = 'mine';
+		this.type = 'bomb';
 		this.hitpoints = PUBOX_HITPOINTS/3;
 		this.attractforce = attractforce;
 		mineSizeFactor = 2;
@@ -59,6 +59,14 @@ function Target(pos, isMine, attractforce){ // powerup box class
 	// physics
 
 	var shape = new p2.Circle(PUBOX_SIZE*0.5*mineSizeFactor);
+	if(!isMine){
+		shape.collisionGroup = CG_TARGET;
+		shape.collisionMask  = CM_TARGET;
+	}
+	else{
+		shape.collisionGroup = CG_BOMB;
+		shape.collisionMask  = CM_BOMB;
+	}
 
 	var vphi = Math.random()*10000;
 	var v = Math.random()*3+0.1;
@@ -132,7 +140,7 @@ Target.prototype.destroyed = function(){
 		playSound(SOUNDS.explosion, 1.4, 1.0, 0.0);
 		ingameTimeout(2, function(){spawnTarget(false);});
 	}
-	if(this.type == "mine"){
+	if(this.type == "bomb"){
 		explosion(this.mesh.position, new THREE.Color("red"));
 		playSound(SOUNDS.explosion, 2.0, 0.67, 0.0);
 		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);}.bind(this));
@@ -148,7 +156,7 @@ Target.prototype.specificUpdate=function(){
 
 	if(this.hitpoints <= 0){
 		if(this.destroyedBy != null){
-			if(this.type == 'mine'){
+			if(this.type == 'bomb'){
 				this.destroyedBy.mines++;
 			}
 			if(this.type == 'target'){
@@ -159,7 +167,7 @@ Target.prototype.specificUpdate=function(){
 		return;
 	}
 
-	if(this.type=="mine"){
+	if(this.type=="bomb"){
 
 		var mindist = 1e100;
 		var imin;

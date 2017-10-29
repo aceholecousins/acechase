@@ -36,6 +36,8 @@ function Missile(shooter){ // missile shot class, needs the HBObject of the shoo
 	// physics
 
 	var shape = new p2.Circle(0.5*HOVER_RADIUS);
+	shape.collisionGroup = CG_MISSILE;
+	shape.collisionMask  = CM_MISSILE;
 
 	this.body = new p2.Body({
         mass: 3.0,

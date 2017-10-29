@@ -80,6 +80,28 @@ BROADPHASE.boundingVolumeCheck = function(bodyA, bodyB){
 
 //TODO: do the filtering with collision groups https://github.com/schteppe/p2.js/wiki
 
+// CG = collision group
+CG_ARENA   = Math.pow(2,0);
+CG_HOVER   = Math.pow(2,1);
+CG_PHASER  = Math.pow(2,2);
+CG_PUBOX   = Math.pow(2,3);
+CG_MISSILE = Math.pow(2,4);
+CG_SEAMINE = Math.pow(2,5);
+CG_TARGET  = Math.pow(2,6);
+CG_BOMB    = Math.pow(2,7);
+
+CG_ALL     = Math.pow(2,15)-1;
+
+// CM = collisison mask
+CM_ARENA   = CG_ALL
+CM_HOVER   = CG_ALL
+CM_PHASER  = CG_ALL - CG_SEAMINE
+CM_PUBOX   = CG_ALL
+CM_MISSILE = CG_ALL - CG_SEAMINE
+CM_SEAMINE = CG_ALL - CG_PHASER - CG_MISSILE
+CM_TARGET  = CG_ALL
+CM_BOMB    = CG_ALL
+
 // override pre collision check to exclude phasershots by one and the same player
 var canCollideOld = p2.Broadphase.canCollide;
 p2.Broadphase.canCollide = function(bodyA, bodyB){
@@ -88,20 +110,6 @@ p2.Broadphase.canCollide = function(bodyA, bodyB){
 			return false;
 		}
 	}
-
-	var firstBody; // alphabetically sort by type to simplify checks
-	var secondBody;
-	if(bodyA.HBO.type <= bodyB.HBO.type){
-		firstBody = bodyA;
-		secondBody = bodyB;
-	}else{
-		firstBody = bodyB;
-		secondBody = bodyA;
-	}
-
-	if(firstBody.HBO.type == "phaser" && secondBody.HBO.type == "seamine"){return false;}
-	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == "seamine"){return false;}
-
 	return canCollideOld(bodyA, bodyB);
 }
 
@@ -118,14 +126,14 @@ PHYSICS_WORLD.solver.frictionIterations = 1;
 
 // definition of the collision behavior between different object classes
 var HOVER_MATERIAL = new p2.Material();
-var MAP_MATERIAL = new p2.Material();
+var ARENA_MATERIAL = new p2.Material();
 var PHASER_MATERIAL = new p2.Material();
 
-PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, MAP_MATERIAL, {
+PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, ARENA_MATERIAL, {
 		restitution : 0.5, stiffness : 1e5, friction : 0.1}));
 PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(HOVER_MATERIAL, HOVER_MATERIAL, {
 		restitution : 0.8, stiffness : 1e5, friction : 0.1}));
-PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(PHASER_MATERIAL, MAP_MATERIAL, {
+PHYSICS_WORLD.addContactMaterial(new p2.ContactMaterial(PHASER_MATERIAL, ARENA_MATERIAL, {
 		restitution : 0.7, stiffness : 1e5, friction : 0.1}));
 
 // collisions (including phaser hits)
@@ -156,10 +164,10 @@ PHYSICS_WORLD.on('impact', function(event){
 	if(firstBody.HBO.type == "phaser" && secondBody.HBO.type == "target"){
 		secondBody.HBO.shotBy(firstBody.HBO.shooter);
 	}
-	if(firstBody.HBO.type == "mine" && secondBody.HBO.type == "phaser"){
+	if(firstBody.HBO.type == "bomb" && secondBody.HBO.type == "phaser"){
 		firstBody.HBO.shotBy(secondBody.HBO.shooter);
 	}
-	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == "mine"){
+	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == "bomb"){
 		if(GAME_PHASE == "G"){
 			firstBody.HBO.hitpoints = 0;
 			secondBody.HBO.hitpoints = 0;

@@ -24,6 +24,8 @@ function Seamine(shooter){ // seamine shot class, needs the HBObject of the shoo
 	// physics
 
 	var shape = new p2.Circle(HOVER_RADIUS);
+	shape.collisionGroup = CG_SEAMINE;
+	shape.collisionMask  = CM_SEAMINE;
 
 	this.body = new p2.Body({
         mass: 1000.0,

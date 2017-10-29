@@ -5,7 +5,7 @@ var POWERUPS = {
 
 	missile:    {tex:loadTexture("media/textures/missile.png"),    color:new THREE.Color(0xff8000), count:3},
 	seamine:    {tex:loadTexture("media/textures/seamine.png"),    color:new THREE.Color(0xffff00), count:1},
-	powershield:     {tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:7},
+	powershield:{tex:loadTexture("media/textures/shield.png"),     color:new THREE.Color(0x0090ff), count:7},
 	adrenaline: {tex:loadTexture("media/textures/adrenaline.png"), color:new THREE.Color(0x00ff00), count:7},
 	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0},
 };
@@ -34,6 +34,8 @@ function Pubox(pos, pu){ // powerup box class
 	// physics
 
 	var shape = new p2.Circle(PUBOX_SIZE*0.7);
+	shape.collisionGroup = CG_PUBOX;
+	shape.collisionMask  = CM_PUBOX;
 
 	var vphi = Math.random()*10000;
 	var v = Math.random()*3+0.1;

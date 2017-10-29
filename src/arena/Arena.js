@@ -236,7 +236,9 @@ function Arena(filename){
 				body.fromPolygon(poly[iil]);
 				
 				for (var i=0; i<body.shapes.length; i++) {
-					body.shapes[i].material = MAP_MATERIAL;
+					body.shapes[i].material = ARENA_MATERIAL;
+					body.shapes[i].collisionGroup = CG_ARENA;
+					body.shapes[i].collisionMask  = CM_ARENA;
 
 					if(DEBUG >= 4){ // draw convex shape decomposition
 						var mat = new THREE.LineBasicMaterial({color: 0xff8000});
