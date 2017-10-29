@@ -83,7 +83,7 @@ OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
 // shockwave
 
 var shockwaveTexture = loadTexture('media/textures/shockwave.png');
-var shockwaveMaterial = new THREE.MeshBasicMaterial( { map: shockwaveTexture, color: 0xffffff, transparent:true} );
+var shockwaveMaterial = new THREE.MeshBasicMaterial( { map: shockwaveTexture, color: 0xffffff, transparent:true, alphaTest:0.5} );
 var shockwaveGeometry = new THREE.PlaneGeometry( 1, 1 );
 var SHOCKWAVE_MESH = new THREE.Mesh( shockwaveGeometry, shockwaveMaterial );
 SHOCKWAVE_MESH.position.set(0,0,0.1);
