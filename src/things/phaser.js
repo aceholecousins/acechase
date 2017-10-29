@@ -8,6 +8,7 @@ var PHASER_MESH = new THREE.Mesh( // every new instance of a phaser shot copies 
 		map: loadTexture( 'media/textures/phaser.png' ),
 		color: 0x00ff00,
 		transparent: true,
+		alphaTest: 0.01,
 		depthWrite: false,
 		side: THREE.FrontSide}));
 
@@ -21,6 +22,7 @@ var PHASER_IMPACT_MESH = new THREE.Mesh( // little spark effect where phaser sho
 		map: loadTexture( 'media/textures/phaser_impact.png' ),
 		color: 0x00ff00,
 		transparent: true,
+		alphaTest: 0.01,
 		depthWrite: false,
 		side: THREE.FrontSide}));
 

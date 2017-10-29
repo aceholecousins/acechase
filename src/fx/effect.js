@@ -42,6 +42,7 @@ Effect.prototype.update = function(){ // reduce effect strength and delete if st
 	this.mesh.rotation.y += this.spin.y*DT;
 	this.mesh.rotation.z += this.spin.z*DT;
 	this.mesh.material.transparent = true;
+	this.mesh.material.alphaTest = 0.01;
 	this.mesh.material.opacity = this.strength; // set transparency according to strength
 	if(this.mesh.material.hasOwnProperty("uniforms")){
 		this.mesh.material.uniforms.strength.value = this.strength;

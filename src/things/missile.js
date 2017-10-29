@@ -108,6 +108,7 @@ Missile.prototype.specificUpdate = function(){
 		effect.mesh = SMOKE_MESH.clone();
 		effect.mesh.position.copy(this.mesh.position);
 		effect.mesh.transparent = true;
+		effect.mesh.alphaTest = 0.01;
 		effect.mesh.renderOrder = SMOKE_MESH.renderOrder;
 		effect.mesh.material = SMOKE_MESH.material.clone();
 		effect.mesh.rotation.z = Math.random()*1000;

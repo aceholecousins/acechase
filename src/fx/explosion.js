@@ -71,7 +71,8 @@ OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
 		},
 		vertexShader:   fireballVertexShader,
 		fragmentShader: fireballFragmentShader,
-		transparent:	true
+		transparent:	true,
+		alphaTest:      0.01,
 	});
 
 	FIREBALL_MESH.material = fireballMaterial;
@@ -83,7 +84,7 @@ OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
 // shockwave
 
 var shockwaveTexture = loadTexture('media/textures/shockwave.png');
-var shockwaveMaterial = new THREE.MeshBasicMaterial( { map: shockwaveTexture, color: 0xffffff, transparent:true, alphaTest:0.5} );
+var shockwaveMaterial = new THREE.MeshBasicMaterial( { map: shockwaveTexture, color: 0xffffff, transparent:true, alphaTest:0.01} );
 var shockwaveGeometry = new THREE.PlaneGeometry( 1, 1 );
 var SHOCKWAVE_MESH = new THREE.Mesh( shockwaveGeometry, shockwaveMaterial );
 SHOCKWAVE_MESH.position.set(0,0,0.1);
@@ -109,7 +110,7 @@ OBJ_LOADER.load( 'media/objects/crumb.obj', function (object) {
 
 // smoke
 
-var smokeMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/smoke.png'), transparent:true} );
+var smokeMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/smoke.png'), transparent:true, alphaTest: 0.01} );
 var smokeGeometry = new THREE.PlaneGeometry( 1, 1 );
 var SMOKE_MESH = new THREE.Mesh( smokeGeometry, smokeMaterial );
 SMOKE_MESH.position.set(0,0,0.1);
@@ -117,7 +118,7 @@ SMOKE_MESH.renderOrder = RENDER_ORDER.smoke;
 
 // star
 
-var starMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/star.png'), transparent:true} );
+var starMaterial = new THREE.MeshBasicMaterial( { map: loadTexture('media/textures/star.png'), transparent:true, alphaTest: 0.01} );
 var starGeometry = new THREE.PlaneGeometry( 1, 1 );
 var STAR_MESH = new THREE.Mesh( starGeometry, starMaterial );
 STAR_MESH.position.set(0,0,0.1);
@@ -212,6 +213,7 @@ function explosion(position, color, scale=1.0){
 					subeffect.mesh = SMOKE_MESH.clone();
 					subeffect.mesh.position.copy(this.mesh.position);
 					subeffect.mesh.transparent = true;
+					subeffect.mesh.alphaTest = 0.01;
 					subeffect.mesh.renderOrder = SMOKE_MESH.renderOrder;
 					subeffect.mesh.material = SMOKE_MESH.material.clone();
 					subeffect.mesh.rotation.z = Math.random()*1000;

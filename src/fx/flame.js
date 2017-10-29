@@ -55,7 +55,8 @@ function Flame(hover){
 		},
 		vertexShader:   flameVertexShader,
 		fragmentShader: flameFragmentShader,
-		transparent:	true
+		transparent:	true,
+		alphaTest:      0.01
 	});
 
 	this.mesh.scale.x = 0.5*this.len;

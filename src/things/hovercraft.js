@@ -15,6 +15,7 @@ var HEADLIGHT_MESH = new THREE.Mesh(
 		map: loadTexture( 'media/textures/headlight.png' ),
 		color: 0xffffff,
 		transparent: true,
+		alphaTest:0.01,
 		depthWrite: false,
 		side: THREE.FrontSide}));
 HEADLIGHT_MESH.renderOrder = RENDER_ORDER.phaser;
@@ -85,7 +86,8 @@ function Hovercraft(color, control){
 				color:color,
 				emissive:color.clone().lerp(new THREE.Color("black"), 0.4),
 				opacity:0.7,
-				transparent:true}));
+				transparent:true,
+				alphaTest:0.01}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
 	this.powershieldMesh = new THREE.Mesh(
@@ -94,7 +96,7 @@ function Hovercraft(color, control){
 				map:POWERSHIELD_TEXTURE,
 				color:color.clone().lerp(new THREE.Color("white"), 0.5),
 				transparent:false,
-				alphaTest:0.5}));
+				alphaTest:0.01}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
 	this.mesh.add(this.shieldMesh);
@@ -245,6 +247,7 @@ Hovercraft.prototype.update = function(){
 		effect.mesh = SMOKE_MESH.clone();
 		effect.mesh.position.copy(this.mesh.position);
 		effect.mesh.transparent = true;
+		effect.mesh.alphaTest = 0.01;
 		effect.mesh.renderOrder = SMOKE_MESH.renderOrder;
 		effect.mesh.material = SMOKE_MESH.material.clone();
 		effect.mesh.rotation.z = Math.random()*1000;
