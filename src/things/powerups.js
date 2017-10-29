@@ -10,7 +10,9 @@ var POWERUPS = {
 	repair:     {tex:loadTexture("media/textures/repair.png"),     color:new THREE.Color(0xffffff), count:0},
 };
 
-var PUARRAY=[POWERUPS.missile, POWERUPS.seamine, POWERUPS.powershield, POWERUPS.adrenaline, POWERUPS.repair];
+//var PUARRAY=[POWERUPS.missile, POWERUPS.seamine, POWERUPS.powershield, POWERUPS.adrenaline, POWERUPS.repair];
+
+var PUARRAY=[POWERUPS.powershield];
 
 var NPUBOXES = 0; // number of powerup boxes currently floating around
 

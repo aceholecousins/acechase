@@ -210,6 +210,10 @@ PHYSICS_WORLD.on('impact', function(event){
 	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'seamine'){
 		firstBody.HBO.hitBy(secondBody.HBO);
 	}
+	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == 'hover'){ // possible powershield damage and bounce
+		firstBody.HBO.hitBy(secondBody.HBO);
+		secondBody.HBO.hitBy(firstBody.HBO);
+	}
 });
 
 // GRAPHICS

@@ -96,7 +96,7 @@ function Hovercraft(color, control){
 				map:POWERSHIELD_TEXTURE,
 				color:color.clone().lerp(new THREE.Color("white"), 0.5),
 				transparent:false,
-				alphaTest:0.01}));
+				alphaTest:0.5}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
 	this.mesh.add(this.shieldMesh);
@@ -492,6 +492,20 @@ Hovercraft.prototype.hitBy = function(thing){
 		}
 	}
 
+	if(thing.type == "hover"){
+		if(thing.powerup == POWERUPS.powershield){
+			var dx = thing.body.position[0] - this.body.position[0];
+			var dy = thing.body.position[1] - this.body.position[1];
+			var d = Math.sqrt(dx*dx + dy*dy);
+			this.body.velocity[0] -= dx/d*POWERSHIELD_BOUNCE_VELOCITY;
+			this.body.velocity[1] -= dy/d*POWERSHIELD_BOUNCE_VELOCITY;
+
+			if(this.powerup != POWERUPS.powershield){
+				this.shield -= POWERSHIELD_DAMAGE;
+			}
+		}
+	}
+
 	if(this.shield<=0){
 		this.hitpoints += this.shield;
 		this.shield = 0;
@@ -504,6 +518,9 @@ Hovercraft.prototype.hitBy = function(thing){
 	if(this.hitpoints <= 0){
 		if(thing.type == "phaser" || thing.type == "missile" || thing.type == "seamine"){		
 			this.killedBy = thing.shooter;
+		}
+		if(thing.type == "hover"){
+			this.killedBy = thing;
 		}
 	}
 }

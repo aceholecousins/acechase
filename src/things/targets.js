@@ -165,7 +165,7 @@ Target.prototype.destroyed = function(){
 		ingameTimeout(2, function(){spawnTarget(false);});
 	}
 	if(this.type == "bomb"){
-		playSound(SOUNDS.plop, 1.0, 0.8+Math.random()*0.3, 0.0);
+		playSound(SOUNDS.plop, 1.0, 0.5, 0.0);
 		playSound(SOUNDS.fart, 1.0, 0.8+Math.random()*0.3, 0.0);
 		effect.growth = 60;
 		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);}.bind(this));
