@@ -2,9 +2,10 @@
 "use strict";
 function MobileDevice(params) {
     Control.call(this);
-    
+	
 	this.invertLeftRight = params[3] != 0 ? true : false;
 	this.invertUpDown = params[4] != 0 ? true : false;
+	this.sensitivity = params[5];
     this.deviceRotationMatrix = new THREE.Matrix4();
     this.gravityVector = new THREE.Vector3(0, 0, 1);
     this.touch = false;
@@ -16,6 +17,9 @@ function MobileDevice(params) {
 
 MobileDevice.prototype = Object.create(Control.prototype);
 MobileDevice.prototype.constructor = MobileDevice;
+
+MobileDevice.THRUST_THRESHOLD = 0.1;
+MobileDevice.ROTATE_THRESHOLD = 0.05;
 
 MobileDevice.prototype.captureRotationMatrix = function () {
     var zVector = new THREE.Vector3(0, 0, 1);
@@ -30,8 +34,7 @@ MobileDevice.prototype.update = function() {
             
     var thrustVector3D = this.gravityVector.clone();
     
-    //Equalize device rotation
-    // TODO: Make upside down working
+    //Equalize device rotation    
     thrustVector3D.applyMatrix4(this.deviceRotationMatrix);
 	
     //Use 2D components only
@@ -40,14 +43,14 @@ MobileDevice.prototype.update = function() {
     //Equalize device orientation (landscape/portrait)
     thrustVector2D.rotateAround(new THREE.Vector2(), window.orientation * Math.PI / 180);
 
-    var length = thrustVector2D.length();
-    if(length > 0.1) {
-        this.thrust = Math.min(length * 3, 1);
+    var length = thrustVector2D.length() * this.sensitivity;
+    if(length > MobileDevice.THRUST_THRESHOLD) {
+        this.thrust = Math.min(length, 1);
     } else {
         this.thrust = 0;
     }
 
-    if(length > 0.05) {
+    if(length > MobileDevice.ROTATE_THRESHOLD) {
         this.direction = thrustVector2D.angle();
     }
 };
