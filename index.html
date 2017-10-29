@@ -95,7 +95,7 @@ a{
 				</td>
 				<td id="ctloptions_0000" align="right" style="width:200px;">
 					<div id="gpoptions_0000">
-						Pad #: <select id="gpidx_0000" class="std" style="width:100px;"></select><br>
+						Pad #: <button id="gpidx_0000" class="std" style="width:100px;" onclick="GamepadManager.start(0000)">1</button><br>
 						Control: <select id="gprelabs_0000" class="std" style="width:100px;">
 							<option data-code="rel">Relative</option>
 							<option data-code="abs">Absolute</option>
@@ -159,6 +159,7 @@ a{
 	
 <script src="src/utils/tools.js"></script>
 <script src="src/misc/medals.js"></script>
+<script src="src/control/gamepadmanager.js"></script>
 <script>
 	
 var CFGVERSION = 1; // version of the config string pattern
@@ -208,11 +209,6 @@ function addPlayer(multiplayer){
 	get("picbg_" + playerIndex).style.backgroundColor = c.value;
 	get("name_" + playerIndex).value = names[randint(names.length)];
 
-	for(var i=1; i<=127; i++){
-		opt = make("option");
-		opt.appendChild(txt(i));
-		get("gpidx_" + playerIndex).appendChild(opt);
-	}
 	fillOptions(get("gplr_" + playerIndex), axespm, axcode);
 	fillOptions(get("gpud_" + playerIndex), axespm, axcode);
 	fillOptions(get("gpthrust_" + playerIndex), axeshalf.concat(buttons), axcode.concat(butcode));
@@ -395,6 +391,8 @@ function startgame(){
 
 	url = url + "/game.html" + urltail;
 	
+	GamepadManager.stop();
+	
 	window.location.href = url;
 }
 
@@ -456,7 +454,7 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 
 		if(ctl == "gp" || complete){
 			result += ",";
-			result += get("gpidx_" + index).value + ",";
+			result += get("gpidx_" + index).innerHTML + ",";
 			result += getSelectedCode(get("gprelabs_" + index)) + ",";
 			result += getSelectedCode(get("gplr_" + index)) + ",";
 			result += getSelectedCode(get("gpud_" + index)) + ",";
@@ -544,7 +542,7 @@ function string2config(string, warning){ // string must be complete
 			get("color_"+index).onchange();
 			ctlSelect(index, part[++ip]);
 
-			selectItem(get("gpidx_" + index), part[++ip]);
+			get("gpidx_" + index).innerHTML = part[++ip];
 			selectItem(get("gprelabs_" + index), part[++ip]);
 			selectItem(get("gplr_" + index), part[++ip]);
 			selectItem(get("gpud_" + index), part[++ip]);
