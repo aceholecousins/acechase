@@ -6,6 +6,7 @@ var MAP = 'maps/islandisle.svg';
 
 var HOVER_RADIUS = 0.4;
 var HOVER_THRUST = 17.0;
+var HOVER_MASS = 6;
 var HITPOINTS = 6;
 var SHIELD = 4;
 var SHIELD_REGEN = 1;
@@ -28,6 +29,7 @@ var SEAMINE_DAMAGE = SHIELD + HITPOINTS/2;
 var POWERSHIELD_RADIUS = 1.6*HOVER_RADIUS;
 var POWERSHIELD_DAMAGE = SHIELD;
 var POWERSHIELD_BOUNCE_VELOCITY = 25;
+var POWERSHIELD_MASS = HOVER_MASS * 10;
 
 var ADRENALINE_BOOST = 1.6; // increases fire rate, phaser speed and thrust when green powerup collected
 

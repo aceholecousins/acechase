@@ -51,7 +51,7 @@ function Hovercraft(color, control){
 
 	var shape = new p2.Circle(this.radius);
 	this.body = new p2.Body({
-        mass: 6,
+        mass: HOVER_MASS,
         position:[0,0],
 		damping:0.5,
 		angularDamping:0.9995
@@ -95,7 +95,7 @@ function Hovercraft(color, control){
 				map:POWERSHIELD_TEXTURE,
 				color:color.clone().lerp(new THREE.Color("white"), 0.5),
 				transparent:false,
-				alphaTest:0.5}));
+				alphaTest:0.6}));
 	this.shieldMesh.renderOrder = RENDER_ORDER.shield;
 
 	this.mesh.add(this.shieldMesh);
@@ -208,10 +208,12 @@ Hovercraft.prototype.update = function(){
 	this.shieldMesh.material.opacity *= 0.98;
 	this.powershieldMesh.rotation.set(Math.random()*10000, Math.random()*10000, Math.random()*10000)
 	this.powershieldMesh.visible = false;
+	this.body.mass = HOVER_MASS;
 
 	if(this.powerup == POWERUPS.powershield){
 		this.shield = SHIELD;
 		this.powershieldMesh.visible = true;
+		this.body.mass = POWERSHIELD_MASS;
 	}
 
 	this.ammo += PHASER_REGEN*localdt;
