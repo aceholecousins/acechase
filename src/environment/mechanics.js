@@ -178,6 +178,12 @@ PHYSICS_WORLD.on('impact', function(event){
 		firstBody.HBO.collect(secondBody.HBO.pu);
 		secondBody.HBO.destroyed();
 	}
+	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == "pubox"){
+		secondBody.HBO.destroyed();
+	}
+	if(firstBody.HBO.type == "pubox" && secondBody.HBO.type == "seamine"){
+		firstBody.HBO.destroyed();
+	}
 	if(firstBody.HBO.type == "arena" && secondBody.HBO.type == "hover"){
 		secondBody.HBO.wallhit();
 	}
