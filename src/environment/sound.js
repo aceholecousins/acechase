@@ -30,7 +30,9 @@ sfxBufferLoader = new BufferLoader(
         'media/sound/phaser2.ogg',
         'media/sound/216277__rsilveira-88__synthesized-explosion-02.ogg',
 		'media/sound/110393__soundscalpel-com__water-splash.ogg',
-		'media/sound/thrust.ogg'],
+		'media/sound/thrust.ogg',
+		'media/sound/pop.ogg',
+		'media/sound/fart.ogg'],
     sfxLoadedCallback);
 
 sfxBufferLoader.load();
@@ -41,6 +43,8 @@ function sfxLoadedCallback(bufferList) {
     SOUNDS.explosion = bufferList[1];
     SOUNDS.splash = bufferList[2];
 	SOUNDS.thrust = bufferList[3];
+	SOUNDS.plop = bufferList[4];
+	SOUNDS.fart = bufferList[5];
 
     LOADING_LIST.checkItem('sounds');
 }

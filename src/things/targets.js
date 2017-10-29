@@ -106,7 +106,7 @@ function Target(pos, isMine, attractforce){ // powerup box class
 	effect.mesh.position.z = 0.2;
 	effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
 	effect.mesh.material = STAR_MESH.material.clone();
-	effect.mesh.material.color = new THREE.Color(isMine? "red" : "blue");
+	effect.mesh.material.color = new THREE.Color(isMine? "red" : "white");
 	effect.mesh.scale.set(2,2,1);
 	effect.spawn();
 	effect.strength = 5;
@@ -135,14 +135,30 @@ Target.prototype.destroyed = function(){
 			break;
 		}
 	}
+
+	effect = new Effect();
+	effect.type = 'star';
+	effect.mesh = STAR_MESH.clone();
+	effect.mesh.position.x = this.mesh.position.x;
+	effect.mesh.position.y = this.mesh.position.y;
+	effect.mesh.position.z = 0.2;
+	effect.mesh.renderOrder = STAR_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
+	effect.mesh.material = STAR_MESH.material.clone();
+	effect.mesh.material.color.copy(this.destroyedBy.color);
+	effect.mesh.scale.set(2,2,1);
+	effect.spawn();
+	effect.strength = 5;
+	effect.decay = 40;
+
 	if(this.type == "target"){
-		explosion(this.mesh.position, new THREE.Color("blue"));
-		playSound(SOUNDS.explosion, 1.4, 1.0, 0.0);
+		playSound(SOUNDS.plop, 1.0, 0.8+Math.random()*0.3, 0.0);
+		effect.growth = 30;
 		ingameTimeout(2, function(){spawnTarget(false);});
 	}
 	if(this.type == "bomb"){
-		explosion(this.mesh.position, new THREE.Color("red"));
-		playSound(SOUNDS.explosion, 2.0, 0.67, 0.0);
+		playSound(SOUNDS.plop, 1.0, 0.8+Math.random()*0.3, 0.0);
+		playSound(SOUNDS.fart, 1.0, 0.8+Math.random()*0.3, 0.0);
+		effect.growth = 60;
 		ingameTimeout(4, function(){spawnTarget(true, this.attractforce);}.bind(this));
 	}
 	this.despawn();

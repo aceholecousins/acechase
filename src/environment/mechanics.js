@@ -167,11 +167,11 @@ PHYSICS_WORLD.on('impact', function(event){
 	if(firstBody.HBO.type == "bomb" && secondBody.HBO.type == "phaser"){
 		firstBody.HBO.shotBy(secondBody.HBO.shooter);
 	}
-	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == "bomb"){
+	if(firstBody.HBO.type == "bomb" && secondBody.HBO.type == "hover"){
 		if(GAME_PHASE == "G"){
 			firstBody.HBO.hitpoints = 0;
 			secondBody.HBO.hitpoints = 0;
-			secondBody.HBO.destroyedBy = firstBody.HBO;
+			firstBody.HBO.destroyedBy = secondBody.HBO;
 		}
 	}
 	if(firstBody.HBO.type == "hover" && secondBody.HBO.type == "pubox"){
