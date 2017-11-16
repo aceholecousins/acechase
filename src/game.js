@@ -16,8 +16,6 @@ var STARTLINE, FINISHLINE;
 function init() {
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
-
-	readParams();
 	
 	ARENA = new Arena(MAP);
 	SCORETABLE = new ScoreTable();

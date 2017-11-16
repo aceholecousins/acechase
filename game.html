@@ -33,7 +33,13 @@
 		<span id="splashscreentext"></span>
 		</td></tr></table>	
 
-		<script src="config.js"></script> <!-- configuration file -->		
+		<script src="config.js"></script> <!-- configuration file -->	
+		<script src="src/game.js"></script>
+		
+		<script>
+			readParams();
+		</script>
+		
 		<script src="src/misc/quotes.js"></script> <!-- quotes to nicen loading time -->
 		<script src="src/jslibs/three.js"></script> <!-- WebGL wrapper, main framework (http://threejs.org) -->
 		<!--<script src="src/jslibs/math.min.js"></script>--> <!-- math functions (http://mathjs.org/) (SEEMS BUGGY)-->
@@ -82,8 +88,6 @@
 
 		<script src="src/misc/scoretable.js"></script>
 		<script src="src/misc/medals.js"></script>		
-
-		<script src="src/game.js"></script>
 		
 		<script type="text/javascript">
 			init();
