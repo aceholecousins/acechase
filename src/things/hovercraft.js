@@ -267,6 +267,7 @@ Hovercraft.prototype.update = function(){
 		this.deaths++;
 		this.killedBy.kills++;
 		this.hide();
+		this.body.sleep();	
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
 		this.powerup = POWERUPS.nothing;
@@ -296,11 +297,13 @@ Hovercraft.prototype.update = function(){
 						break;
 					}
 				}
-
+			
 				this.body.position[0] = pos.x;
-				this.body.position[1] = pos.y;
-				this.beamed = true;
+				this.body.position[1] = pos.y;				
 				this.body.angle = Math.random()*2*Math.PI;
+				this.body.wakeUp();
+				
+				this.beamed = true;
 				this.control.direction = this.body.angle;
 				this.unhide();
 				this.update();
