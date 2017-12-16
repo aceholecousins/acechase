@@ -24,9 +24,6 @@ var colors = ["white", "snow", "honeydew", "mintcream", "azure", "aliceblue", "g
 var names = ["Almond", "Apple", "Apricot", "Artichoke", "Asparagus", "Avocado", "Banana", "Bean", "Lentil", "Beet", "BellPepper", "Broccoli", "B-Sprout", "Cabbage", "Cantaloupe", "Carrot", "Cauliflower", "Cherry", "Chia", "Coconut", "DarkChocolate", "Flax", "Garlic", "Grape", "HotPepper", "Kale", "Kiwi", "Lemon", "Lime", "Mango", "Mushroom", "Oat", "Olive", "Orange", "Papaya", "Peach", "Pineapple", "Pumpkin", "Pomegranate", "Quinoa", "Spinach", "Spirulina", "Sprout", "SweetPotato", "SwissChard", "Tomato", "Walnut", "Turmeric", "Rosemary", "Basil", "Cumin", "Nutmeg", "Saffron", "Ginseng", "Cardamom", "Curry", "Thyme", "Cay-N-Pepper", "LicoriceRoot", "Oregano", "Cilantro", "Lavender", "Sage", "Ginger", "Cinnamon", "Parsley", "Fennel", "Boron", "Calcium", "Cobalt", "Chloride", "Chromium", "Copper", "Fluoride", "Iodine", "Iron", "Lithium", "Magnesium", "Manganese", "Molybdenum", "Phosphorus", "Potassium", "Selenium", "Sodium", "Sulfur", "Zinc", "Thiamin", "Riboflavin", "Niacin", "PantothenicAcid", "Pyridoxine", "Pyridoxal", "Pyridoxamine", "Biotin", "ErgadenylicAcid", "FolicAcid", "Cyanocobalamin", "Choline", "Retinol", "AscorbicAcid", "VitaminD", "Tocopherol", "VitaminK", "AlphaCarotene", "BetaCarotene", "Cryptoxanthin", "Lutein", "Lycopene", "Zeaxanthin", "Blueberry", "Strawberry", "Bilberry", "Blackberry", "Elderberry", "GojiBerry", "Lingonberry", "Cranberry", "Raspberry", "Dewberry", "Mulberry", "Gooseberry", "Huckleberry", "Chokeberry", "Pecan", "Pistachio", "Hazelnut", "Cashew", "Macadamia", "BrazilNut", "Peanut"];
 names = names.sort();
 
-var axespm = ["-/+ Axis 0", "+/- Axis 0", "-/+ Axis 1", "+/- Axis 1", "-/+ Axis 2", "+/- Axis 2", "-/+ Axis 3", "+/- Axis 3", "-/+ Axis 4", "+/- Axis 4", "-/+ Axis 5", "+/- Axis 5"];
-var axeshalf = ["- Axis 0", "+ Axis 0", "- Axis 1", "+ Axis 1", "- Axis 2", "+ Axis 2", "- Axis 3", "+ Axis 3", "- Axis 4", "+ Axis 4", "- Axis 5", "+ Axis 5"];
-var axcode = ["a+0", "a-0", "a+1", "a-1", "a+2", "a-2", "a+3", "a-3", "a+4", "a-4", "a+5", "a-5"]
 var buttons = [];
 var butcode = [];
 for(var i=0; i<20; i++){buttons.push("Button "+i);}
@@ -242,7 +239,7 @@ function defaultOptions(){
 
 function startgame(){
 
-	setCookie('hbcfg', config2string(true), 3650);
+	writeConfigToCookies();
 
 	var urltail = "#" + config2string(false);
 
@@ -254,6 +251,18 @@ function startgame(){
 	GamepadManager.stop();
 	
 	window.location.href = url;
+}
+
+function writeConfigToCookies()
+{
+	let configString = config2string(true);
+	let keyValueArray = configString.split(";");
+	for(let entryString of keyValueArray) {
+		let keyValue = entryString.split(":");
+		if(keyValue.length >= 2) {
+			setCookie(keyValue[0], keyValue[1], 3650);
+		}
+	}
 }
 
 ////////////////////
