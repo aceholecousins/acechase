@@ -257,12 +257,22 @@ function writeConfigToCookies()
 {
 	let configString = config2string(true);
 	let keyValueArray = configString.split(";");
+	let playerIndex = 0;
 	for(let entryString of keyValueArray) {
 		let keyValue = entryString.split(":");
 		if(keyValue.length >= 2) {
-			setCookie(keyValue[0], keyValue[1], 3650);
+			let key = keyValue[0];
+			let value = keyValue[1];
+			
+			if(key == "player") {
+				playerIndex++;
+				key += playerIndex;				
+			}
+			
+			setCookie(key, value, 3650);
 		}
 	}
+	setCookie("numberOfPlayers", playerIndex, 3650);
 }
 
 ////////////////////
