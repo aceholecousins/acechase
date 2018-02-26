@@ -267,7 +267,11 @@ Hovercraft.prototype.update = function(){
 		this.deaths++;
 		this.killedBy.kills++;
 		this.hide();
-		this.body.sleep();	
+		
+		//Sleep and wake up again in order to stop hover movement
+		this.body.sleep();
+		this.body.wakeUp();
+		
 		this.hitpoints = HITPOINTS;
 		this.shieldpoints = SHIELD;
 		this.powerup = POWERUPS.nothing;
@@ -300,8 +304,7 @@ Hovercraft.prototype.update = function(){
 			
 				this.body.position[0] = pos.x;
 				this.body.position[1] = pos.y;				
-				this.body.angle = Math.random()*2*Math.PI;
-				this.body.wakeUp();
+				this.body.angle = Math.random()*2*Math.PI;				
 				
 				this.beamed = true;
 				this.control.direction = this.body.angle;
