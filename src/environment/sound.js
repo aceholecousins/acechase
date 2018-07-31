@@ -59,8 +59,11 @@ function sfxLoadedCallback(bufferList) {
 
 SOUNDTRACK_LIST = [
 	{file:'media/music/nutcracker.mp3',
-	 attr:'S.Crack - Nutcracker',
-	 link:'https://www.youtube.com/channel/UCokEuO_Y-1gjqVa0mhgcawA'},
+	 attr:'Sebastian Kreck - Nutcracker',
+	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
+	{file:'media/music/Life_lq.ogg',
+	 attr:'Sebastian Kreck - Life',
+	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
 	{file:'media/music/Facing_Your_Nemesis_lq.ogg',
 	 attr:'TeknoAXE - Facing Your Nemesis',
 	 link:'https://youtu.be/wewGsomVJNo'},
