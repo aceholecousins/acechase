@@ -94,6 +94,7 @@ var QUOTES = [
 "Be honest!",
 "Don't try so hard. Let it come to you.", // Ron Swanson
 "Is what you're currently doing getting you where you want to be?", // AvE on youtube
+"If you're not making mistakes, you're not challenging yourself.", // also AvE
 "Here's a new situation. Do!" // Tomba
 ];
 
