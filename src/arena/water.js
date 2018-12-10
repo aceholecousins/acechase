@@ -285,8 +285,10 @@ function initWater() {
 
 		WATER_CA_GPU.setVariableDependencies( WATER_BM_VAR, [ WATER_BM_VAR ] );
 
+		WATER_BM_VAR.material.defines.NDISTURBS = 12;
+
 		var disturbs = [];
-		for(var i=0; i<hovers.length; i++){
+		for(var i=0; i<WATER_BM_VAR.material.defines.NDISTURBS; i++){
 			disturbs[i] = new THREE.Vector4( 1000, 1000, 3, 50 );
 		}
 
@@ -294,7 +296,7 @@ function initWater() {
 		WATER_BM_VAR.material.uniforms.disturbances = { type: "v4v", value: disturbs};
 		WATER_BM_VAR.material.uniforms.time = { type: "f", value: 0.0 };
 		WATER_BM_VAR.material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
-		WATER_BM_VAR.material.defines.NDISTURBS = 12;
+
 
 		var error = WATER_CA_GPU.init();
 		if ( error !== null ) {
@@ -344,19 +346,25 @@ function updateWater(){
 
 	WATER_MATERIAL.uniforms.time.value += DT;
 
-
 	if(FANCY_WATER){
 		//WATER_BM_VAR.material.uniforms.disturbances.value[1].x -=0.01;
 		WATER_BM_VAR.material.uniforms.time.value += DT;
 
-		for(i=0; i<Math.min(WATER_BM_VAR.material.defines.NDISTURBS, hovers.length); i++){
-			WATER_BM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/MAP_MAXDIM+0.5;
-			WATER_BM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/MAP_MAXDIM+0.5;
-			if(!hovers[i].hidden){
-				WATER_BM_VAR.material.uniforms.disturbances.value[i].z =
-					Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
+		for(i=0; i<WATER_BM_VAR.material.defines.NDISTURBS; i++){
+			if(i<hovers.length){
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/MAP_MAXDIM+0.5;
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/MAP_MAXDIM+0.5;
+				if(!hovers[i].hidden){
+					WATER_BM_VAR.material.uniforms.disturbances.value[i].z =
+						Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
+				}
+				else{
+					WATER_BM_VAR.material.uniforms.disturbances.value[i].z = 0;
+				}
 			}
 			else{
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].x = 1000.0;
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].y = 1000.0;
 				WATER_BM_VAR.material.uniforms.disturbances.value[i].z = 0;
 			}
 		}
