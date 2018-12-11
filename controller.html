@@ -41,6 +41,9 @@ function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
 function fire(state) {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", state])}
 function steer(x, y) {AIR_CONSOLE.message(AirConsole.SCREEN, ["s", x, y])}
 
+var joystickfinger = -1
+var triggerfinger = -1
+
 var W = 800
 var H = 600
 
@@ -54,7 +57,95 @@ var joyarea = document.getElementById("joyarea")
 var joystick = document.getElementById("joystick")
 var trigger = document.getElementById("trigger")
 
-function resize(){
+function stick(mx, my){
+	var x = mx-joyHomeX
+	var y = my-joyHomeY
+	var rq = x*x + y*y
+	if(rq > joyRange*joyRange){
+		var r = Math.sqrt(rq)
+		x = x/r*joyRange
+		y = y/r*joyRange
+	}
+	joystick.style.left = x + joyRange
+	joystick.style.top = y + joyRange
+	steer(x/joyRange, -y/joyRange)
+}
+
+
+
+trigger.onmousedown = function(){
+	if(triggerfinger == -1){
+		triggerfinger = "m"
+		fire(true)
+	}
+}
+
+joyarea.onmousedown = function(ev){
+	if(joystickfinger == -1){
+		joystickfinger = "m"
+		window.onmousemove(ev)
+	}
+}
+
+window.onmousemove = function(ev){
+	if(joystickfinger == "m"){
+		stick(ev.clientX, ev.clientY)
+	}
+}
+
+window.onmouseup = function(){
+	if(triggerfinger == "m"){
+		triggerfinger = -1
+		fire(false)
+	}
+	if(joystickfinger == "m"){
+		joystickfinger = -1
+		stick(joyHomeX, joyHomeY)
+	}
+}
+
+
+
+
+
+trigger.ontouchstart = function(ev){
+	if(triggerfinger == -1){
+		triggerfinger = ev.changedTouches[0].identifier
+		fire(true)
+	}
+}
+
+joyarea.ontouchstart = function(ev){
+	if(joystickfinger == -1){
+		joystickfinger = ev.changedTouches[0].identifier
+		window.ontouchmove(ev)
+	}
+}
+
+window.ontouchmove = function(ev){
+	for(var i=0; i<ev.changedTouches.length; i++){
+		if(joystickfinger == changedTouches[i].identifier){
+			steer(changedTouches[i].clientX, changedTouches[i].clientY)
+		}
+	}
+}
+
+window.ontouchend = window.ontouchcancel = function(){
+	for(var i=0; i<ev.changedTouches.length; i++){
+		if(triggerfinger == changedTouches[i].identifier){
+			triggerfinger = -1
+			fire(false)
+		}
+		if(joystickfinger == changedTouches[i].identifier){
+			joystickfinger = -1
+			stick(joyHomeX, joyHomeY)
+		}
+	}
+}
+
+
+
+window.onresize = function(){
 	W = window.innerWidth
 	H = window.innerHeight
 
@@ -77,40 +168,7 @@ function resize(){
 	trigger.style.top = (H-triggerDiam)*0.5
 	trigger.style.right = W*0.2 - triggerDiam*0.5
 }
-
-window.onresize = resize
-
-trigger.onmousedown = trigger.ontouchstart = function(){fire(true)}
-trigger.onmouseup = trigger.ontouchend = function(){fire(false)}
-
-var joying = false
-joyarea.onmousedown = function(ev){
-	joying = true
-	window.onmousemove(ev)
-}
-window.onmouseup = function(){
-	joying = false
-	joystick.style.left = joyRange
-	joystick.style.top = joyRange
-	steer(0, 0)
-}
-window.onmousemove = function(ev){
-	if(joying){
-		var x = ev.clientX-joyHomeX
-		var y = ev.clientY-joyHomeY
-		var rq = x*x + y*y
-		if(rq > joyRange*joyRange){
-			var r = Math.sqrt(rq)
-			x = x/r*joyRange
-			y = y/r*joyRange
-		}
-		joystick.style.left = x + joyRange
-		joystick.style.top = y + joyRange
-		steer(x/joyRange, -y/joyRange)
-	}
-}
-resize()
-
+window.onresize()
 </script>
 
 </body>

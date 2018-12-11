@@ -53,6 +53,8 @@ function initAirConsole(){
 		switch (data[0]) {
 			case 'f': // fire
 				hovers[i].control.fire = data[1]
+				alert(data[1])
+				break
 			case 's': // steer
 				var x = data[1]
 				var y = data[2]
@@ -60,6 +62,7 @@ function initAirConsole(){
 				if(hovers[i].control.thrust > 0){
 					hovers[i].control.direction = Math.atan2(y, x)
 				}
+				break
 		}
 	}
 
