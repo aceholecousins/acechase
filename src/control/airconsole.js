@@ -1,7 +1,7 @@
 
 var AIR_CONSOLE = false;
 
-if(USING_AIR_CONSOLE){
+function initAirConsole(){
 
 	AIR_CONSOLE = new AirConsole()
 

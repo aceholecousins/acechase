@@ -2,14 +2,14 @@
 <head>
 	<script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
 	<script>
-		var AIR_CONSOLE = new AirConsole({"orientation": "landscape"});
-
+		var AIR_CONSOLE
+		function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
 		function fire() {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", true])}
 		function unfire() {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", false])}
 	</script>
 </head>
 
-<body>
+<body onLoad="init()">
 
 <button onClick="fire()">FIRE</button>
 <button onClick="unfire()">UNFIRE</button>

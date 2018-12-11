@@ -90,6 +90,10 @@ function prepareGame() {
 	} else {
 		start();
 	}
+
+	if(USING_AIR_CONSOLE){
+		initAirConsole()
+	}
 }
 
 function createHovercraftsFromParams() {
