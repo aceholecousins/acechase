@@ -8,21 +8,40 @@
   touch-action: none;
 }
 #joyarea{
+	border:solid 10px #68A;
 	position:absolute;
-	background-color:pink;
+	background-color:#468;
 	border-radius:100%;
 }
 #joystick{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	border:solid 10px #BDF;
 	position:absolute;
-	background-color:teal;
+	background-color:#68A;
 	border-radius:100%;
+	box-shadow: 8px 8px 30px 15px #000;
+}
+#knob{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	border:solid 10px #BDF;
+	position:absolute;
+	background-color:#68A;
+	border-radius:100%;
+	width:50%;
+	height:50%;
+	left:25%;
+	top:25%;
 }
 #trigger{
 	position:absolute;
-	background-color:red;
 }
 body{
 	overflow:hidden;
+	background-color:black;
 }
 </style>
 </head>
@@ -32,16 +51,21 @@ body{
 <div id="log"></div>
 
 <div id="joyarea">
-	<div id="joystick"></div>
+	<div id="joystick">
+		<div id="knob"></div>
+	</div>
 </div>
 
-<div id="trigger"></div>
+<!--<div id="trigger"></div>-->
+<img src="media/images/crosshair.png" id="trigger"/>
 
 <script>
 
+/*
 console.log = function(txt){
 	document.getElementById("log").innerHTML = document.getElementById("log").innerHTML + "<br>" + txt
 }
+*/
 
 var AIR_CONSOLE
 function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
