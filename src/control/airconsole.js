@@ -5,12 +5,8 @@ if(USING_AIR_CONSOLE){
 
 	AIR_CONSOLE = new AirConsole()
 
-	alert("using ac")
-
 	AIR_CONSOLE.onConnect = function(device_id){
 		var newPlayer = true
-
-		alert("connect")
 
 		// see if we already know this device and it just reconnects
 		for(var i=0; i<hovers.length; i++){

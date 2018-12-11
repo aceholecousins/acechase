@@ -28,7 +28,7 @@ function init() {
 }
 
 function readParams() {
-	alert(PARAMS)
+
 	if(PARAMS == ""){
 		USING_AIR_CONSOLE = true;
 		return;
