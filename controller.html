@@ -5,11 +5,11 @@
 * {
   margin: 0;
   padding: 0;
-  /*touch-action: none;*/
+  touch-action: none;
 }
 #joyarea{
 	position:absolute;
-	background-color:yellow;
+	background-color:pink;
 	border-radius:100%;
 }
 #joystick{
@@ -29,6 +29,8 @@ body{
 
 <body onLoad="init()">
 
+<div id="log"></div>
+
 <div id="joyarea">
 	<div id="joystick"></div>
 </div>
@@ -36,6 +38,10 @@ body{
 <div id="trigger"></div>
 
 <script>
+
+console.log = function(txt){
+	document.getElementById("log").innerHTML = document.getElementById("log").innerHTML + "<br>" + txt
+}
 
 var AIR_CONSOLE
 function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
@@ -72,29 +78,27 @@ function stick(mx, my){
 	steer(x/joyRange, -y/joyRange)
 }
 
-
-
-trigger.onmousedown = function(){
+trigger.addEventListener('mousedown', function(ev){
 	if(triggerfinger == -1){
 		triggerfinger = "m"
 		fire(true)
 	}
-}
+}, {passive: false});
 
-joyarea.onmousedown = function(ev){
+joyarea.addEventListener('mousedown', function(ev){
 	if(joystickfinger == -1){
 		joystickfinger = "m"
 		window.onmousemove(ev)
 	}
-}
+}, {passive: false});
 
-window.onmousemove = function(ev){
+window.addEventListener('mousemove', function(ev){
 	if(joystickfinger == "m"){
 		stick(ev.clientX, ev.clientY)
 	}
-}
+}, {passive: false});
 
-window.onmouseup = function(){
+window.addEventListener('mouseup', function(ev){
 	if(triggerfinger == "m"){
 		triggerfinger = -1
 		fire(false)
@@ -103,33 +107,35 @@ window.onmouseup = function(){
 		joystickfinger = -1
 		stick(joyHomeX, joyHomeY)
 	}
-}
+}, {passive: false});
 
 
 
-trigger.ontouchstart = function(ev){
+trigger.addEventListener('touchstart', function(ev){
 	if(triggerfinger == -1){
 		triggerfinger = ev.changedTouches[0].identifier
 		fire(true)
 	}
-}
+}, {passive: false});
 
-joyarea.ontouchstart = function(ev){
+joyarea.addEventListener('touchstart', function(ev){
 	if(joystickfinger == -1){
 		joystickfinger = ev.changedTouches[0].identifier
-		window.ontouchmove(ev)
+		ontouchmove(ev)
 	}
-}
+}, {passive: false});
 
-window.ontouchmove = function(ev){
+function ontouchmove(ev){
+	//console.log("awa")
 	for(var i=0; i<ev.changedTouches.length; i++){
 		if(joystickfinger == ev.changedTouches[i].identifier){
 			stick(ev.changedTouches[i].clientX, ev.changedTouches[i].clientY)
 		}
 	}
 }
+window.addEventListener('touchmove', ontouchmove, {passive: false});
 
-window.ontouchend = window.ontouchcancel = function(ev){
+function ontouchend(ev){
 	for(var i=0; i<ev.changedTouches.length; i++){
 		if(triggerfinger == ev.changedTouches[i].identifier){
 			triggerfinger = -1
@@ -141,7 +147,8 @@ window.ontouchend = window.ontouchcancel = function(ev){
 		}
 	}
 }
-
+window.addEventListener('touchend', ontouchend, {passive: false});
+window.addEventListener('touchcancel', ontouchend, {passive: false});
 
 
 window.onresize = function(){
