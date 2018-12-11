@@ -1,18 +1,116 @@
 <html>
 <head>
-	<script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
-	<script>
-		var AIR_CONSOLE
-		function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
-		function fire() {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", true])}
-		function unfire() {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", false])}
-	</script>
+<script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#joyarea{
+	position:absolute;
+	background-color:lime;
+	border-radius:100%;
+}
+#joystick{
+	position:absolute;
+	background-color:teal;
+	border-radius:100%;
+}
+#trigger{
+	position:absolute;
+	background-color:red;
+}
+body{
+	overflow:hidden;
+}
+</style>
 </head>
 
 <body onLoad="init()">
 
-<button onClick="fire()">FIRE</button>
-<button onClick="unfire()">UNFIRE</button>
+<div id="joyarea">
+	<div id="joystick"></div>
+</div>
+
+<div id="trigger"></div>
+
+<script>
+
+var AIR_CONSOLE
+function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
+function fire(state) {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", state])}
+function steer(x, y) {AIR_CONSOLE.message(AirConsole.SCREEN, ["s", x, y])}
+
+var W = 800
+var H = 600
+
+var joyEdge = 400 // length of the joystick area
+var joyHomeX = 300 // home position of joystick
+var joyHomeY = 300
+var joyRange = 200 // maximum deflection of joystick
+var joyDiam = 100 // joystick diameter
+
+var joyarea = document.getElementById("joyarea")
+var joystick = document.getElementById("joystick")
+var trigger = document.getElementById("trigger")
+
+function resize(){
+	W = window.innerWidth
+	H = window.innerHeight
+
+	joyEdge = Math.min(W*0.4, H)
+	joyHomeX = W*0.2
+	joyHomeY = H*0.5
+	joyRange = joyEdge*0.25
+	joyDiam = joyEdge*0.4
+	triggerDiam = joyEdge*0.8
+
+	joyarea.style.width = joyarea.style.height = joyRange*2+joyDiam
+	joyarea.style.left = joyHomeX - joyRange-joyDiam*0.5
+	joyarea.style.top = joyHomeY - joyRange-joyDiam*0.5
+
+	joystick.style.width = joystick.style.height = joyDiam
+	joystick.style.left = joyRange
+	joystick.style.top = joyRange
+
+	trigger.style.width = trigger.style.height = triggerDiam
+	trigger.style.top = (H-triggerDiam)*0.5
+	trigger.style.right = W*0.2 - triggerDiam*0.5
+}
+
+window.onresize = resize
+
+trigger.onmousedown = trigger.ontouchstart = function(){fire(true)}
+trigger.onmouseup = trigger.ontouchend = function(){fire(false)}
+
+var joying = false
+joyarea.onmousedown = function(ev){
+	joying = true
+	window.onmousemove(ev)
+}
+window.onmouseup = function(){
+	joying = false
+	joystick.style.left = joyRange
+	joystick.style.top = joyRange
+}
+window.onmousemove = function(ev){
+	if(joying){
+		var x = ev.clientX-joyHomeX
+		var y = ev.clientY-joyHomeY
+		var rq = x*x + y*y
+		if(rq > joyRange*joyRange){
+			var r = Math.sqrt(rq)
+			x = x/r*joyRange
+			y = y/r*joyRange
+		}
+		joystick.style.left = x + joyRange
+		joystick.style.top = y + joyRange
+		steer(x/joyRange, y/joyRange)
+	}
+}
+resize()
+
+</script>
 
 </body>
 </html>

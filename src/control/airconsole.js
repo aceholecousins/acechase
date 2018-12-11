@@ -50,16 +50,15 @@ function initAirConsole(){
 
 		if(i >= hovers.length){return}
 
-	    switch (data[0]) {
-	        case 'd':
-	            hovers[i].control.direction = data[1]
-	        case 't':
-	            hovers[i].control.thrust = data[0]
-	        case 'f':
-	            hovers[i].control.fire = data[1]
-	        case 's':
-	            hovers[i].control.special = data[1]
-	    }
+		switch (data[0]) {
+			case 'f': // fire
+				hovers[i].control.fire = data[1]
+			case 's': // steer
+				var x = data[1]
+				var y = data[2]
+				hovers[i].control.direction = Math.atan2(y, x)
+				hovers[i].control.thrust = Math.sqrt(x*x + y*y)
+		}
 	}
 
 }
@@ -70,7 +69,7 @@ function initAirConsole(){
 function AirController(params) {
 	Control.call(this);
 	this.device_id = params[3]*1;
-    this.connected = true;
+	this.connected = true;
 }
 
 AirController.prototype = Object.create(Control.prototype);
