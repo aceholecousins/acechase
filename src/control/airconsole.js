@@ -53,7 +53,6 @@ function initAirConsole(){
 		switch (data[0]) {
 			case 'f': // fire
 				hovers[i].control.fire = data[1]
-				alert(data[1])
 				break
 			case 's': // steer
 				var x = data[1]
