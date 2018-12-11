@@ -28,7 +28,7 @@ function init() {
 }
 
 function readParams() {
-
+	alert(PARAMS)
 	if(PARAMS == ""){
 		USING_AIR_CONSOLE = true;
 		return;
@@ -264,6 +264,10 @@ function endRound(){ // display results
 				new THREE.Color("black"));
 
 		SCORETABLE.plane.visible = true;
+
+		// remove all players that are not connected
+		hovers = hovers.filter(h => !((h.control instanceof AirController) && !h.control.connected))
+
 	}
 
 	if(GAME_MODE == "R"){ // race
