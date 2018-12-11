@@ -56,8 +56,10 @@ function initAirConsole(){
 			case 's': // steer
 				var x = data[1]
 				var y = data[2]
-				hovers[i].control.direction = Math.atan2(y, x)
 				hovers[i].control.thrust = Math.sqrt(x*x + y*y)
+				if(hovers[i].control.thrust > 0){
+					hovers[i].control.direction = Math.atan2(y, x)
+				}
 		}
 	}
 

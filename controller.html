@@ -92,6 +92,7 @@ window.onmouseup = function(){
 	joying = false
 	joystick.style.left = joyRange
 	joystick.style.top = joyRange
+	steer(0, 0)
 }
 window.onmousemove = function(ev){
 	if(joying){
@@ -105,7 +106,7 @@ window.onmousemove = function(ev){
 		}
 		joystick.style.left = x + joyRange
 		joystick.style.top = y + joyRange
-		steer(x/joyRange, y/joyRange)
+		steer(x/joyRange, -y/joyRange)
 	}
 }
 resize()
