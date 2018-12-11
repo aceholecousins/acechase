@@ -5,6 +5,7 @@
 * {
   margin: 0;
   padding: 0;
+  touch-action: none;
 }
 #joyarea{
 	position:absolute;
@@ -106,8 +107,6 @@ window.onmouseup = function(){
 
 
 
-
-
 trigger.ontouchstart = function(ev){
 	if(triggerfinger == -1){
 		triggerfinger = ev.changedTouches[0].identifier
@@ -124,19 +123,19 @@ joyarea.ontouchstart = function(ev){
 
 window.ontouchmove = function(ev){
 	for(var i=0; i<ev.changedTouches.length; i++){
-		if(joystickfinger == changedTouches[i].identifier){
-			steer(changedTouches[i].clientX, changedTouches[i].clientY)
+		if(joystickfinger == ev.changedTouches[i].identifier){
+			stick(ev.changedTouches[i].clientX, ev.changedTouches[i].clientY)
 		}
 	}
 }
 
-window.ontouchend = window.ontouchcancel = function(){
+window.ontouchend = window.ontouchcancel = function(ev){
 	for(var i=0; i<ev.changedTouches.length; i++){
-		if(triggerfinger == changedTouches[i].identifier){
+		if(triggerfinger == ev.changedTouches[i].identifier){
 			triggerfinger = -1
 			fire(false)
 		}
-		if(joystickfinger == changedTouches[i].identifier){
+		if(joystickfinger == ev.changedTouches[i].identifier){
 			joystickfinger = -1
 			stick(joyHomeX, joyHomeY)
 		}
