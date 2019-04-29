@@ -109,7 +109,7 @@ var waterFragmentShader = `
 		float wDiffuse = dot(n, light)*0.5+0.5;
 		float wSpecular = dot(reflectedView, light);
 		float wCoast = clamp(hmap.w-1.0, 0.0, 1.0);
-	
+
 		float specStart = 0.96;
 		float specFull = 0.98;
 		if(wSpecular<specStart){wSpecular = 0.0;}
@@ -128,8 +128,8 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0); 
-		
+		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0);
+
 	}`;
 
 var waterVertexShaderCA = `// read water level from cellular automata
@@ -154,7 +154,7 @@ var waterVertexShaderCA = `// read water level from cellular automata
 			( texture2D( bumpmap, uv + vec2( - cellSize.x, 0 ) ).x - texture2D( bumpmap, uv + vec2( cellSize.x, 0 ) ).x ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			( texture2D( bumpmap, uv + vec2( 0, - cellSize.y ) ).x - texture2D( bumpmap, uv + vec2( 0, cellSize.y ) ).x ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			1.0 ));
-	
+
 		hmap = texture2D( bumpmap, uv );
 
 		vec3 transformed = vec3( position.x, position.y, position.z );
@@ -206,7 +206,7 @@ var waterVertexShaderNoCA = `// generate water level
 			( h( uv + vec2( - cellSize.x, 0 ) ) - h( uv + vec2( cellSize.x, 0 ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			( h( uv + vec2( 0, - cellSize.y ) ) - h( uv + vec2( 0, cellSize.y ) ) ) * WATER_CA_WIDTH / WATER_BOUNDS,
 			1.0 ));
-	
+
 		hmap = vec4(h(uv),0.0,0.0, texture2D(bumpmap, uv).w);
 		vec3 transformed = vec3( position.x, position.y, (h(uv) + 1.0)*0.03);
 		//vec3 transformed = vec3( position.x, position.y, position.z );
@@ -280,13 +280,15 @@ function initWater() {
 	fillWaterTexture( bumpmap0 );
 
 	if(FANCY_WATER){
-		
+
 		WATER_BM_VAR = WATER_CA_GPU.addVariable( "bumpmap", bumpmapFragmentShader, bumpmap0 );
 
 		WATER_CA_GPU.setVariableDependencies( WATER_BM_VAR, [ WATER_BM_VAR ] );
 
+		WATER_BM_VAR.material.defines.NDISTURBS = 12;
+
 		var disturbs = [];
-		for(var i=0; i<NUM_PLAYERS; i++){
+		for(var i=0; i<WATER_BM_VAR.material.defines.NDISTURBS; i++){
 			disturbs[i] = new THREE.Vector4( 1000, 1000, 3, 50 );
 		}
 
@@ -294,7 +296,7 @@ function initWater() {
 		WATER_BM_VAR.material.uniforms.disturbances = { type: "v4v", value: disturbs};
 		WATER_BM_VAR.material.uniforms.time = { type: "f", value: 0.0 };
 		WATER_BM_VAR.material.defines.WATER_BOUNDS = WATER_BOUNDS.toFixed( 1 );
-		WATER_BM_VAR.material.defines.NDISTURBS = NUM_PLAYERS;
+
 
 		var error = WATER_CA_GPU.init();
 		if ( error !== null ) {
@@ -344,19 +346,25 @@ function updateWater(){
 
 	WATER_MATERIAL.uniforms.time.value += DT;
 
-
 	if(FANCY_WATER){
 		//WATER_BM_VAR.material.uniforms.disturbances.value[1].x -=0.01;
 		WATER_BM_VAR.material.uniforms.time.value += DT;
 
-		for(i=0; i<hovers.length; i++){
-			WATER_BM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/MAP_MAXDIM+0.5;
-			WATER_BM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/MAP_MAXDIM+0.5;
-			if(!hovers[i].hidden){
-				WATER_BM_VAR.material.uniforms.disturbances.value[i].z =
-					Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
+		for(i=0; i<WATER_BM_VAR.material.defines.NDISTURBS; i++){
+			if(i<hovers.length){
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].x = hovers[i].body.position[0]/MAP_MAXDIM+0.5;
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].y = hovers[i].body.position[1]/MAP_MAXDIM+0.5;
+				if(!hovers[i].hidden){
+					WATER_BM_VAR.material.uniforms.disturbances.value[i].z =
+						Math.sqrt(Math.pow(hovers[i].body.velocity[0],2) + Math.pow(hovers[i].body.velocity[1],2))*0.1+0.5;
+				}
+				else{
+					WATER_BM_VAR.material.uniforms.disturbances.value[i].z = 0;
+				}
 			}
 			else{
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].x = 1000.0;
+				WATER_BM_VAR.material.uniforms.disturbances.value[i].y = 1000.0;
 				WATER_BM_VAR.material.uniforms.disturbances.value[i].z = 0;
 			}
 		}

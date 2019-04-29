@@ -9,29 +9,29 @@ var hovers=[];
 var ARENA;
 var SCORETABLE;
 var SCORETABLE_PROTECT = false;
-var NUM_PLAYERS = 0;
+
+var USING_AIR_CONSOLE = false;
 
 var STARTLINE, FINISHLINE;
 
 function init() {
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
-	
+
 	ARENA = new Arena(MAP);
 	SCORETABLE = new ScoreTable();
-	
+
 	GRAPHICS_SCENE.add(SCORETABLE.plane);
 	SCORETABLE.plane.visible = false;
-	
+
 	LOADING_LIST.setCallback(prepareGame);
 }
 
 function readParams() {
-	
+
 	if(PARAMS == ""){
-		PARAMS = "#hbcfgv:" + CFGVERSION
-			+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
-			+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
+		USING_AIR_CONSOLE = true;
+		return;
 	}
 	PARAMS = PARAMS.slice(1).split(';');
 	if(PARAMS[0] != 'hbcfgv:' + CFGVERSION){
@@ -50,7 +50,6 @@ function readParams() {
 			GAME_MODE = value[0];
 			if(key.length > 1){GAME_LEVEL = value[1];}
 		}
-		if(key == "player" || key == "player0"){NUM_PLAYERS++;} // players are read later
 		if(key == "hp"){HITPOINTS = value * 1;}
 		if(key == "shld"){SHIELD = value *1;}
 		if(key == "shldreg"){SHIELD_REGEN = value * 1;}
@@ -74,13 +73,13 @@ function prepareGame() {
 	}
 
 	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trials or race
-		SCORETABLE.prepare(NUM_PLAYERS+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
+		SCORETABLE.prepare( hovers.length+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
 	}
 	else if(GAME_MODE == "D"){ // deathmatch
-		SCORETABLE.prepare(NUM_PLAYERS+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
+		SCORETABLE.prepare( hovers.length+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 	}
 	else if(GAME_MODE == "X"){ // shooting range
-		SCORETABLE.prepare(NUM_PLAYERS+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
+		SCORETABLE.prepare( hovers.length+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 	}
 
 	createHovercraftsFromParams();
@@ -90,7 +89,11 @@ function prepareGame() {
 		initMobileDevice();
 	} else {
 		start();
-	}				
+	}
+
+	if(USING_AIR_CONSOLE){
+		initAirConsole()
+	}
 }
 
 function createHovercraftsFromParams() {
@@ -114,11 +117,11 @@ function isAtLeastOneMobileDevice() {
 	return hovers.findIndex(function (element, index, array) {
 		return element.control instanceof MobileDevice;
 	}) != -1;
-}			
+}
 
 function initMobileDevice() {
-	document.getElementById("splashscreentext").innerHTML = 
-			"Hold your device in desired initial position and touch screen!<br>" + 
+	document.getElementById("splashscreentext").innerHTML =
+			"Hold your device in desired initial position and touch screen!<br>" +
 			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>";
 	document.body.onclick = start;
 }
@@ -137,12 +140,12 @@ function start() {
 		document.body.onclick = null;
 		captureMobileDevicesInitialPosition();
 		ScreenControl.enterFullScreen();
-		ScreenControl.lockScreenToLandscape();					
+		ScreenControl.lockScreenToLandscape();
 	}
 
 	onWindowResize(); // call to initially adjust camera
 	document.getElementById("splashscreen").style.visibility = "hidden";
-	RENDERER.setClearColor( FOG_COLOR );	
+	RENDERER.setClearColor( FOG_COLOR );
 
 	newRound();
 	gameloop();
@@ -191,7 +194,7 @@ function gameloop() {
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
-			if(continus > NUM_PLAYERS/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
+			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
 		}
 
 		THRUST_SOUND.gn.gain.value = 0.0;
@@ -235,7 +238,7 @@ function endRound(){ // display results
 		var highscore = 1e6;
 
 		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
+			SCORETABLE.line([hovers[i].playerName,
 					Math.floor(hovers[i].racetime/60) + ":"
 					+ pad(Math.floor(hovers[i].racetime%60),2) + "."
 					+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
@@ -258,13 +261,17 @@ function endRound(){ // display results
 
 		}
 
-		SCORETABLE.line(["Highscore", 
+		SCORETABLE.line(["Highscore",
 				Math.floor(highscore/60) + ":"
 				+ pad(Math.floor(highscore%60),2) + "."
 				+ pad(Math.round(1000*(highscore%1)),3)],
 				new THREE.Color("black"));
 
 		SCORETABLE.plane.visible = true;
+
+		// remove all players that are not connected
+		hovers = hovers.filter(h => !((h.control instanceof AirController) && !h.control.connected))
+
 	}
 
 	if(GAME_MODE == "R"){ // race
@@ -275,7 +282,7 @@ function endRound(){ // display results
 		SCORETABLE.line(["", ""], new THREE.Color("black"));
 
 		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
+			SCORETABLE.line([hovers[i].playerName,
 					Math.floor(hovers[i].racetime/60) + ":"
 					+ pad(Math.floor(hovers[i].racetime%60),2) + "."
 					+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
@@ -292,16 +299,16 @@ function endRound(){ // display results
 		SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
 
 		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
+			SCORETABLE.line([hovers[i].playerName,
 					Math.round((hovers[i].kills*1.1 - hovers[i].deaths)*10)/10, // prevents 1.100000000002
 					hovers[i].kills,
 					hovers[i].deaths],
-					hovers[i].color);			
+					hovers[i].color);
 		}
 		SCORETABLE.plane.visible = true;
 	}
 
-	if(GAME_MODE == "X" && NUM_PLAYERS == 1){ // shooting range, single player
+	if(GAME_MODE == "X" && hovers.length == 1){ // shooting range, single player
 
 		hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
 		SCORETABLE.clear();
@@ -336,7 +343,7 @@ function endRound(){ // display results
 		SCORETABLE.plane.visible = true;
 	}
 
-	if(GAME_MODE == "X" && NUM_PLAYERS > 1){ // shooting range, multiplayer
+	if(GAME_MODE == "X" && hovers.length > 1){ // shooting range, multiplayer
 
 		hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
 		SCORETABLE.clear();
@@ -356,7 +363,7 @@ function newRound(){
 
 	INGAME_TIME = 0;
 
-	SCORETABLE.plane.visible = false;				
+	SCORETABLE.plane.visible = false;
 
 	for(var i=0; i<hovers.length; i++){
 		hovers[i].initNewRound(i);
@@ -377,7 +384,7 @@ function newRound(){
 	DT = DT_ORIGINAL;
 	WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
-	updateAllHBObjects();				
+	updateAllHBObjects();
 
 	TIMEOUT_LIST = [];
 
