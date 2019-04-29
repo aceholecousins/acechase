@@ -134,7 +134,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 	var startPos;
 
 	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trial or race: place players along start line
-		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(NUM_PLAYERS+1));
+		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(hovers.length+1));
 		this.control.direction = this.body.angle =
 			Math.atan2(STARTLINE.p1.y-STARTLINE.p0.y, STARTLINE.p1.x-STARTLINE.p0.x)+Math.PI/2;
 		this.racetime = 0;

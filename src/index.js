@@ -249,7 +249,7 @@ function startgame(){
 	var url = window.location.href.replace("index.html", "");
 	while(url.slice(-1) == "/"){url = url.substring(0, url.length-1);}
 
-	url = url + "/game.html" + urltail;
+	url = url + "/screen.html" + urltail;
 	
 	GamepadManager.stop();
 	
