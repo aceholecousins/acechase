@@ -1,43 +1,20 @@
 <html>
 <head>
+
 <script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
+<script src="src/utils/tools.js"></script>
+<script src="src/utils/touch.js"></script>
+
 <style>
 * {
   margin: 0;
   padding: 0;
   touch-action: none;
 }
-#joyarea{
-	border:solid 10px #68A;
+div{
 	position:absolute;
-	background-color:#468;
-	border-radius:100%;
-}
-#joystick{
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-	border:solid 10px #BDF;
-	position:absolute;
-	background-color:#68A;
-	border-radius:100%;
-	box-shadow: 8px 8px 30px 15px #000;
-}
-#knob{
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-	border:solid 10px #BDF;
-	position:absolute;
-	background-color:#68A;
-	border-radius:100%;
-	width:50%;
-	height:50%;
-	left:25%;
-	top:25%;
-}
-#trigger{
-	position:absolute;
+	display:inline-block;
+	background-color:yellow;
 }
 body{
 	overflow:hidden;
@@ -48,155 +25,125 @@ body{
 
 <body onLoad="init()">
 
-<div id="log"></div>
-
-<div id="joyarea">
-	<div id="joystick">
-		<div id="knob"></div>
+<!-- joystick -->
+<div id="controller0">
+	<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
+		<div id="joystick" style="pointer-events:none; background-color:red;"></div>
 	</div>
+	<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 </div>
 
-<!--<div id="trigger"></div>-->
-<img src="media/images/crosshair.png" id="trigger"/>
+<!-- touchpad -->
+<div id="controller1">
+	<div id="touchpad" class="touchable"></div>
+	<div id="touchtrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+</div>
+
+<!-- marble -->
+<div id="controller2">
+	<div id="marbletrigger1" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+	<div id="marbletrigger2" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+</div>
+
+<div id="status"></div>
+
+<div id="changecontroller">Change Controller</div>
+
+<div class="touchable" data-downcallback="left" style="left:100px; width:80px; height:80px">&lt;&lt;</div>
+<div class="touchable" data-downcallback="go" style="left:200px; width:80px; height:80px">GO!</div>
+<div class="touchable" data-downcallback="right" style="left:300px; width:80px; height:80px">&gt;&gt;</div>
 
 <script>
 
-/*
-console.log = function(txt){
-	document.getElementById("log").innerHTML = document.getElementById("log").innerHTML + "<br>" + txt
+var dimensions = {}
+var airConsole
+var activeController = 0
+
+dimensions.w = 800
+dimensions.h = 600
+
+Touch.init()
+
+function init(){
+	airConsole = new AirConsole({"orientation": "landscape"})
 }
-*/
 
-var AIR_CONSOLE
-function init() {AIR_CONSOLE = new AirConsole({"orientation": "landscape"})}
-function fire(state) {AIR_CONSOLE.message(AirConsole.SCREEN, ["f", state])}
-function steer(x, y) {AIR_CONSOLE.message(AirConsole.SCREEN, ["s", x, y])}
+Touch.callbacks.startFiring = function(){
+	console.log("fire")
+	airConsole.message(AirConsole.SCREEN, ["f", 1])
+}
 
-var joystickfinger = -1
-var triggerfinger = -1
+Touch.callbacks.stopFiring = function(){
+	console.log("stopfire")
+	airConsole.message(AirConsole.SCREEN, ["f", 0])
+}
 
-var W = 800
-var H = 600
+Touch.callbacks.left = function(){
+	console.log("left")
+	airConsole.message(AirConsole.SCREEN, "l")
+}
 
-var joyEdge = 400 // length of the joystick area
-var joyHomeX = 300 // home position of joystick
-var joyHomeY = 300
-var joyRange = 200 // maximum deflection of joystick
-var joyDiam = 100 // joystick diameter
+Touch.callbacks.right = function(){
+	console.log("right")
+	airConsole.message(AirConsole.SCREEN, "r")
+}
 
-var joyarea = document.getElementById("joyarea")
-var joystick = document.getElementById("joystick")
-var trigger = document.getElementById("trigger")
+Touch.callbacks.go = function(){
+	console.log("go")
+	airConsole.message(AirConsole.SCREEN, "g")
+}
 
-function stick(mx, my){
-	var x = mx-joyHomeX
-	var y = my-joyHomeY
+Touch.callbacks.moveStick = function(mx, my){
+	var x = mx-dimensions.joyHomeX
+	var y = my-dimensions.joyHomeY
 	var rq = x*x + y*y
-	if(rq > joyRange*joyRange){
+	if(rq > dimensions.joyRange*dimensions.joyRange){
 		var r = Math.sqrt(rq)
-		x = x/r*joyRange
-		y = y/r*joyRange
+		x = x/r*dimensions.joyRange
+		y = y/r*dimensions.joyRange
 	}
-	joystick.style.left = x + joyRange
-	joystick.style.top = y + joyRange
-	steer(x/joyRange, -y/joyRange)
+	reposition("joystick", x + dimensions.joyRange, y + dimensions.joyRange)
 }
 
-trigger.addEventListener('mousedown', function(ev){
-	if(triggerfinger == -1){
-		triggerfinger = "m"
-		fire(true)
-	}
-}, {passive: false});
-
-joyarea.addEventListener('mousedown', function(ev){
-	if(joystickfinger == -1){
-		joystickfinger = "m"
-		window.onmousemove(ev)
-	}
-}, {passive: false});
-
-window.addEventListener('mousemove', function(ev){
-	if(joystickfinger == "m"){
-		stick(ev.clientX, ev.clientY)
-	}
-}, {passive: false});
-
-window.addEventListener('mouseup', function(ev){
-	if(triggerfinger == "m"){
-		triggerfinger = -1
-		fire(false)
-	}
-	if(joystickfinger == "m"){
-		joystickfinger = -1
-		stick(joyHomeX, joyHomeY)
-	}
-}, {passive: false});
-
-
-
-trigger.addEventListener('touchstart', function(ev){
-	if(triggerfinger == -1){
-		triggerfinger = ev.changedTouches[0].identifier
-		fire(true)
-	}
-}, {passive: false});
-
-joyarea.addEventListener('touchstart', function(ev){
-	if(joystickfinger == -1){
-		joystickfinger = ev.changedTouches[0].identifier
-		ontouchmove(ev)
-	}
-}, {passive: false});
-
-function ontouchmove(ev){
-	//console.log("awa")
-	for(var i=0; i<ev.changedTouches.length; i++){
-		if(joystickfinger == ev.changedTouches[i].identifier){
-			stick(ev.changedTouches[i].clientX, ev.changedTouches[i].clientY)
-		}
-	}
+Touch.callbacks.releaseStick = function(){
+	reposition("joystick", dimensions.joyRange, dimensions.joyRange)
 }
-window.addEventListener('touchmove', ontouchmove, {passive: false});
 
-function ontouchend(ev){
-	for(var i=0; i<ev.changedTouches.length; i++){
-		if(triggerfinger == ev.changedTouches[i].identifier){
-			triggerfinger = -1
-			fire(false)
-		}
-		if(joystickfinger == ev.changedTouches[i].identifier){
-			joystickfinger = -1
-			stick(joyHomeX, joyHomeY)
-		}
-	}
+function steer(thrust, direction){
+	airConsole.message(AirConsole.SCREEN, ["s", thrust, direction])
 }
-window.addEventListener('touchend', ontouchend, {passive: false});
-window.addEventListener('touchcancel', ontouchend, {passive: false});
-
 
 window.onresize = function(){
-	W = window.innerWidth
-	H = window.innerHeight
+	dimensions.w = window.innerWidth
+	dimensions.h = window.innerHeight
 
-	joyEdge = Math.min(W*0.4, H)
-	joyHomeX = W*0.2
-	joyHomeY = H*0.5
-	joyRange = joyEdge*0.25
-	joyDiam = joyEdge*0.4
-	triggerDiam = joyEdge*0.8
+	dimensions.tile = Math.min(dimensions.w/3.0, dimensions.h)
+	dimensions.joyHomeX = dimensions.tile*0.5
+	dimensions.joyHomeY = dimensions.h*0.5
+	dimensions.joyDiam = dimensions.tile*0.4
+	dimensions.joyRange = (dimensions.tile - dimensions.joyDiam)*0.5
+	dimensions.triggerDiam = dimensions.tile*0.8
 
-	joyarea.style.width = joyarea.style.height = joyRange*2+joyDiam
-	joyarea.style.left = joyHomeX - joyRange-joyDiam*0.5
-	joyarea.style.top = joyHomeY - joyRange-joyDiam*0.5
-
-	joystick.style.width = joystick.style.height = joyDiam
-	joystick.style.left = joyRange
-	joystick.style.top = joyRange
-
-	trigger.style.width = trigger.style.height = triggerDiam
-	trigger.style.top = (H-triggerDiam)*0.5
-	trigger.style.right = W*0.2 - triggerDiam*0.5
+	reposition("joyarea",
+			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
+			dimensions.joyHomeY - dimensions.joyRange-dimensions.joyDiam*0.5,
+			dimensions.tile,
+			dimensions.tile)
+	reposition("joystick",
+			dimensions.joyRange,
+			dimensions.joyRange,
+			dimensions.joyDiam,
+			dimensions.joyDiam)
+	reposition("joytrigger",
+			dimensions.w-dimensions.tile,
+			(dimensions.h-dimensions.tile)*0.5,
+			dimensions.tile,
+			dimensions.tile)
+	reposition("changecontroller",
+			dimensions.tile,
+			dimensions.h - dimensions.tile*0.2,
+			dimensions.tile,
+			dimensions.tile*0.2)
 }
 window.onresize()
 </script>

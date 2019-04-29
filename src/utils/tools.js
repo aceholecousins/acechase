@@ -79,3 +79,11 @@ function Checklist(){
 function padWithZeroes(n) {
     return (n < 10) ? ("0" + n) : n;
 }
+
+function reposition(id, left, top, width=-1, height=-1){
+	var elem = document.getElementById(id)
+	elem.style.left = left
+	elem.style.top = top
+	if(width>-1){elem.style.width = width}
+	if(height>-1){elem.style.height = height}
+}
