@@ -1,16 +1,26 @@
 
-var RENDERER = new THREE.WebGLRenderer();
-RENDERER.setPixelRatio(RESOLUTION);
-RENDERER.setSize( window.innerWidth, window.innerHeight );
-//RENDERER.setClearColor( 0x808080, 1);
-RENDERER.setClearColor( 0x000000 );
-document.body.appendChild( RENDERER.domElement ); // creates canvas on page into which the scene will be rendered
+Scene = function () {
+}
 
-var GRAPHICS_SCENE = new THREE.Scene();
+Scene.renderer = new THREE.WebGLRenderer();
+Scene.graphicsScene = new THREE.Scene();
 
-var AMBIENT_LIGHT = new THREE.AmbientLight( 0x404050 );
-GRAPHICS_SCENE.add(AMBIENT_LIGHT);
+Scene.init = function() {
+    Scene.renderer.setPixelRatio(RESOLUTION);
+    Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+    //Scene.renderer.setClearColor( 0x808080, 1);
+    Scene.renderer.setClearColor(0x000000);
+    document.body.appendChild(Scene.renderer.domElement); // creates canvas on page into which the scene will be rendered
 
-var SUN_LIGHT = new THREE.DirectionalLight( 0xffffff, 0.8 );
-SUN_LIGHT.position.set(-1, 1, 1).normalize();
-GRAPHICS_SCENE.add( SUN_LIGHT );
+    ambientLight = new THREE.AmbientLight(0x404050);
+    Scene.graphicsScene.add(ambientLight);
+
+    sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    sunLight.position.set(-1, 1, 1).normalize();
+    Scene.graphicsScene.add(sunLight);
+}
+
+
+
+
+

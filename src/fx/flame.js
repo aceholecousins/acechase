@@ -61,7 +61,7 @@ function Flame(hover){
 
 	this.mesh.scale.x = 0.5*this.len;
 	this.mesh.scale.y = this.len;
-	GRAPHICS_SCENE.add(this.mesh);
+	Scene.graphicsScene.add(this.mesh);
 }
 
 Flame.prototype.update = function(){

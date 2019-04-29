@@ -78,7 +78,7 @@ OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
 	FIREBALL_MESH.material = fireballMaterial;
 	FIREBALL_MESH.renderOrder = RENDER_ORDER.explosion;
 
-	//GRAPHICS_SCENE.add( FIREBALL_MESH );
+	//Scene.graphicsScene.add( FIREBALL_MESH );
 });
 
 // shockwave
@@ -89,7 +89,7 @@ var shockwaveGeometry = new THREE.PlaneGeometry( 1, 1 );
 var SHOCKWAVE_MESH = new THREE.Mesh( shockwaveGeometry, shockwaveMaterial );
 SHOCKWAVE_MESH.position.set(0,0,0.1);
 SHOCKWAVE_MESH.renderOrder = RENDER_ORDER.explosion;
-//GRAPHICS_SCENE.add( shockwave );
+//Scene.graphicsScene.add( shockwave );
 
 // crumbs
 
@@ -105,7 +105,7 @@ OBJ_LOADER.load( 'media/objects/crumb.obj', function (object) {
 	CRUMB_MESH.geometry.computeVertexNormals();
 	CRUMB_MESH.material = new THREE.MeshPhongMaterial( {color:0x000000} );
 
-	//GRAPHICS_SCENE.add( CRUMB_MESH );
+	//Scene.graphicsScene.add( CRUMB_MESH );
 });
 
 // smoke

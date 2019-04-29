@@ -271,11 +271,11 @@ function initWater() {
 	waterMesh.matrixAutoUpdate = false;
 	waterMesh.updateMatrix();
 
-	GRAPHICS_SCENE.add( waterMesh );
+	Scene.graphicsScene.add( waterMesh );
 
 	// Creates the gpu computation class and sets it up
 
-	WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, RENDERER );
+	WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, Scene.renderer );
 	var bumpmap0 = WATER_CA_GPU.createTexture();
 	fillWaterTexture( bumpmap0 );
 
@@ -315,7 +315,7 @@ function initWater() {
 	var water = new THREE.Mesh(geometry, material );
 	water.renderOrder = RENDER_ORDER.water;
 	water.position.z = 0;
-	GRAPHICS_SCENE.add(water);
+	Scene.graphicsScene.add(water);
 	*/
 }
 

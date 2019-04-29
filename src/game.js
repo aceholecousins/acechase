@@ -18,10 +18,12 @@ function init() {
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
 
+	Scene.init();
+
 	ARENA = new Arena(MAP);
 	SCORETABLE = new ScoreTable();
 
-	GRAPHICS_SCENE.add(SCORETABLE.plane);
+	Scene.graphicsScene.add(SCORETABLE.plane);
 	SCORETABLE.plane.visible = false;
 
 	LOADING_LIST.setCallback(prepareGame);
@@ -145,7 +147,7 @@ function start() {
 
 	onWindowResize(); // call to initially adjust camera
 	document.getElementById("splashscreen").style.visibility = "hidden";
-	RENDERER.setClearColor( FOG_COLOR );
+	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
 	gameloop();
@@ -208,7 +210,7 @@ function gameloop() {
 
 	}
 
-	RENDERER.render( GRAPHICS_SCENE, CAMERA );
+	Scene.renderer.render( Scene.graphicsScene, CAMERA );
 	if(DEBUG>=1){STATS.update()};
 
 	FRAME_COUNTER++;

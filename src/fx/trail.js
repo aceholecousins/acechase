@@ -30,7 +30,7 @@ function Trail(startPosition, width, color, duration){
 	this.mesh = new THREE.Mesh( this.meshline.geometry, this.trailmaterial );
 	this.mesh.frustumCulled = false;
 
-	GRAPHICS_SCENE.add( this.mesh );
+	Scene.graphicsScene.add( this.mesh );
 }
 
 Trail.prototype.reposition = function(pos){

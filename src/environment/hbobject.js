@@ -20,7 +20,7 @@ HBObject.prototype.spawn = function(){ // adds object to the object list, to the
 		PHYSICS_WORLD.addBody(this.body);
 	}
 	if(this.mesh !== null){
-		GRAPHICS_SCENE.add(this.mesh);
+		Scene.graphicsScene.add(this.mesh);
 		this.mesh.HBO = this; // link the graphics mesh to this object
 	}
 	this.update();
@@ -40,7 +40,7 @@ HBObject.prototype.update = function(){
 		}
 		if(this.mesh !== null){
 			delete this.mesh.HBO; // remove parent reference so the garbage collector can strike
-			GRAPHICS_SCENE.remove(this.mesh); // remove from graphics scene
+			Scene.graphicsScene.remove(this.mesh); // remove from graphics scene
 		}
 	}
 	else{ // regular update

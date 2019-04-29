@@ -10,7 +10,7 @@ function onWindowResize() {
 
 	CAMERA.aspect = window.innerWidth / window.innerHeight;
 	CAMERA.updateProjectionMatrix();
-	RENDERER.setSize( window.innerWidth, window.innerHeight );
+	Scene.renderer.setSize( window.innerWidth, window.innerHeight );
 
 	if(CAMERA.aspect > 1){
 		SCORETABLE.plane.material.uniforms.dims.value.x = 0.9/CAMERA.aspect;
@@ -25,7 +25,7 @@ function onWindowResize() {
 if(DEBUG>3){ // render camera frustum
 	var material = new THREE.LineBasicMaterial({color: 0xffff00});
 	var geometry = new THREE.Geometry();
-	var camdir = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camdir);
+	var camdir = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camdir);
 	camdir.geometry.vertices = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0)];
 	var PC = new THREE.Vector3(0,0,0);
 	var PNW = new THREE.Vector3(0,0,0);
@@ -36,13 +36,13 @@ if(DEBUG>3){ // render camera frustum
 	var CNE = new THREE.Vector3(0,0,0);
 	var CSE = new THREE.Vector3(0,0,0);
 	var CSW = new THREE.Vector3(0,0,0);
-	var camfrust = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camfrust);
+	var camfrust = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camfrust);
 	camfrust.geometry.vertices = [PNW, PNE, PSE, PSW, PNW, PC, PNE, PC, PSE, PC, PSW];
-	var camh = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camh);
+	var camh = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camh);
 	camh.geometry.vertices = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0)];
-	var camv = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camv);
+	var camv = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camv);
 	camv.geometry.vertices = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0)];
-	var camview = new THREE.Line(geometry.clone(), material.clone()); GRAPHICS_SCENE.add(camview);
+	var camview = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camview);
 	camview.material.color = new THREE.Color("blue");
 	camview.geometry.vertices = [CNW, CNE, CSE, CSW, CNW];
 }

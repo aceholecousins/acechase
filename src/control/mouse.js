@@ -118,19 +118,19 @@ Mouse.prototype.handleOnScroll = function (event) {
 };
 
 Mouse.prototype.isMouseLocked = function () {
-    return document.pointerLockElement === RENDERER.domElement ||
-            document.mozPointerLockElement === RENDERER.domElement ||
-            document.webkitPointerLockElement === RENDERER.domElement;
+    return document.pointerLockElement === Scene.renderer.domElement ||
+            document.mozPointerLockElement === Scene.renderer.domElement ||
+            document.webkitPointerLockElement === Scene.renderer.domElement;
 }
 
-RENDERER.domElement.requestPointerLock =
-	RENDERER.domElement.requestPointerLock ||
-	RENDERER.domElement.mozRequestPointerLock ||
-	RENDERER.domElement.webkitRequestPointerLock;
+Scene.renderer.domElement.requestPointerLock =
+	Scene.renderer.domElement.requestPointerLock ||
+	Scene.renderer.domElement.mozRequestPointerLock ||
+	Scene.renderer.domElement.webkitRequestPointerLock;
 
-RENDERER.domElement.onclick = function () {
+Scene.renderer.domElement.onclick = function () {
     if (DEBUG < 2) {
-        RENDERER.domElement.requestPointerLock();
+        Scene.renderer.domElement.requestPointerLock();
 		ScreenControl.enterFullScreen();
     }
 }

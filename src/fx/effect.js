@@ -17,14 +17,14 @@ function Effect(){
 Effect.prototype.spawn = function(){ // create effect
 	EFFECT_LIST.push(this); // add to list
 	if(this.mesh !== null){
-		GRAPHICS_SCENE.add(this.mesh);
+		Scene.graphicsScene.add(this.mesh);
 	}
 	this.update();
 }
 
 Effect.prototype.despawn = function(){ // delete effect
 	EFFECT_LIST[EFFECT_LIST.indexOf(this)] = null; // nullify element in lists
-	GRAPHICS_SCENE.remove(this.mesh); // remove from scene
+	Scene.graphicsScene.remove(this.mesh); // remove from scene
 }
 
 Effect.prototype.update = function(){ // reduce effect strength and delete if strength is zero
