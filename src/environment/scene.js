@@ -1,6 +1,5 @@
 
-Scene = function () {
-}
+Scene = {}
 
 Scene.renderer = new THREE.WebGLRenderer();
 Scene.graphicsScene = new THREE.Scene();

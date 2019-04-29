@@ -24,8 +24,8 @@
 	</head>
 	<body>
 		<table id ="splashscreen" style="position:absolute;
-			top:20%; left:20%; width:60%; height:60%; zIndex:1000;">
-		<tr><td style="color:black; background-color:white; font-size:30pt; font-family:monospace; font-variant: small-caps;
+			top:20%; left:20%; width:60%; height:60%; zIndex:1000;" hidden>
+		<tr><td style="color:black; background-color:whites; font-size:30pt; font-family:monospace; font-variant: small-caps;
 			vertical-align:middle; text-align:center; padding:5%;
 			border-radius:15px 50px; background: url(media/images/quotebg.jpg);
 			-webkit-background-size: cover;	-moz-background-size: cover;
@@ -33,8 +33,22 @@
 		<span id="splashscreentext"></span>
 		</td></tr></table>
 
+		<table id="mainmenu" style="color:white;position:absolute; top:10%; left:10%; width:80%; height:80%">
+			<tr>
+				<td><img id="leftmenuitem" width="50%"></td>
+				<td><img id="centermenuitem" width="100%"></td>
+				<td><img id="rightmenuitem" width="50%"></td>
+			</tr>
+			<tr>
+				<td colspan="3" id="descriptionmenuitem"  style="border:solid"></td>
+			</tr>
+		</table>
+
+		
 		<script src="config.js"></script> <!-- configuration file -->
 		<script src="src/game.js"></script>
+		<script src="src/mainmenu.js">s</script>
+		<script src="src/maps.js">s</script>
 
 		<script>
 			readParams();
@@ -93,7 +107,7 @@
 		<script src="src/misc/medals.js"></script>
 
 		<script type="text/javascript">
-			init();
+			MainMenu.init();
 		</script>
 	</body>
 </html>

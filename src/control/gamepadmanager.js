@@ -1,7 +1,6 @@
 //Manages gamepad assignment and gamepad control assignment in menu
 
-GamepadManager = function() {
-}
+GamepadManager = {}
 
 GamepadManager.start = function (playerIndex, button) {
 	console.log("start gp manager");
