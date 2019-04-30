@@ -20,8 +20,6 @@ Control.createControl = function(configValues) { // player config string includi
             return new Gamepad(params);
         case 'kb':
             return new Keyboard(params);
-		case 'ac':
-			return new AirController(params);
         default:
             return new Control(params);
     }

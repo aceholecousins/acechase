@@ -119,7 +119,7 @@ function createHovercraftsFromParams() {
 }
 
 function createHovercraftsFromAirControllers() {
-	AirController.controllers.forEach(function(controller) {
+	AirControl.getControllers().forEach(function(controller) {
 		let newHover = new Hovercraft(new THREE.Color("red"), controller);
 		newHover.playerName = controller.nickName;
 		hovers.push(newHover);
