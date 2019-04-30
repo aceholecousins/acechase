@@ -76,7 +76,7 @@ var currentState = "menu"
 
 var spinUpdate = window.setInterval(function(){
 	if(document.getElementById("lever").style.display != "none"){
-		currentDirection += currentSpin * 0.01
+		currentDirection += currentSpin * 0.05
 		if(currentDirection > Math.PI){currentDirection -= 2.0*Math.PI}
 		if(currentDirection < -Math.PI){currentDirection += 2.0*Math.PI}
 	}
@@ -88,7 +88,7 @@ dimensions.h = 600
 Touch.init()
 
 function init(){
-	airConsole = new AirConsole({"orientation": "landscape"})
+	airConsole = new AirConsole({orientation: "landscape", device_motion:30})
 
 	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
 		document.getElementById("status").innerHTML = JSON.stringify(custom_data)
@@ -116,6 +116,33 @@ function init(){
 	}
 
 	airConsole.onCustomDeviceStateChange(AirConsole.SCREEN, airConsole.getCustomDeviceState(AirConsole.SCREEN))
+
+	airConsole.onDeviceMotion = function (data){
+		if(document.getElementById("marbletrigger").style.display != "none"){
+			var x = data.beta/40.0
+			var y = (data.gamma+45.0)/40.0
+
+			var dir = Math.atan2(y, x)
+			var r = Math.sqrt(x*x + y*y)/dimensions.joyRange
+
+			if(r < 0.01){
+				x = 0
+				y = 0
+				r = 0
+				dir = currentDirection
+			}
+			if(r > 1.0){
+				x = x/r
+				y = y/r
+				r = 1.0
+			}
+			currentDirection = dir
+			currentThrust = r
+
+		}
+	}
+
+	window.onresize()
 }
 
 function message(msg){
@@ -167,6 +194,7 @@ Touch.callbacks.stopFiring = function(){
 Touch.callbacks.moveStick = function(mx, my){
 	var x = mx-dimensions.joyHomeX
 	var y = my-dimensions.joyHomeY
+
 	var dir = Math.atan2(-y, x)
 	var r = Math.sqrt(x*x + y*y)/dimensions.joyRange
 
@@ -200,7 +228,7 @@ Touch.callbacks.moveLever = function(mx, my){
 	if(y > dimensions.joyRange){y = dimensions.joyRange}
 	if(y < -dimensions.joyRange){y = -dimensions.joyRange}
 
-	currentSpin = x/dimensions.joyRange
+	currentSpin = -x/dimensions.joyRange
 	currentThrust = (-y/dimensions.joyRange + 1.0)/2.0
 	reposition("lever", x + dimensions.joyRange, y + dimensions.joyRange)
 }
@@ -210,7 +238,6 @@ Touch.callbacks.releaseLever = function(){
 	currentSpin = 0
 	reposition("lever", dimensions.joyRange, dimensions.joyRange*2.0)
 }
-
 
 Touch.callbacks.changeController = function(){
 	var controllers = document.getElementsByClassName("controller")
@@ -305,7 +332,7 @@ window.onresize = function(){
 			dimensions.h*0.75)
 
 }
-window.onresize()
+
 </script>
 
 </body>
