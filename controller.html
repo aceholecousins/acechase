@@ -3,7 +3,8 @@
 
 <script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
 <script src="src/utils/tools.js"></script>
-<script src="src/utils/touch.js"></script>
+<script src="src/controller/touch.js"></script>
+<script src="src/controller/graphics.js"></script>
 
 <style>
 * {
@@ -12,34 +13,39 @@
 	touch-action: none;
 	font-size:20pt;
 	font-family:sans-serif;
+	color:white;
 }
 div{
 	position:absolute;
 	display:inline-block;
-	background-color:yellow;
+	/*background-color:yellow;*/
+}
+svg{
+	pointer-events:none;
 }
 body{
 	overflow:hidden;
-	background-color:gray;
+	background-color:black;
 }
 </style>
 </head>
 
 <body onLoad="init()">
 
+<div id="svgdefs"></div>
+
 <div class="tab" id="menu">
-	<div id="left" class="touchable" data-downcallback="left">&lt;&lt;</div>
-	<div id="go" class="touchable" data-downcallback="go">GO!</div>
-	<div id="right" class="touchable" data-downcallback="right">&gt;&gt;</div>
+	<div id="left" class="touchable" data-downcallback="left" style="background-color:green">&lt;&lt;</div>
+	<div id="go" class="touchable" data-downcallback="go" style="background-color:green">GO!</div>
+	<div id="right" class="touchable" data-downcallback="right" style="background-color:green">&gt;&gt;</div>
 </div>
 
 <div class="tab" id="game">
-	<div id="status"></div>
 
 	<!-- joystick -->
 	<div class="controller">
 		<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
-			<div id="joystick" style="pointer-events:none; background-color:red;"></div>
+			<div id="joystick" style="pointer-events:none"></div>
 		</div>
 		<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 	</div>
@@ -47,16 +53,19 @@ body{
 	<!-- thrust lever -->
 	<div class="controller">
 		<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
-			<div id="lever" style="pointer-events:none; background-color:blue;"></div>
+			<div id="lever" style="pointer-events:none"></div>
 		</div>
 		<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 	</div>
 
-	<!-- marble -->
+	<!-- yoke -->
 	<div class="controller">
-		<div id="marbletrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+		<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+		<div id="yoketriggericon1" style="pointer-events:none"></div>
+		<div id="yoketriggericon2" style="pointer-events:none"></div>
 	</div>
 
+	<div id="status"></div>
 	<div id="changecontroller" class="touchable" data-downcallback="changeController">Change Controller</div>
 </div>
 
@@ -76,7 +85,7 @@ var currentState = "menu"
 
 var spinUpdate = window.setInterval(function(){
 	if(document.getElementById("lever").style.display != "none"){
-		currentDirection += currentSpin * 0.05
+		currentDirection += currentSpin * 0.1
 		if(currentDirection > Math.PI){currentDirection -= 2.0*Math.PI}
 		if(currentDirection < -Math.PI){currentDirection += 2.0*Math.PI}
 	}
@@ -91,7 +100,8 @@ function init(){
 	airConsole = new AirConsole({orientation: "landscape", device_motion:30})
 
 	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
-		document.getElementById("status").innerHTML = JSON.stringify(custom_data)
+		//document.getElementById("status").innerHTML = JSON.stringify(custom_data)
+		console.log(custom_data)
 
 		if(AirConsole.SCREEN == device_id){
 			if(custom_data == undefined){
@@ -118,7 +128,7 @@ function init(){
 	airConsole.onCustomDeviceStateChange(AirConsole.SCREEN, airConsole.getCustomDeviceState(AirConsole.SCREEN))
 
 	airConsole.onDeviceMotion = function (data){
-		if(document.getElementById("marbletrigger").style.display != "none"){
+		if(document.getElementById("yoketriggerarea").style.display != "none"){
 			var x = data.beta/40.0
 			var y = (data.gamma+45.0)/40.0
 
@@ -141,6 +151,8 @@ function init(){
 
 		}
 	}
+
+	Graphics.init()
 
 	window.onresize()
 }
@@ -228,7 +240,7 @@ Touch.callbacks.moveLever = function(mx, my){
 	if(y > dimensions.joyRange){y = dimensions.joyRange}
 	if(y < -dimensions.joyRange){y = -dimensions.joyRange}
 
-	currentSpin = -x/dimensions.joyRange
+	currentSpin = x/dimensions.joyRange
 	currentThrust = (-y/dimensions.joyRange + 1.0)/2.0
 	reposition("lever", x + dimensions.joyRange, y + dimensions.joyRange)
 }
@@ -263,10 +275,10 @@ window.onresize = function(){
 	dimensions.triggerDiam = dimensions.tile*0.8
 
 	reposition("status",
-			(dimensions.w-dimensions.tile*0.9)*0.5,
-			(dimensions.h-dimensions.tile*0.9)*0.5,
-			dimensions.tile*0.9,
-			dimensions.tile*0.9)
+			(dimensions.w-dimensions.tile*0.7)*0.5,
+			(dimensions.h-dimensions.tile*0.7)*0.4,
+			dimensions.tile*0.7,
+			dimensions.tile*0.7)
 
 	reposition("joyarea",
 			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
@@ -300,17 +312,27 @@ window.onresize = function(){
 			dimensions.tile,
 			dimensions.tile)
 
-	reposition("marbletrigger",
+	reposition("yoketriggericon1",
+			0,
+			(dimensions.h-dimensions.tile)*0.5,
+			dimensions.tile,
+			dimensions.tile)
+	reposition("yoketriggericon2",
+			dimensions.w-dimensions.tile,
+			(dimensions.h-dimensions.tile)*0.5,
+			dimensions.tile,
+			dimensions.tile)
+	reposition("yoketriggerarea",
 			0,
 			0,
 			dimensions.w,
-			dimensions.h-dimensions.tile*0.21)
+			dimensions.h)
 
 	reposition("changecontroller",
-			dimensions.tile,
-			dimensions.h - dimensions.tile*0.2,
-			dimensions.tile,
-			dimensions.tile*0.2)
+			dimensions.w*0.4,
+			dimensions.h - dimensions.w*0.06,
+			dimensions.w*0.2,
+			dimensions.w*0.06)
 
 
 	reposition("left",
