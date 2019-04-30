@@ -10,6 +10,8 @@
 	margin: 0;
 	padding: 0;
 	touch-action: none;
+	font-size:20pt;
+	font-family:sans-serif;
 }
 div{
 	position:absolute;
@@ -18,7 +20,7 @@ div{
 }
 body{
 	overflow:hidden;
-	background-color:black;
+	background-color:gray;
 }
 </style>
 </head>
@@ -89,6 +91,8 @@ function init(){
 	airConsole = new AirConsole({"orientation": "landscape"})
 
 	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
+		document.getElementById("status").innerHTML = JSON.stringify(custom_data)
+
 		if(AirConsole.SCREEN == device_id){
 			if(custom_data == undefined){
 				currentState = "menu"
