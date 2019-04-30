@@ -1,3 +1,4 @@
 /nbproject/
 /videos/
 *.*~ # gedit backup
+.vscode/
