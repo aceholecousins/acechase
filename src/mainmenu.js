@@ -8,6 +8,11 @@ MainMenu.init = function() {
     MainMenu.showMap(MainMenu.currentMapIndex); 
     //document.addEventListener('keydown', MainMenu.handleKeyDown);
     AirController.init();
+    AirController.addEventHandler(MainMenu.onControllerEvent);
+}
+
+MainMenu.close = function() {
+    AirController.removeEventHandler(MainMenu.onControllerEvent);
 }
 
 MainMenu.showMap = function(index) {
@@ -39,3 +44,16 @@ MainMenu.handleKeyDown = function (event) {
         MainMenu.showMap(MainMenu.currentMapIndex); 
     }
 };
+
+MainMenu.onControllerEvent = function(event) {
+    if(event.type == "menu") {
+        console.log("MainMenu.onControllerEvent: " + event.value + ", Device " + event.controller.device_id);
+        if(event.value == "left") {
+            MainMenu.currentMapIndex--;
+            MainMenu.showMap(MainMenu.currentMapIndex); 
+        } else if(event.value == "right") {
+            MainMenu.currentMapIndex++;
+            MainMenu.showMap(MainMenu.currentMapIndex); 
+        }
+    }
+}
