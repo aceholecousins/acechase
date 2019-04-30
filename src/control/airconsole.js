@@ -1,80 +1,73 @@
 
-var AIR_CONSOLE = false;
-
-function initAirConsole(){
-
-	AIR_CONSOLE = new AirConsole()
-
-	AIR_CONSOLE.onConnect = function(device_id){
-		var newPlayer = true
-
-		// see if we already know this device and it just reconnects
-		for(var i=0; i<hovers.length; i++){
-			if(device_id == hovers[i].control.device_id){
-				newPlayer = false
-				hovers[i].control.connected = true
-				break;
-			}
-		}
-
-		// if its a new device create a new player
-		if(newPlayer){
-			iPlayer = hovers.length
-
-			hovers[iPlayer] = new Hovercraft(
-				new THREE.Color("red"),
-				Control.createControl("-,-,ac," + device_id))
-			hovers[iPlayer].playerName = AIR_CONSOLE.getNickname(device_id)
-			hovers[iPlayer].initNewRound(iPlayer)
-		}
-	}
-
-	AIR_CONSOLE.onDisconnect = function(device_id) {
-		for(var i=0; i<hovers.length; i++){
-			if(device_id == hovers[i].control.device_id){
-				hovers[i].control.connected = false
-				break
-			}
-		}
-	}
-
-	AIR_CONSOLE.onMessage = function(device_id, data) {
-
-		var i=0;
-
-		for(i=0; i<hovers.length; i++){
-			if(device_id == hovers[i].control.device_id){
-				break
-			}
-		}
-
-		if(i >= hovers.length){return}
-
-		switch (data[0]) {
-			case 'f': // fire
-				hovers[i].control.fire = data[1]
-				break
-			case 's': // steer
-				var x = data[1]
-				var y = data[2]
-				hovers[i].control.thrust = Math.sqrt(x*x + y*y)
-				if(hovers[i].control.thrust > 0){
-					hovers[i].control.direction = Math.atan2(y, x)
-				}
-				break
-		}
-	}
-
-}
-
-
 // Inherits from Control
 "use strict";
-function AirController(params) {
+function AirController(device_id) {
 	Control.call(this);
-	this.device_id = params[3]*1;
+	this.device_id = device_id;
 	this.connected = true;
 }
 
 AirController.prototype = Object.create(Control.prototype);
 AirController.prototype.constructor = AirController;
+
+
+AirController.acInstance;
+AirController.players = new Map();
+
+AirController.init = function(){
+
+	let acInstance = AirController.acInstance = new AirConsole()
+
+	acInstance.onConnect = AirController.onConnect;
+	acInstance.onDisconnect = AirController.onDisconnect;
+	acInstance.onMessage = AirController.onMessage;
+}	
+
+AirController.onConnect = function(device_id){
+	console.log("AirController.onConnect: " + device_id);
+	let players = AirController.players;
+
+	// see if we already know this device and it just reconnects
+	let player = players.get(device_id);
+	if(player !== undefined){
+		player.connected = true
+	} else {
+		// if its a new device create a new player
+		let newPlayer = new AirController(device_id);
+		newPlayer.playerName = AirController.acInstance.getNickname(device_id)
+		players.set(device_id, newPlayer);
+	}
+}
+
+AirController.onDisconnect = function(device_id) {
+	console.log("AirController.onDisconnect: " + device_id);
+	let player = AirController.players.get(device_id);
+	if(player !== undefined){
+		player.connected = false
+	}
+}
+
+AirController.onMessage = function(device_id, data) {
+	console.log("AirController.onMessage: " + device_id, + ": " + data);
+	let player = AirController.players.get(device_id);
+
+	if(player !== undefined){
+
+		switch (data[0]) {
+			case 'f': // fire
+			player.fire = data[1]
+				break
+			case 's': // steer
+				var x = data[1]
+				var y = data[2]
+				player.thrust = Math.sqrt(x*x + y*y)
+				if(player.thrust > 0){
+					player.direction = Math.atan2(y, x)
+				}
+				break
+		}
+	}
+}
+
+
+

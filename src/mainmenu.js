@@ -6,7 +6,8 @@ MainMenu.currentMapIndex = 0;
 MainMenu.init = function() {
     console.log("init main menu");
     MainMenu.showMap(MainMenu.currentMapIndex); 
-    document.addEventListener('keydown', MainMenu.handleKeyDown);
+    //document.addEventListener('keydown', MainMenu.handleKeyDown);
+    AirController.init();
 }
 
 MainMenu.showMap = function(index) {
@@ -22,11 +23,11 @@ MainMenu.showMap = function(index) {
 }
 
 MainMenu.getCurrentMap = function(index) {
-    i = index % Map.maps.length;
+    i = index % GameMap.maps.length;
     if(i < 0) {
-        i += Map.maps.length;
+        i += GameMap.maps.length;
     }
-    return Map.maps[i];
+    return GameMap.maps[i];
 }
 
 MainMenu.handleKeyDown = function (event) {
