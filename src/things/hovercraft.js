@@ -33,7 +33,7 @@ function Hovercraft(color, control){
 	this.hidden = false; // if the hovercraft is on the map and taking part in the game
 	this.color = color;
 	this.playerName = '';
-	this.hitpoints = 0;
+	this.hitpoints = new Property();
 	this.shield = 0;
 	this.ammo = 0;
 	this.radius = HOVER_RADIUS;
@@ -155,7 +155,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 
 	this.kills = 0;
 	this.deaths = 0;
-	this.hitpoints = HITPOINTS;
+	this.hitpoints.set(HITPOINTS);
 	this.shield = SHIELD;
 	this.ammo = PHASER_AMMO;
 	this.powerup = POWERUPS.nothing;
@@ -238,7 +238,7 @@ Hovercraft.prototype.update = function(){
 	}
 
 	// smoke
-	if(Math.random() < Math.pow(1-this.hitpoints/HITPOINTS,1.7)*10*DT){
+	if(Math.random() < Math.pow(1-this.hitpoints.get()/HITPOINTS,1.7)*10*DT){
 		var effect = new Effect();
 		effect.type = 'smoke';
 		effect.mesh = SMOKE_MESH.clone();
@@ -261,7 +261,7 @@ Hovercraft.prototype.update = function(){
 	this.controlHover();
 
 	// explode and respawn after 3 seconds
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		explosion(this.mesh.position.clone(), this.color.clone());
 		playSound(SOUNDS.explosion, 1.4, 1.0, 0.0);
 		this.deaths++;
@@ -272,7 +272,7 @@ Hovercraft.prototype.update = function(){
 		this.body.sleep();
 		this.body.wakeUp();
 		
-		this.hitpoints = HITPOINTS;
+		this.hitpoints.set(HITPOINTS);
 		this.shieldpoints = SHIELD;
 		this.powerup = POWERUPS.nothing;
 
@@ -431,7 +431,7 @@ Hovercraft.prototype.controlHover = function() {
 				if(GAME_PHASE == "G")
 				{
 					if(GAME_MODE == "R" && hovers.length == 1) {
-						this.hitpoints = 0; // explode
+						this.hitpoints.set(0); // explode
 						GAME_PHASE = "O"; // round over
 						ingameTimeout(1, function(){newRound();});
 					} else {
@@ -512,7 +512,7 @@ Hovercraft.prototype.hitBy = function(thing){
 	}
 
 	if(this.shield<=0){
-		this.hitpoints += this.shield;
+		this.hitpoints.change(this.shield);
 		this.shield = 0;
 		this.shieldMesh.material.opacity = 0;
 	}
@@ -520,7 +520,7 @@ Hovercraft.prototype.hitBy = function(thing){
 		this.shieldMesh.material.opacity = this.shield/SHIELD*0.5+0.5; // will be reduced by update before first render...
 	}
 
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		if(thing.type == "phaser" || thing.type == "missile" || thing.type == "seamine"){		
 			this.killedBy = thing.shooter;
 		}
@@ -554,7 +554,7 @@ Hovercraft.prototype.wallhit = function(){
 Hovercraft.prototype.collect = function(pu){
 
 	if(pu == POWERUPS.repair){
-		this.hitpoints = HITPOINTS;	
+		this.hitpoints.set(HITPOINTS);	
 	}
 	else{
 		if(this.powerup == POWERUPS.nothing){

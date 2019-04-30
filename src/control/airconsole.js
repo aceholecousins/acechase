@@ -1,17 +1,19 @@
 
 AirControl = {};
 (function (context) {
-	acInstance = null;
+	airConsole = null;
+	rateLimiter = null;
 	controllers = new Map();
 	eventSupport = new EventSupport();
 
 	context.GAME_STATES = { menu: "menu", game: "game" };
 
 	context.init = function () {
-		acInstance = new AirConsole()
-		acInstance.onConnect = onConnect;
-		acInstance.onDisconnect = onDisconnect;
-		acInstance.onMessage = onMessage;
+		airConsole = new AirConsole();
+		rateLimiter = new RateLimiter(airConsole);
+		airConsole.onConnect = onConnect;
+		airConsole.onDisconnect = onDisconnect;
+		airConsole.onMessage = onMessage;
 	}
 
 	context.getControllers = function() {
@@ -19,7 +21,11 @@ AirControl = {};
 	}
 
 	context.setGameState = function (state) {
-		acInstance.setCustomDeviceStateProperty("state", state);
+		rateLimiter.setCustomDeviceStateProperty("state", state);
+	}
+
+	context.sendMessage = function (deviceId, data) {
+		rateLimiter.message(deviceId, data);
 	}
 
 	context.addEventHandler = function (handler) {
@@ -40,7 +46,7 @@ AirControl = {};
 		} else {
 			// if its a new device create a new controller instance
 			let newController = new AirController(device_id);
-			newController.nickName = acInstance.getNickname(device_id)
+			newController.nickName = airConsole.getNickname(device_id)
 			controllers.set(device_id, newController);
 		}
 	}
@@ -55,7 +61,7 @@ AirControl = {};
 	}
 
 	onMessage = function (device_id, data) {
-		console.log("AirController.onMessage: " + device_id + ": ", data);
+		//console.log("AirController.onMessage: " + device_id + ": ", data);
 		let controller = controllers.get(device_id);
 
 		if (controller !== undefined) {
@@ -104,4 +110,28 @@ AirController.prototype.onControllerMessage = function (data) {
 	this.fire = data.fire
 	this.thrust = data.thrust;
 	this.direction = data.direction;
+}
+
+//Inherits from Property
+AirProperty = function(value, maxValue, stateKey, deviceId) {
+	Property.call(this, value);
+	this.maxValue = maxValue;
+	this.stateKey = stateKey;
+	this.deviceId = deviceId;
+}
+
+AirProperty.prototype = Object.create(Property.prototype);
+AirProperty.prototype.constructor = AirProperty;
+
+AirProperty.prototype.set = function(value) {
+	oldValue = this.value;
+	Property.prototype.set.call(this, value);
+
+	if(value != oldValue) {
+		normalizedValue = this.value / this.maxValue;
+		normalizedValue = Math.max(0, Math.min(1, normalizedValue));
+		message = {};
+		message[this.stateKey] = normalizedValue;
+		AirControl.sendMessage(this.deviceId, message);
+	}	
 }

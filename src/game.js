@@ -120,6 +120,7 @@ function createHovercraftsFromAirControllers() {
 	AirControl.getControllers().forEach(function(controller) {
 		let newHover = new Hovercraft(new THREE.Color("red"), controller);
 		newHover.playerName = controller.nickName;
+		newHover.hitpoints = new AirProperty(0, HITPOINTS, "hull", controller.device_id);
 		hovers.push(newHover);
 	});
 }
@@ -188,7 +189,7 @@ function gameloop() {
 
 				if(finish.bool){ // crossed the finish line
 					hovers[i].finished = true;
-					hovers[i].hitpoints = 0; // explode
+					hovers[i].hitpoints.set(0); // explode
 					hovers[i].racetime += -DT + finish.s*DT; // subframe accuracy for time measurement!
 				}
 			}

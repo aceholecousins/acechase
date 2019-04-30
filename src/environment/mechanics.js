@@ -169,8 +169,8 @@ PHYSICS_WORLD.on('impact', function(event){
 	}
 	if(firstBody.HBO.type == "bomb" && secondBody.HBO.type == "hover"){
 		if(GAME_PHASE == "G"){
-			firstBody.HBO.hitpoints = 0;
-			secondBody.HBO.hitpoints = 0;
+			firstBody.HBO.hitpoints.set(0);
+			secondBody.HBO.hitpoints.set(0);
 			firstBody.HBO.destroyedBy = secondBody.HBO;
 		}
 	}
@@ -188,7 +188,7 @@ PHYSICS_WORLD.on('impact', function(event){
 		secondBody.HBO.wallhit();
 	}
 	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == 'phaser'){
-		firstBody.HBO.hitpoints--;
+		firstBody.HBO.hitpoints.change(-1);
 	}
 	else{
 		if(firstBody.HBO.type == "missile"){
