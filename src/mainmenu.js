@@ -15,6 +15,9 @@ MainMenu.close = function() {
     AirController.removeEventHandler(MainMenu.onControllerEvent);
     document.getElementById("mainmenu").style.visibility = "hidden";
     MainMenu.setParameters();
+
+    AirController.setGameState(GAME_STATES.game);
+
     init();
 }
 

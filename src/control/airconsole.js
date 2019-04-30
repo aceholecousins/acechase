@@ -3,6 +3,7 @@
 "use strict";
 function AirController(device_id) {
 	Control.call(this);
+
 	this.device_id = device_id;
 	this.nickName = "No Name";
 	this.connected = true;
@@ -10,7 +11,6 @@ function AirController(device_id) {
 
 AirController.prototype = Object.create(Control.prototype);
 AirController.prototype.constructor = AirController;
-
 
 AirController.acInstance;
 AirController.controllers = new Map();
@@ -43,10 +43,11 @@ AirController.onConnect = function (device_id) {
 
 AirController.onDisconnect = function (device_id) {
 	console.log("AirController.onDisconnect: " + device_id);
-	let controller = AirController.controllers.get(device_id);
-	if (controller !== undefined) {
-		controller.connected = false
-	}
+	AirController.controllers.delete(device_id);
+	// let controller = AirController.controllers.get(device_id);
+	// if (controller !== undefined) {
+	// 	controller.connected = false
+	// }
 }
 
 AirController.onMessage = function (device_id, data) {
@@ -94,5 +95,8 @@ AirController.removeEventHandler = function (handler) {
 	AirController.eventSupport.removeHandler(handler);
 }
 
+const GAME_STATES = {menu: "menu", game: "game"};
 
-
+AirController.setGameState = function(state) {
+	AirController.acInstance.setCustomDeviceStateProperty("state", state);
+}
