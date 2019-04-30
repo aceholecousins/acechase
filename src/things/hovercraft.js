@@ -133,7 +133,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 
 	var startPos;
 
-	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trial or race: place players along start line
+	if(GAME_MODE == "R"){ // time trial or race: place players along start line
 		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(hovers.length+1));
 		this.control.direction = this.body.angle =
 			Math.atan2(STARTLINE.p1.y-STARTLINE.p0.y, STARTLINE.p1.x-STARTLINE.p0.x)+Math.PI/2;
@@ -276,7 +276,7 @@ Hovercraft.prototype.update = function(){
 		this.shieldpoints = SHIELD;
 		this.powerup = POWERUPS.nothing;
 
-		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
+		if(GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
 
 				var pos;
@@ -428,13 +428,15 @@ Hovercraft.prototype.controlHover = function() {
 			}
 			else{ // phaser
 				// race or death match or shooting range ongoing?
-				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){
-					this.shootPhaser();
-				}
-				else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
-					this.hitpoints = 0; // explode
-					GAME_PHASE = "O"; // round over
-					ingameTimeout(1, function(){newRound();});
+				if(GAME_PHASE == "G")
+				{
+					if(GAME_MODE == "R" && hovers.length == 1) {
+						this.hitpoints = 0; // explode
+						GAME_PHASE = "O"; // round over
+						ingameTimeout(1, function(){newRound();});
+					} else {
+						this.shootPhaser();
+					}
 				}
 			}
 			this.fireReleased = false;
@@ -529,7 +531,7 @@ Hovercraft.prototype.hitBy = function(thing){
 }
 
 Hovercraft.prototype.wallhit = function(){
-	if(GAME_MODE == "R" || GAME_MODE == "T"){ // penalty
+	if(GAME_MODE == "R"){ // penalty
 		this.body.velocity[0] *= 0.2;
 		this.body.velocity[1] *= 0.2;
 		effect = new Effect();

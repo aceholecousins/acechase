@@ -1,4 +1,3 @@
-var CFGVERSION = 1; // version of the config string pattern
 var SINGLEMULTI = 0; // 1 for single, 2 for multiplayer
 var MAP0 = ""; // selected singleplayer level
 var GAME0 = ""; // selected singleplayer game mode
