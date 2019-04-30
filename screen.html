@@ -33,7 +33,7 @@
 		<span id="splashscreentext"></span>
 		</td></tr></table>
 
-		<table id="mainmenu" style="color:white;position:absolute; top:10%; left:10%; width:80%; height:80%">
+		<table id="mainmenu" style="color:white;position:absolute; top:10%; left:10%; width:80%; height:80%; visibility: hidden">
 			<tr>
 				<td><img id="leftmenuitem" width="50%"></td>
 				<td><img id="centermenuitem" width="100%"></td>
@@ -108,7 +108,12 @@
 		<script src="src/mainmenu.js">s</script>
 
 		<script type="text/javascript">
-			MainMenu.init();
+			if(USING_AIR_CONSOLE) {
+				MainMenu.init();
+			} else {
+				initGame();
+			}
+			
 		</script>
 	</body>
 </html>

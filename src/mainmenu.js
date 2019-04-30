@@ -5,6 +5,7 @@ MainMenu.currentMapIndex = 0;
 
 MainMenu.init = function() {
     console.log("init main menu");
+    document.getElementById("mainmenu").style.visibility = "visible";
     MainMenu.showMap(MainMenu.currentMapIndex); 
     //document.addEventListener('keydown', MainMenu.handleKeyDown);
     AirController.init();
@@ -18,7 +19,7 @@ MainMenu.close = function() {
 
     AirController.setGameState(GAME_STATES.game);
 
-    init();
+    initGame();
 }
 
 MainMenu.setParameters = function() {

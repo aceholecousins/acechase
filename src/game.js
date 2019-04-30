@@ -14,7 +14,9 @@ var USING_AIR_CONSOLE = false;
 
 var STARTLINE, FINISHLINE;
 
-function init() {
+
+
+function initGame() {
 	document.getElementById("splashscreen").style.visibility = "visible";
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
