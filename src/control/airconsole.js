@@ -4,6 +4,7 @@
 function AirController(device_id) {
 	Control.call(this);
 	this.device_id = device_id;
+	this.nickName = "No Name";
 	this.connected = true;
 }
 
@@ -12,7 +13,7 @@ AirController.prototype.constructor = AirController;
 
 
 AirController.acInstance;
-AirController.players = new Map();
+AirController.controllers = new Map();
 AirController.eventSupport = new EventSupport();
 
 AirController.init = function () {
@@ -26,39 +27,39 @@ AirController.init = function () {
 
 AirController.onConnect = function (device_id) {
 	console.log("AirController.onConnect: " + device_id);
-	let players = AirController.players;
+	let controllers = AirController.controllers;
 
 	// see if we already know this device and it just reconnects
-	let player = players.get(device_id);
-	if (player !== undefined) {
-		player.connected = true
+	let controller = controllers.get(device_id);
+	if (controller !== undefined) {
+		controller.connected = true
 	} else {
-		// if its a new device create a new player
-		let newPlayer = new AirController(device_id);
-		newPlayer.playerName = AirController.acInstance.getNickname(device_id)
-		players.set(device_id, newPlayer);
+		// if its a new device create a new controller instance
+		let newController = new AirController(device_id);
+		newController.nickName = AirController.acInstance.getNickname(device_id)
+		controllers.set(device_id, newController);
 	}
 }
 
 AirController.onDisconnect = function (device_id) {
 	console.log("AirController.onDisconnect: " + device_id);
-	let player = AirController.players.get(device_id);
-	if (player !== undefined) {
-		player.connected = false
+	let controller = AirController.controllers.get(device_id);
+	if (controller !== undefined) {
+		controller.connected = false
 	}
 }
 
 AirController.onMessage = function (device_id, data) {
-	console.log("AirController.onMessage: " + device_id + ": " + data);
-	let player = AirController.players.get(device_id);
+	console.log("AirController.onMessage: " + device_id + ": ",  data);
+	let controller = AirController.controllers.get(device_id);
 
-	if (player !== undefined) {
+	if (controller !== undefined) {
 		switch (data.type) {
 			case 'menu':
-				player.onMenuMessage(data.navi);
+				controller.onMenuMessage(data.navi);
 				break;
 			case 'control':
-				player.onControllerMessage(data);
+				controller.onControllerMessage(data);
 				break;
 		}
 	}

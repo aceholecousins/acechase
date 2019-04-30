@@ -13,12 +13,22 @@ MainMenu.init = function() {
 
 MainMenu.close = function() {
     AirController.removeEventHandler(MainMenu.onControllerEvent);
+    document.getElementById("mainmenu").style.visibility = "hidden";
+    MainMenu.setParameters();
+    init();
+}
+
+MainMenu.setParameters = function() {
+    const mapToUse = MainMenu.getMapForIndex(MainMenu.currentMapIndex);
+    MAP = mapToUse.svg;
+    GAME_MODE = mapToUse.gameMode;
+    GAME_LEVEL = mapToUse.gameLevel;
 }
 
 MainMenu.showMap = function(index) {
-    left = MainMenu.getCurrentMap(index - 1);
-    center = MainMenu.getCurrentMap(index);
-    right = MainMenu.getCurrentMap(index + 1);
+    left = MainMenu.getMapForIndex(index - 1);
+    center = MainMenu.getMapForIndex(index);
+    right = MainMenu.getMapForIndex(index + 1);
 
     document.getElementById("leftmenuitem").src = left.thumbnail;
     document.getElementById("centermenuitem").src = center.thumbnail;
@@ -27,7 +37,7 @@ MainMenu.showMap = function(index) {
     document.getElementById("descriptionmenuitem").innerHTML = center.description;
 }
 
-MainMenu.getCurrentMap = function(index) {
+MainMenu.getMapForIndex = function(index) {
     i = index % GameMap.maps.length;
     if(i < 0) {
         i += GameMap.maps.length;
@@ -48,12 +58,18 @@ MainMenu.handleKeyDown = function (event) {
 MainMenu.onControllerEvent = function(event) {
     if(event.type == "menu") {
         console.log("MainMenu.onControllerEvent: " + event.value + ", Device " + event.controller.device_id);
-        if(event.value == "left") {
+        switch(event.value) {
+            case "left":
             MainMenu.currentMapIndex--;
             MainMenu.showMap(MainMenu.currentMapIndex); 
-        } else if(event.value == "right") {
+            break;
+            case "right":
             MainMenu.currentMapIndex++;
             MainMenu.showMap(MainMenu.currentMapIndex); 
+            break;
+            case "enter":
+            MainMenu.close();
+            break;
         }
     }
 }

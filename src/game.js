@@ -15,6 +15,7 @@ var USING_AIR_CONSOLE = false;
 var STARTLINE, FINISHLINE;
 
 function init() {
+	document.getElementById("splashscreen").style.visibility = "visible";
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
 
@@ -84,17 +85,17 @@ function prepareGame() {
 		SCORETABLE.prepare( hovers.length+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 	}
 
-	createHovercraftsFromParams();
+	if(USING_AIR_CONSOLE) {
+		createHovercraftsFromAirControllers();
+	} else {
+		createHovercraftsFromParams();
+	}
 
 	if(isAtLeastOneMobileDevice()) {
 		console.log("At least one mobile device");
 		initMobileDevice();
 	} else {
 		start();
-	}
-
-	if(USING_AIR_CONSOLE){
-		initAirConsole()
 	}
 }
 
@@ -113,6 +114,14 @@ function createHovercraftsFromParams() {
 			iPlayer++;
 		}
 	}
+}
+
+function createHovercraftsFromAirControllers() {
+	AirController.controllers.forEach(function(controller) {
+		let newHover = new Hovercraft(new THREE.Color("red"), controller);
+		newHover.playerName = controller.nickName;
+		hovers.push(newHover);
+	});
 }
 
 function isAtLeastOneMobileDevice() {
