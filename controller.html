@@ -7,9 +7,9 @@
 
 <style>
 * {
-  margin: 0;
-  padding: 0;
-  touch-action: none;
+	margin: 0;
+	padding: 0;
+	touch-action: none;
 }
 div{
 	position:absolute;
@@ -25,39 +25,60 @@ body{
 
 <body onLoad="init()">
 
-<!-- joystick -->
-<div id="controller0">
-	<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
-		<div id="joystick" style="pointer-events:none; background-color:red;"></div>
+<div class="tab" id="menu">
+	<div id="left" class="touchable" data-downcallback="left">&lt;&lt;</div>
+	<div id="go" class="touchable" data-downcallback="go">GO!</div>
+	<div id="right" class="touchable" data-downcallback="right">&gt;&gt;</div>
+</div>
+
+<div class="tab" id="game">
+	<div id="status"></div>
+
+	<!-- joystick -->
+	<div class="controller">
+		<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
+			<div id="joystick" style="pointer-events:none; background-color:red;"></div>
+		</div>
+		<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 	</div>
-	<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+
+	<!-- thrust lever -->
+	<div class="controller">
+		<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
+			<div id="lever" style="pointer-events:none; background-color:blue;"></div>
+		</div>
+		<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+	</div>
+
+	<!-- marble -->
+	<div class="controller">
+		<div id="marbletrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+	</div>
+
+	<div id="changecontroller" class="touchable" data-downcallback="changeController">Change Controller</div>
 </div>
-
-<!-- touchpad -->
-<div id="controller1">
-	<div id="touchpad" class="touchable"></div>
-	<div id="touchtrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-</div>
-
-<!-- marble -->
-<div id="controller2">
-	<div id="marbletrigger1" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-	<div id="marbletrigger2" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-</div>
-
-<div id="status"></div>
-
-<div id="changecontroller">Change Controller</div>
-
-<div class="touchable" data-downcallback="left" style="left:100px; width:80px; height:80px">&lt;&lt;</div>
-<div class="touchable" data-downcallback="go" style="left:200px; width:80px; height:80px">GO!</div>
-<div class="touchable" data-downcallback="right" style="left:300px; width:80px; height:80px">&gt;&gt;</div>
 
 <script>
 
 var dimensions = {}
 var airConsole
 var activeController = 0
+var lastDirection = 0
+var lastThrust = 0
+var lastFire = false
+var currentDirection = 0
+var currentThrust = 0
+var currentFire = false
+var currentSpin = 0 // for lever control
+var currentState = "menu"
+
+var spinUpdate = window.setInterval(function(){
+	if(document.getElementById("lever").style.display != "none"){
+		currentDirection += currentSpin * 0.01
+		if(currentDirection > Math.PI){currentDirection -= 2.0*Math.PI}
+		if(currentDirection < -Math.PI){currentDirection += 2.0*Math.PI}
+	}
+}, 10)
 
 dimensions.w = 800
 dimensions.h = 600
@@ -66,52 +87,138 @@ Touch.init()
 
 function init(){
 	airConsole = new AirConsole({"orientation": "landscape"})
+
+	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
+		if(AirConsole.SCREEN == device_id){
+			if(custom_data == undefined){
+				currentState = "menu"
+			}
+			else{
+				currentState = custom_data.state
+			}
+
+			var tabs = document.getElementsByClassName("tab")
+			for(var i=0; i<tabs.length; i++){
+				tabs[i].style.display = "none"
+			}
+			if(currentState == "menu"){
+				document.getElementById("menu").style.display = "inline-block"
+			}
+			if(currentState == "game"){
+				document.getElementById("game").style.display = "inline-block"
+				sendControl(true)
+			}
+		}
+	}
+
+	airConsole.onCustomDeviceStateChange(AirConsole.SCREEN, airConsole.getCustomDeviceState(AirConsole.SCREEN))
 }
 
-Touch.callbacks.startFiring = function(){
-	console.log("fire")
-	airConsole.message(AirConsole.SCREEN, ["f", 1])
+function message(msg){
+	console.log(msg)
+	airConsole.message(AirConsole.SCREEN, msg)
 }
 
-Touch.callbacks.stopFiring = function(){
-	console.log("stopfire")
-	airConsole.message(AirConsole.SCREEN, ["f", 0])
+function sendControl(force = false){
+	if(currentState == "game"){
+		if(
+			lastDirection != currentDirection ||
+			lastThrust != currentThrust ||
+			lastFire != currentFire ||
+			force
+		){
+			message({type:"control", thrust:currentThrust, direction:currentDirection, fire:currentFire})
+			window.setTimeout(sendControl, 103)
+		}
+		else{
+			window.setTimeout(sendControl, 20)
+		}
+
+		lastDirection = currentDirection
+		lastThrust = currentThrust
+		lastFire = currentFire
+	}
 }
 
 Touch.callbacks.left = function(){
-	console.log("left")
-	airConsole.message(AirConsole.SCREEN, "l")
+	message({type:"menu", navi:"left"})
 }
 
 Touch.callbacks.right = function(){
-	console.log("right")
-	airConsole.message(AirConsole.SCREEN, "r")
+	message({type:"menu", navi:"right"})
 }
 
 Touch.callbacks.go = function(){
-	console.log("go")
-	airConsole.message(AirConsole.SCREEN, "g")
+	message({type:"menu", navi:"go"})
+}
+
+Touch.callbacks.startFiring = function(){
+	currentFire = true
+}
+
+Touch.callbacks.stopFiring = function(){
+	currentFire = false
 }
 
 Touch.callbacks.moveStick = function(mx, my){
 	var x = mx-dimensions.joyHomeX
 	var y = my-dimensions.joyHomeY
-	var rq = x*x + y*y
-	if(rq > dimensions.joyRange*dimensions.joyRange){
-		var r = Math.sqrt(rq)
-		x = x/r*dimensions.joyRange
-		y = y/r*dimensions.joyRange
+	var dir = Math.atan2(-y, x)
+	var r = Math.sqrt(x*x + y*y)/dimensions.joyRange
+
+	if(r < 0.01){
+		x = 0
+		y = 0
+		r = 0
+		dir = currentDirection
 	}
+	if(r > 1.0){
+		x = x/r
+		y = y/r
+		r = 1.0
+	}
+	currentDirection = dir
+	currentThrust = r
 	reposition("joystick", x + dimensions.joyRange, y + dimensions.joyRange)
 }
 
 Touch.callbacks.releaseStick = function(){
+	currentThrust = 0
 	reposition("joystick", dimensions.joyRange, dimensions.joyRange)
 }
 
-function steer(thrust, direction){
-	airConsole.message(AirConsole.SCREEN, ["s", thrust, direction])
+Touch.callbacks.moveLever = function(mx, my){
+	var x = mx-dimensions.joyHomeX
+	var y = my-dimensions.joyHomeY
+
+	if(x > dimensions.joyRange){x = dimensions.joyRange}
+	if(x < -dimensions.joyRange){x = -dimensions.joyRange}
+	if(y > dimensions.joyRange){y = dimensions.joyRange}
+	if(y < -dimensions.joyRange){y = -dimensions.joyRange}
+
+	currentSpin = x/dimensions.joyRange
+	currentThrust = (-y/dimensions.joyRange + 1.0)/2.0
+	reposition("lever", x + dimensions.joyRange, y + dimensions.joyRange)
 }
+
+Touch.callbacks.releaseLever = function(){
+	currentThrust = 0
+	currentSpin = 0
+	reposition("lever", dimensions.joyRange, dimensions.joyRange*2.0)
+}
+
+
+Touch.callbacks.changeController = function(){
+	var controllers = document.getElementsByClassName("controller")
+	activeController = (activeController + 1) % controllers.length
+	for(var i=0; i<controllers.length; i++){
+		controllers[i].style.display = "none"
+	}
+	controllers[activeController].style.display = "inline-block"
+}
+activeController = -1
+Touch.callbacks.changeController()
+
 
 window.onresize = function(){
 	dimensions.w = window.innerWidth
@@ -123,6 +230,12 @@ window.onresize = function(){
 	dimensions.joyDiam = dimensions.tile*0.4
 	dimensions.joyRange = (dimensions.tile - dimensions.joyDiam)*0.5
 	dimensions.triggerDiam = dimensions.tile*0.8
+
+	reposition("status",
+			(dimensions.w-dimensions.tile*0.9)*0.5,
+			(dimensions.h-dimensions.tile*0.9)*0.5,
+			dimensions.tile*0.9,
+			dimensions.tile*0.9)
 
 	reposition("joyarea",
 			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
@@ -139,11 +252,54 @@ window.onresize = function(){
 			(dimensions.h-dimensions.tile)*0.5,
 			dimensions.tile,
 			dimensions.tile)
+
+	reposition("leverarea",
+			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
+			dimensions.joyHomeY - dimensions.joyRange-dimensions.joyDiam*0.5,
+			dimensions.tile,
+			dimensions.tile)
+	reposition("lever",
+			dimensions.joyRange,
+			dimensions.joyRange*2.0,
+			dimensions.joyDiam,
+			dimensions.joyDiam)
+	reposition("levertrigger",
+			dimensions.w-dimensions.tile,
+			(dimensions.h-dimensions.tile)*0.5,
+			dimensions.tile,
+			dimensions.tile)
+
+	reposition("marbletrigger",
+			0,
+			0,
+			dimensions.w,
+			dimensions.h-dimensions.tile*0.21)
+
 	reposition("changecontroller",
 			dimensions.tile,
 			dimensions.h - dimensions.tile*0.2,
 			dimensions.tile,
 			dimensions.tile*0.2)
+
+
+	reposition("left",
+			0,
+			0,
+			dimensions.tile*0.9,
+			dimensions.h*0.75)
+
+	reposition("go",
+			(dimensions.w-dimensions.tile*0.9)*0.5,
+			0,
+			dimensions.tile*0.9,
+			dimensions.h*0.75)
+
+	reposition("right",
+			dimensions.w-dimensions.tile*0.9,
+			0,
+			dimensions.tile*0.9,
+			dimensions.h*0.75)
+
 }
 window.onresize()
 </script>
