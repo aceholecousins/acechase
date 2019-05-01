@@ -1,7 +1,7 @@
 <html>
 <head>
 
-<script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
+<script src="src/jslibs/airconsole-1.7.0.js"></script>
 <script src="src/utils/tools.js"></script>
 <script src="src/jslibs/rate-limiter.js"></script>
 <script src="src/controller/touch.js"></script>
@@ -33,7 +33,7 @@ body{
 	background-color:black;
 }
 .button{
-	box-shadow: 0px 0px 20px 10px white;
+	box-shadow: 0px 0px 5pt 3pt white;
 }
 </style>
 </head>
@@ -47,8 +47,8 @@ body{
 	<div id="go" class="button touchable" data-downcallback="go" style="background-color:var(--dark-color)"></div>
 	<div id="right" class="button touchable" data-downcallback="right" style="background-color:var(--dark-color)"></div>
 	<img id="palette" class="button"></img>
-	<div id="palettetouch" class="touchable" data-movecallback="changeColor"></div>
-	<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0px 0px 0px 5px black;"></div>
+	<div id="palettetouch" class="touchable" data-movecallback="touchPalette"></div>
+	<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0 0 0 2pt black;"></div>
 </div>
 
 <div class="tab" id="game">
@@ -77,7 +77,7 @@ body{
 	</div>
 
 	<div id="status"></div>
-	<div id="changecontroller" class="touchable" data-downcallback="changeController">Change Controller</div>
+	<div id="changecontroller" class="touchable" data-downcallback="changeController"></div>
 </div>
 
 <div id="log" style="left:0px; top:0px; width:100%; height:100%; font-size:24px; pointer-events:none; word-wrap:break-word; display:none"></div>
@@ -116,6 +116,7 @@ img.onload = function(){
 	paletteCanvas.width = 600;
 	paletteCanvas.height = 6;
 	paletteContext.drawImage(img, 0, 0, 600, 6);
+	changeColor()
 }
 img.src = "media/images/palette.png"
 
@@ -137,26 +138,6 @@ function toggleLog(){
 		logwindow.style.display = "none"
 	}
 }
-
-
-//var sweep = 0.1
-var sweep = 0.5
-
-setInterval(function(){
-	sweep-=0.01
-	if(sweep<0){sweep+=1}
-
-	document.getElementById("hullgrad1").offset.baseVal = 0.48+sweep*0.4
-	document.getElementById("hullgrad2").offset.baseVal = 0.48+sweep*0.4+0.015
-
-	document.getElementById("shieldgrad1").offset.baseVal = 0.77+sweep*0.23
-	document.getElementById("shieldgrad2").offset.baseVal = 0.77+sweep*0.23+0.02
-
-	document.getElementById("triggergrad1").offset.baseVal = 0.83-sweep*0.73
-	document.getElementById("triggergrad2").offset.baseVal = 0.83-sweep*0.73+0.03
-
-}, 10)
-
 
 Touch.init()
 
@@ -213,6 +194,20 @@ function init(){
 			currentThrust = r
 
 			sendControls()
+		}
+	}
+
+	airConsole.onMessage = function(device_id, data){
+		if(device_id == AirConsole.SCREEN){
+			if(data.hull != undefined){
+				Graphics.setHull(data.hull)
+			}
+			if(data.shield != undefined){
+				Graphics.setShield(data.shield)
+			}
+			if(data.ammo != undefined){
+				Graphics.setAmmo(data.ammo)
+			}
 		}
 	}
 
@@ -339,28 +334,33 @@ Touch.callbacks.changeController = function(){
 		controllers[i].style.display = "none"
 	}
 	controllers[activeController].style.display = "inline-block"
+	currentSpin = 0
+	currentThrust = 0
+	currentFire = 0
+	sendControls()
 }
 activeController = -1
 Touch.callbacks.changeController()
 
-Touch.callbacks.changeColor = function(x, y){
-
-	colorSliderPosition = (x-sizes.w*0.05)/(sizes.w*0.9)
-	if(colorSliderPosition<0){colorSliderPosition=0}
-	if(colorSliderPosition>1){colorSliderPosition=1}
-
-	reposition("colorslider",
-			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
-			sizes.h*0.79,
-			sizes.h*0.06,
-			sizes.h*0.12)
-
+function changeColor(){
 	var c = paletteContext.getImageData(Math.round(colorSliderPosition*599), 1, 1, 1).data;
 	var mainColorString = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"
 	var darkColorString = "rgb(" + c[0]/2 + "," + c[1]/2 + "," + c[2]/2 + ")"
 	document.getElementById("colorslider").style.backgroundColor = mainColorString
 	document.documentElement.style.setProperty('--main-color', mainColorString);
 	document.documentElement.style.setProperty('--dark-color', darkColorString);
+}
+
+Touch.callbacks.touchPalette = function(x, y){
+	colorSliderPosition = (x-sizes.w*0.05)/(sizes.w*0.9)
+	if(colorSliderPosition<0){colorSliderPosition=0}
+	if(colorSliderPosition>1){colorSliderPosition=1}
+	reposition("colorslider",
+			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
+			sizes.h*0.79,
+			sizes.h*0.06,
+			sizes.h*0.12)
+	changeColor()
 }
 
 window.onresize = function(){
