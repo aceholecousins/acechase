@@ -349,6 +349,7 @@ function changeColor(){
 	document.getElementById("colorslider").style.backgroundColor = mainColorString
 	document.documentElement.style.setProperty('--main-color', mainColorString);
 	document.documentElement.style.setProperty('--dark-color', darkColorString);
+	rateLimiter.setCustomDeviceStateProperty("color", {red:c[0], green:c[1], blue:c[2]});
 }
 
 Touch.callbacks.touchPalette = function(x, y){
