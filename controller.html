@@ -3,6 +3,7 @@
 
 <script src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
 <script src="src/utils/tools.js"></script>
+<script src="src/jslibs/rate-limiter.js"></script>
 <script src="src/controller/touch.js"></script>
 <script src="src/controller/graphics.js"></script>
 
@@ -43,7 +44,7 @@ body{
 <div class="tab" id="game">
 
 	<!-- joystick -->
-	<div class="controller">
+	<div class="controller" id="joystickcontroller">
 		<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
 			<div id="joystick" style="pointer-events:none"></div>
 		</div>
@@ -51,7 +52,7 @@ body{
 	</div>
 
 	<!-- thrust lever -->
-	<div class="controller">
+	<div class="controller" id="levercontroller">
 		<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
 			<div id="lever" style="pointer-events:none"></div>
 		</div>
@@ -59,7 +60,7 @@ body{
 	</div>
 
 	<!-- yoke -->
-	<div class="controller">
+	<div class="controller" id="yokecontroller">
 		<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 		<div id="yoketriggericon1" style="pointer-events:none"></div>
 		<div id="yoketriggericon2" style="pointer-events:none"></div>
@@ -69,39 +70,58 @@ body{
 	<div id="changecontroller" class="touchable" data-downcallback="changeController">Change Controller</div>
 </div>
 
+<div id="log" style="left:0px; top:0px; width:100%; height:100%; font-size:24px; pointer-events:none; word-wrap:break-word; display:none"></div>
+
+<div style="right:0px; bottom:0px; width:5%; height:10%; font-size:24px; color:#aaa" onclick="toggleLog()">Log</div>
+
 <script>
 
-var dimensions = {}
 var airConsole
-var activeController = 0
-var lastDirection = 0
-var lastThrust = 0
-var lastFire = false
-var currentDirection = 0
-var currentThrust = 0
-var currentFire = false
-var currentSpin = 0 // for lever control
-var currentState = "menu"
+var rateLimiter
 
-var spinUpdate = window.setInterval(function(){
-	if(document.getElementById("lever").style.display != "none"){
-		currentDirection += currentSpin * 0.1
-		if(currentDirection > Math.PI){currentDirection -= 2.0*Math.PI}
-		if(currentDirection < -Math.PI){currentDirection += 2.0*Math.PI}
-	}
-}, 10)
+var dimensions = {}
+var activeController = 0
+
+var lastDirection = undefined
+var lastSpin = undefined
+var lastThrust = undefined
+var lastFire = undefined
+var lastState = undefined
+
+var currentDirection = Math.random()*2*Math.PI - Math.PI
+var currentSpin = 0
+var currentThrust = 0
+var currentFire = 0
+var currentState = "menu"
 
 dimensions.w = 800
 dimensions.h = 600
+
+function log(txt){
+	var history = document.getElementById("log").innerHTML
+	var display = txt + "<br>" + history
+	display = display.substr(0, 4000)
+	document.getElementById("log").innerHTML = display
+}
+
+function toggleLog(){
+	var logwindow = document.getElementById("log")
+	if(logwindow.style.display == "none"){
+		logwindow.style.display = "inline-block"
+	}
+	else{
+		logwindow.style.display = "none"
+	}
+}
 
 Touch.init()
 
 function init(){
 	airConsole = new AirConsole({orientation: "landscape", device_motion:30})
+	rateLimiter = new RateLimiter(airConsole);
 
 	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
-		//document.getElementById("status").innerHTML = JSON.stringify(custom_data)
-		console.log(custom_data)
+		log(JSON.stringify(custom_data))
 
 		if(AirConsole.SCREEN == device_id){
 			if(custom_data == undefined){
@@ -120,26 +140,24 @@ function init(){
 			}
 			if(currentState == "game"){
 				document.getElementById("game").style.display = "inline-block"
-				sendControl(true)
 			}
 		}
 	}
-
 	airConsole.onCustomDeviceStateChange(AirConsole.SCREEN, airConsole.getCustomDeviceState(AirConsole.SCREEN))
 
 	airConsole.onDeviceMotion = function (data){
-		if(document.getElementById("yoketriggerarea").style.display != "none"){
+		if(currentState == "game" && document.getElementById("yokecontroller").style.display != "none"){
 			var x = data.beta/40.0
 			var y = (data.gamma+45.0)/40.0
 
 			var dir = Math.atan2(y, x)
-			var r = Math.sqrt(x*x + y*y)/dimensions.joyRange
+			var r = Math.sqrt(x*x + y*y)
 
 			if(r < 0.01){
 				x = 0
 				y = 0
 				r = 0
-				dir = currentDirection
+				dir = undefined
 			}
 			if(r > 1.0){
 				x = x/r
@@ -147,40 +165,49 @@ function init(){
 				r = 1.0
 			}
 			currentDirection = dir
+			currentSpin = undefined
 			currentThrust = r
 
+			sendControls()
 		}
 	}
 
-	Graphics.init()
-
 	window.onresize()
+
+	Graphics.init()
 }
 
 function message(msg){
-	console.log(msg)
-	airConsole.message(AirConsole.SCREEN, msg)
+	log(JSON.stringify(msg))
+	rateLimiter.message(AirConsole.SCREEN, msg)
 }
 
-function sendControl(force = false){
+function sendControls(){
 	if(currentState == "game"){
 		if(
 			lastDirection != currentDirection ||
+			lastSpin != currentSpin ||
 			lastThrust != currentThrust ||
 			lastFire != currentFire ||
-			force
+			lastState != currentState
 		){
-			message({type:"control", thrust:currentThrust, direction:currentDirection, fire:currentFire})
-			window.setTimeout(sendControl, 103)
-		}
-		else{
-			window.setTimeout(sendControl, 20)
-		}
+			var data = {type:"control", thrust:currentThrust, fire:currentFire}
+			if(currentDirection != undefined){
+				data.direction = currentDirection
+			}
+			if(currentSpin != undefined){
+				data.spin = currentSpin
+			}
+			message(data)
 
-		lastDirection = currentDirection
-		lastThrust = currentThrust
-		lastFire = currentFire
+			lastDirection = currentDirection
+			lastSpin = currentSpin
+			lastThrust = currentThrust
+			lastFire = currentFire
+		}
 	}
+
+	lastState = currentState
 }
 
 Touch.callbacks.left = function(){
@@ -196,11 +223,13 @@ Touch.callbacks.go = function(){
 }
 
 Touch.callbacks.startFiring = function(){
-	currentFire = true
+	currentFire = 1
+	sendControls()
 }
 
 Touch.callbacks.stopFiring = function(){
-	currentFire = false
+	currentFire = 0
+	sendControls()
 }
 
 Touch.callbacks.moveStick = function(mx, my){
@@ -214,20 +243,24 @@ Touch.callbacks.moveStick = function(mx, my){
 		x = 0
 		y = 0
 		r = 0
-		dir = currentDirection
+		dir = undefined
 	}
 	if(r > 1.0){
 		x = x/r
 		y = y/r
 		r = 1.0
 	}
+
 	currentDirection = dir
+	currentSpin = undefined
 	currentThrust = r
+	sendControls()
 	reposition("joystick", x + dimensions.joyRange, y + dimensions.joyRange)
 }
 
 Touch.callbacks.releaseStick = function(){
 	currentThrust = 0
+	sendControls()
 	reposition("joystick", dimensions.joyRange, dimensions.joyRange)
 }
 
@@ -240,14 +273,18 @@ Touch.callbacks.moveLever = function(mx, my){
 	if(y > dimensions.joyRange){y = dimensions.joyRange}
 	if(y < -dimensions.joyRange){y = -dimensions.joyRange}
 
+	currentDirection = undefined
 	currentSpin = x/dimensions.joyRange
 	currentThrust = (-y/dimensions.joyRange + 1.0)/2.0
+	sendControls()
 	reposition("lever", x + dimensions.joyRange, y + dimensions.joyRange)
 }
 
 Touch.callbacks.releaseLever = function(){
-	currentThrust = 0
+	currentDirection = undefined
 	currentSpin = 0
+	currentThrust = 0
+	sendControls()
 	reposition("lever", dimensions.joyRange, dimensions.joyRange*2.0)
 }
 
