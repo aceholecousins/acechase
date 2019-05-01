@@ -106,10 +106,18 @@ AirController.prototype.onMenuMessage = function (navi, eventSupport) {
 }
 
 AirController.prototype.onControllerMessage = function (data) {
-
 	this.fire = data.fire
 	this.thrust = data.thrust;
+	if(data.direction !== undefined) {
 	this.direction = data.direction;
+}
+	this.spin = data.spin;
+}
+
+AirController.prototype.update = function () {
+	if(this.spin !== undefined) {
+		this.direction += this.spin * 5.0 * DT;
+	}
 }
 
 //Inherits from Property
