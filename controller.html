@@ -112,6 +112,7 @@ sizes.h = 600
 var img = document.getElementById('palette');
 var paletteCanvas = document.createElement('canvas');
 var paletteContext = paletteCanvas.getContext('2d')
+
 img.onload = function(){
 	paletteCanvas.width = 600;
 	paletteCanvas.height = 6;
@@ -119,9 +120,9 @@ img.onload = function(){
 	changeColor()
 }
 
-function log(txt){
+function log(txt, color){
 	var history = document.getElementById("log").innerHTML
-	var display = txt + "<br>" + history
+	var display = "<span style='color:" + color + "'>" + txt + "</span><br>" + history
 	display = display.substr(0, 4000)
 	document.getElementById("log").innerHTML = display
 }
@@ -143,7 +144,7 @@ function init(){
 	rateLimiter = new RateLimiter(airConsole);
 
 	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
-		log(JSON.stringify(custom_data))
+		log(JSON.stringify(custom_data), 'orange')
 
 		if(AirConsole.SCREEN == device_id){
 			if(custom_data == undefined){
@@ -195,6 +196,7 @@ function init(){
 	}
 
 	airConsole.onMessage = function(device_id, data){
+		log(JSON.stringify(data), 'red')
 		if(device_id == AirConsole.SCREEN){
 			if(data.hull != undefined){
 				Graphics.setHull(data.hull)
@@ -216,7 +218,7 @@ function init(){
 }
 
 function message(msg){
-	log(JSON.stringify(msg))
+	log(JSON.stringify(msg), 'limegreen')
 	rateLimiter.message(AirConsole.SCREEN, msg)
 }
 
@@ -348,7 +350,9 @@ function changeColor(){
 	document.getElementById("colorslider").style.backgroundColor = mainColorString
 	document.documentElement.style.setProperty('--main-color', mainColorString);
 	document.documentElement.style.setProperty('--dark-color', darkColorString);
-	rateLimiter.setCustomDeviceStateProperty("color", {red:c[0], green:c[1], blue:c[2]});
+	var msg = {red:c[0], green:c[1], blue:c[2]}
+	log(JSON.stringify(msg), 'cyan')
+	rateLimiter.setCustomDeviceStateProperty("color", msg);
 }
 
 Touch.callbacks.touchPalette = function(x, y){
