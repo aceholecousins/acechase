@@ -8,6 +8,10 @@
 <script src="src/controller/graphics.js"></script>
 
 <style>
+:root {
+  --main-color: red;
+  --dark-color: darkred;
+}
 * {
 	margin: 0;
 	padding: 0;
@@ -16,7 +20,7 @@
 	font-family:sans-serif;
 	color:white;
 }
-div{
+div, img{
 	position:absolute;
 	display:inline-block;
 	/*background-color:yellow;*/
@@ -28,6 +32,9 @@ body{
 	overflow:hidden;
 	background-color:black;
 }
+.button{
+	box-shadow: 0px 0px 20px 10px white;
+}
 </style>
 </head>
 
@@ -36,9 +43,12 @@ body{
 <div id="svgdefs"></div>
 
 <div class="tab" id="menu">
-	<div id="left" class="touchable" data-downcallback="left" style="background-color:green">&lt;&lt;</div>
-	<div id="go" class="touchable" data-downcallback="go" style="background-color:green">GO!</div>
-	<div id="right" class="touchable" data-downcallback="right" style="background-color:green">&gt;&gt;</div>
+	<div id="left" class="button touchable" data-downcallback="left" style="background-color:var(--dark-color)"></div>
+	<div id="go" class="button touchable" data-downcallback="go" style="background-color:var(--dark-color)"></div>
+	<div id="right" class="button touchable" data-downcallback="right" style="background-color:var(--dark-color)"></div>
+	<img id="palette" class="button"></img>
+	<div id="palettetouch" class="touchable" data-movecallback="changeColor"></div>
+	<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0px 0px 0px 5px black;"></div>
 </div>
 
 <div class="tab" id="game">
@@ -79,7 +89,7 @@ body{
 var airConsole
 var rateLimiter
 
-var dimensions = {}
+var sizes = {}
 var activeController = 0
 
 var lastDirection = undefined
@@ -94,8 +104,22 @@ var currentThrust = 0
 var currentFire = 0
 var currentState = "menu"
 
-dimensions.w = 800
-dimensions.h = 600
+var colorSliderPosition = Math.random()
+
+sizes.w = 800
+sizes.h = 600
+
+var img = document.getElementById('palette');
+var paletteCanvas = document.createElement('canvas');
+var paletteContext = paletteCanvas.getContext('2d')
+img.onload = function(){
+	paletteCanvas.width = 600;
+	paletteCanvas.height = 6;
+	paletteContext.drawImage(img, 0, 0, 600, 6);
+}
+img.src = "media/images/palette.png"
+
+
 
 function log(txt){
 	var history = document.getElementById("log").innerHTML
@@ -113,6 +137,26 @@ function toggleLog(){
 		logwindow.style.display = "none"
 	}
 }
+
+
+//var sweep = 0.1
+var sweep = 0.5
+
+setInterval(function(){
+	sweep-=0.01
+	if(sweep<0){sweep+=1}
+
+	document.getElementById("hullgrad1").offset.baseVal = 0.48+sweep*0.4
+	document.getElementById("hullgrad2").offset.baseVal = 0.48+sweep*0.4+0.015
+
+	document.getElementById("shieldgrad1").offset.baseVal = 0.77+sweep*0.23
+	document.getElementById("shieldgrad2").offset.baseVal = 0.77+sweep*0.23+0.02
+
+	document.getElementById("triggergrad1").offset.baseVal = 0.83-sweep*0.73
+	document.getElementById("triggergrad2").offset.baseVal = 0.83-sweep*0.73+0.03
+
+}, 10)
+
 
 Touch.init()
 
@@ -233,11 +277,11 @@ Touch.callbacks.stopFiring = function(){
 }
 
 Touch.callbacks.moveStick = function(mx, my){
-	var x = mx-dimensions.joyHomeX
-	var y = my-dimensions.joyHomeY
+	var x = mx-sizes.joyHomeX
+	var y = my-sizes.joyHomeY
 
 	var dir = Math.atan2(-y, x)
-	var r = Math.sqrt(x*x + y*y)/dimensions.joyRange
+	var r = Math.sqrt(x*x + y*y)/sizes.joyRange
 
 	if(r < 0.01){
 		x = 0
@@ -255,29 +299,29 @@ Touch.callbacks.moveStick = function(mx, my){
 	currentSpin = undefined
 	currentThrust = r
 	sendControls()
-	reposition("joystick", x + dimensions.joyRange, y + dimensions.joyRange)
+	reposition("joystick", x + sizes.joyRange, y + sizes.joyRange)
 }
 
 Touch.callbacks.releaseStick = function(){
 	currentThrust = 0
 	sendControls()
-	reposition("joystick", dimensions.joyRange, dimensions.joyRange)
+	reposition("joystick", sizes.joyRange, sizes.joyRange)
 }
 
 Touch.callbacks.moveLever = function(mx, my){
-	var x = mx-dimensions.joyHomeX
-	var y = my-dimensions.joyHomeY
+	var x = mx-sizes.joyHomeX
+	var y = my-sizes.joyHomeY
 
-	if(x > dimensions.joyRange){x = dimensions.joyRange}
-	if(x < -dimensions.joyRange){x = -dimensions.joyRange}
-	if(y > dimensions.joyRange){y = dimensions.joyRange}
-	if(y < -dimensions.joyRange){y = -dimensions.joyRange}
+	if(x > sizes.joyRange){x = sizes.joyRange}
+	if(x < -sizes.joyRange){x = -sizes.joyRange}
+	if(y > sizes.joyRange){y = sizes.joyRange}
+	if(y < -sizes.joyRange){y = -sizes.joyRange}
 
 	currentDirection = undefined
-	currentSpin = x/dimensions.joyRange
-	currentThrust = (-y/dimensions.joyRange + 1.0)/2.0
+	currentSpin = -x/sizes.joyRange
+	currentThrust = (-y/sizes.joyRange + 1.0)/2.0
 	sendControls()
-	reposition("lever", x + dimensions.joyRange, y + dimensions.joyRange)
+	reposition("lever", x + sizes.joyRange, y + sizes.joyRange)
 }
 
 Touch.callbacks.releaseLever = function(){
@@ -285,7 +329,7 @@ Touch.callbacks.releaseLever = function(){
 	currentSpin = 0
 	currentThrust = 0
 	sendControls()
-	reposition("lever", dimensions.joyRange, dimensions.joyRange*2.0)
+	reposition("lever", sizes.joyRange, sizes.joyRange*2.0)
 }
 
 Touch.callbacks.changeController = function(){
@@ -299,96 +343,128 @@ Touch.callbacks.changeController = function(){
 activeController = -1
 Touch.callbacks.changeController()
 
+Touch.callbacks.changeColor = function(x, y){
+
+	colorSliderPosition = (x-sizes.w*0.05)/(sizes.w*0.9)
+	if(colorSliderPosition<0){colorSliderPosition=0}
+	if(colorSliderPosition>1){colorSliderPosition=1}
+
+	reposition("colorslider",
+			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
+			sizes.h*0.79,
+			sizes.h*0.06,
+			sizes.h*0.12)
+
+	var c = paletteContext.getImageData(Math.round(colorSliderPosition*599), 1, 1, 1).data;
+	var mainColorString = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"
+	var darkColorString = "rgb(" + c[0]/2 + "," + c[1]/2 + "," + c[2]/2 + ")"
+	document.getElementById("colorslider").style.backgroundColor = mainColorString
+	document.documentElement.style.setProperty('--main-color', mainColorString);
+	document.documentElement.style.setProperty('--dark-color', darkColorString);
+}
 
 window.onresize = function(){
-	dimensions.w = window.innerWidth
-	dimensions.h = window.innerHeight
+	sizes.w = window.innerWidth
+	sizes.h = window.innerHeight
 
-	dimensions.tile = Math.min(dimensions.w/3.0, dimensions.h)
-	dimensions.joyHomeX = dimensions.tile*0.5
-	dimensions.joyHomeY = dimensions.h*0.5
-	dimensions.joyDiam = dimensions.tile*0.4
-	dimensions.joyRange = (dimensions.tile - dimensions.joyDiam)*0.5
-	dimensions.triggerDiam = dimensions.tile*0.8
+	sizes.tile = Math.min(sizes.w/3.0, sizes.h)
+	sizes.joyHomeX = sizes.tile*0.5
+	sizes.joyHomeY = sizes.h*0.5
+	sizes.joyDiam = sizes.tile*0.4
+	sizes.joyRange = (sizes.tile - sizes.joyDiam)*0.5
+	sizes.triggerDiam = sizes.tile*0.8
 
 	reposition("status",
-			(dimensions.w-dimensions.tile*0.7)*0.5,
-			(dimensions.h-dimensions.tile*0.7)*0.4,
-			dimensions.tile*0.7,
-			dimensions.tile*0.7)
+			(sizes.w-sizes.tile*0.7)*0.5,
+			(sizes.h-sizes.tile*0.7)*0.4,
+			sizes.tile*0.7,
+			sizes.tile*0.7)
 
 	reposition("joyarea",
-			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
-			dimensions.joyHomeY - dimensions.joyRange-dimensions.joyDiam*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			sizes.joyHomeX - sizes.joyRange-sizes.joyDiam*0.5,
+			sizes.joyHomeY - sizes.joyRange-sizes.joyDiam*0.5,
+			sizes.tile,
+			sizes.tile)
 	reposition("joystick",
-			dimensions.joyRange,
-			dimensions.joyRange,
-			dimensions.joyDiam,
-			dimensions.joyDiam)
+			sizes.joyRange,
+			sizes.joyRange,
+			sizes.joyDiam,
+			sizes.joyDiam)
 	reposition("joytrigger",
-			dimensions.w-dimensions.tile,
-			(dimensions.h-dimensions.tile)*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			sizes.w-sizes.tile,
+			(sizes.h-sizes.tile)*0.5,
+			sizes.tile,
+			sizes.tile)
 
 	reposition("leverarea",
-			dimensions.joyHomeX - dimensions.joyRange-dimensions.joyDiam*0.5,
-			dimensions.joyHomeY - dimensions.joyRange-dimensions.joyDiam*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			sizes.joyHomeX - sizes.joyRange-sizes.joyDiam*0.5,
+			sizes.joyHomeY - sizes.joyRange-sizes.joyDiam*0.5,
+			sizes.tile,
+			sizes.tile)
 	reposition("lever",
-			dimensions.joyRange,
-			dimensions.joyRange*2.0,
-			dimensions.joyDiam,
-			dimensions.joyDiam)
+			sizes.joyRange,
+			sizes.joyRange*2.0,
+			sizes.joyDiam,
+			sizes.joyDiam)
 	reposition("levertrigger",
-			dimensions.w-dimensions.tile,
-			(dimensions.h-dimensions.tile)*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			sizes.w-sizes.tile,
+			(sizes.h-sizes.tile)*0.5,
+			sizes.tile,
+			sizes.tile)
 
 	reposition("yoketriggericon1",
 			0,
-			(dimensions.h-dimensions.tile)*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			(sizes.h-sizes.tile)*0.5,
+			sizes.tile,
+			sizes.tile)
 	reposition("yoketriggericon2",
-			dimensions.w-dimensions.tile,
-			(dimensions.h-dimensions.tile)*0.5,
-			dimensions.tile,
-			dimensions.tile)
+			sizes.w-sizes.tile,
+			(sizes.h-sizes.tile)*0.5,
+			sizes.tile,
+			sizes.tile)
 	reposition("yoketriggerarea",
 			0,
 			0,
-			dimensions.w,
-			dimensions.h)
+			sizes.w,
+			sizes.h)
 
 	reposition("changecontroller",
-			dimensions.w*0.4,
-			dimensions.h - dimensions.w*0.06,
-			dimensions.w*0.2,
-			dimensions.w*0.06)
+			sizes.w*0.4,
+			sizes.h - sizes.w*0.06,
+			sizes.w*0.2,
+			sizes.w*0.06)
 
 
 	reposition("left",
-			0,
-			0,
-			dimensions.tile*0.9,
-			dimensions.h*0.75)
-
+			0.05*sizes.w,
+			0.1*sizes.h,
+			0.25*sizes.w,
+			0.6*sizes.h)
 	reposition("go",
-			(dimensions.w-dimensions.tile*0.9)*0.5,
-			0,
-			dimensions.tile*0.9,
-			dimensions.h*0.75)
-
+			0.37*sizes.w,
+			0.1*sizes.h,
+			0.26*sizes.w,
+			0.6*sizes.h)
 	reposition("right",
-			dimensions.w-dimensions.tile*0.9,
-			0,
-			dimensions.tile*0.9,
-			dimensions.h*0.75)
+			0.7*sizes.w,
+			0.1*sizes.h,
+			0.25*sizes.w,
+			0.6*sizes.h)
+	reposition("palette",
+			sizes.w*0.05,
+			sizes.h*0.8,
+			sizes.w*0.9,
+			sizes.h*0.1)
+	reposition("palettetouch",
+			sizes.w*0.05,
+			sizes.h*0.8,
+			sizes.w*0.9,
+			sizes.h*0.1)
+	reposition("colorslider",
+			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
+			sizes.h*0.79,
+			sizes.h*0.06,
+			sizes.h*0.12)
 
 }
 
