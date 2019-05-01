@@ -35,7 +35,7 @@ function Hovercraft(color, control){
 	this.playerName = '';
 	this.hitpoints = new Property(0);
 	this.shield = new Property(0);
-	this.ammo = 0;
+	this.ammo = new Property(0);
 	this.radius = HOVER_RADIUS;
 	this.control = control;
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
@@ -157,7 +157,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 	this.deaths = 0;
 	this.hitpoints.set(HITPOINTS);
 	this.shield.set(SHIELD);
-	this.ammo = PHASER_AMMO;
+	this.ammo.set(PHASER_AMMO);
 	this.powerup = POWERUPS.nothing;
 	this.powerupLasts = 0;
 	this.fireReleased = false;
@@ -215,12 +215,13 @@ Hovercraft.prototype.update = function(){
 	}
 	this.body.updateMassProperties();
 
-	this.ammo += PHASER_REGEN*localdt;
-	if(this.powerup == POWERUPS.adrenaline){
-		this.ammo = PHASER_AMMO;
+	newAmmoValue = this.ammo.get() + PHASER_REGEN*localdt;
+	if(newAmmoValue > PHASER_AMMO || this.powerup == POWERUPS.adrenaline){
+		newAmmoValue = PHASER_AMMO;
 	}
-	if(this.ammo >= PHASER_AMMO){
-		this.ammo = PHASER_AMMO;
+	this.ammo.set(newAmmoValue); 
+
+	if(this.ammo.get() >= PHASER_AMMO){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = true;
 	}
 	else{
@@ -453,8 +454,10 @@ Hovercraft.prototype.shootPhaser = function(){
 		boost = ADRENALINE_BOOST;
 	}
 
-	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo > 2){ // can I fire already?
-		this.ammo -= 2;
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo.get() > 2){ // can I fire already?
+		if(this.powerup != POWERUPS.adrenaline) {
+			this.ammo.change(-2);
+		}		
 		var p;
 		var locktarget;
 
