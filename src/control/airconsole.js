@@ -124,14 +124,22 @@ AirProperty.prototype = Object.create(Property.prototype);
 AirProperty.prototype.constructor = AirProperty;
 
 AirProperty.prototype.set = function(value) {
-	oldValue = this.value;
-	Property.prototype.set.call(this, value);
+	//Trim old and new value in order to not send changes if trimmed values did not change.
+	trimmedOldValue = this.trim(this.value);
+	trimmedNewValue = this.trim(value);
 
-	if(value != oldValue) {
-		normalizedValue = this.value / this.maxValue;
-		normalizedValue = Math.max(0, Math.min(1, normalizedValue));
+	//Set un-trimmed value by intention
+	Property.prototype.set.call(this, value);
+	
+	if(trimmedNewValue != trimmedOldValue) {
+		normalizedValue = trimmedNewValue / this.maxValue;
+		
 		message = {};
 		message[this.stateKey] = normalizedValue;
 		AirControl.sendMessage(this.deviceId, message);
-	}	
+	}
+}
+
+AirProperty.prototype.trim = function(value) {
+	return Math.max(0, Math.min(this.maxValue, value));
 }

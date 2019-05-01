@@ -33,8 +33,8 @@ function Hovercraft(color, control){
 	this.hidden = false; // if the hovercraft is on the map and taking part in the game
 	this.color = color;
 	this.playerName = '';
-	this.hitpoints = new Property();
-	this.shield = 0;
+	this.hitpoints = new Property(0);
+	this.shield = new Property(0);
 	this.ammo = 0;
 	this.radius = HOVER_RADIUS;
 	this.control = control;
@@ -156,7 +156,7 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 	this.kills = 0;
 	this.deaths = 0;
 	this.hitpoints.set(HITPOINTS);
-	this.shield = SHIELD;
+	this.shield.set(SHIELD);
 	this.ammo = PHASER_AMMO;
 	this.powerup = POWERUPS.nothing;
 	this.powerupLasts = 0;
@@ -202,16 +202,14 @@ Hovercraft.prototype.update = function(){
 
 	var localdt = DT;
 	
-
-	this.shield += SHIELD_REGEN*localdt;
-	if(this.shield > SHIELD){this.shield = SHIELD;}
+	this.shield.set(Math.min(SHIELD, this.shield.get() + SHIELD_REGEN*localdt))
 	this.shieldMesh.material.opacity *= 0.98;
 	this.powershieldMesh.rotation.set(Math.random()*10000, Math.random()*10000, Math.random()*10000)
 	this.powershieldMesh.visible = false;
 	this.body.mass = HOVER_MASS;
 
 	if(this.powerup == POWERUPS.powershield){
-		this.shield = SHIELD;
+		this.shield.set(SHIELD);
 		this.powershieldMesh.visible = true;
 		this.body.mass = POWERSHIELD_MASS;
 	}
@@ -487,13 +485,13 @@ Hovercraft.prototype.hitBy = function(thing){
 	
 	if(GAME_MODE != "R" && this.powerup != POWERUPS.powershield){ // no damage during race or when powershield is on
 		if(thing.type == "phaser"){
-			this.shield -= 1;
+			this.shield.change(-1);
 		}
 		if(thing.type == "missile"){
-			this.shield -= MISSILE_DAMAGE;
+			this.shield.change(-MISSILE_DAMAGE);
 		}
 		if(thing.type == "seamine"){
-			this.shield -= SEAMINE_DAMAGE;
+			this.shield.change(-SEAMINE_DAMAGE);
 		}
 	}
 
@@ -511,13 +509,13 @@ Hovercraft.prototype.hitBy = function(thing){
 		}
 	}
 
-	if(this.shield<=0){
-		this.hitpoints.change(this.shield);
-		this.shield = 0;
+	if(this.shield.get()<=0){
+		this.hitpoints.change(this.shield.get());
+		this.shield.set(0);
 		this.shieldMesh.material.opacity = 0;
 	}
 	else{
-		this.shieldMesh.material.opacity = this.shield/SHIELD*0.5+0.5; // will be reduced by update before first render...
+		this.shieldMesh.material.opacity = this.shield.get()/SHIELD*0.5+0.5; // will be reduced by update before first render...
 	}
 
 	if(this.hitpoints.get() <= 0){

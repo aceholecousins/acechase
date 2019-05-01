@@ -121,6 +121,7 @@ function createHovercraftsFromAirControllers() {
 		let newHover = new Hovercraft(new THREE.Color("red"), controller);
 		newHover.playerName = controller.nickName;
 		newHover.hitpoints = new AirProperty(0, HITPOINTS, "hull", controller.device_id);
+		newHover.shield = new AirProperty(0, SHIELD, "shield", controller.device_id);
 		hovers.push(newHover);
 	});
 }
