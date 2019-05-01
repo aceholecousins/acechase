@@ -118,9 +118,6 @@ img.onload = function(){
 	paletteContext.drawImage(img, 0, 0, 600, 6);
 	changeColor()
 }
-img.src = "media/images/palette.png"
-
-
 
 function log(txt){
 	var history = document.getElementById("log").innerHTML
@@ -214,6 +211,8 @@ function init(){
 	window.onresize()
 
 	Graphics.init()
+
+	img.src = "media/images/palette.png" // this triggers canvas drawing and setCustomDeviceState so it should be done once those things are functional
 }
 
 function message(msg){
