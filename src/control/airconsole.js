@@ -14,9 +14,10 @@ AirControl = {};
 		airConsole.onConnect = onConnect;
 		airConsole.onDisconnect = onDisconnect;
 		airConsole.onMessage = onMessage;
+		airConsole.onCustomDeviceStateChange = onCustomDeviceStateChange;
 	}
 
-	context.getControllers = function() {
+	context.getControllers = function () {
 		return controllers;
 	}
 
@@ -31,11 +32,11 @@ AirControl = {};
 	context.addEventHandler = function (handler) {
 		eventSupport.addHandler(handler);
 	}
-	
+
 	context.removeEventHandler = function (handler) {
 		eventSupport.removeHandler(handler);
 	}
-	
+
 	onConnect = function (device_id) {
 		console.log("AirController.onConnect: " + device_id);
 
@@ -75,6 +76,15 @@ AirControl = {};
 			}
 		}
 	}
+
+	onCustomDeviceStateChange = function (device_id, data) {
+		//console.log("AirController.onCustomDeviceStateChange: " + device_id + ": ", data);
+		let controller = controllers.get(device_id);
+
+		if (controller !== undefined) {
+			controller.onStateChange(data);
+		}
+	}
 })(AirControl);
 
 
@@ -85,6 +95,7 @@ function AirController(device_id) {
 
 	this.device_id = device_id;
 	this.nickName = "No Name";
+	this.color = new THREE.Color('black');
 	this.connected = true;
 }
 
@@ -108,20 +119,28 @@ AirController.prototype.onMenuMessage = function (navi, eventSupport) {
 AirController.prototype.onControllerMessage = function (data) {
 	this.fire = data.fire
 	this.thrust = data.thrust;
-	if(data.direction !== undefined) {
-	this.direction = data.direction;
-}
+	if (data.direction !== undefined) {
+		this.direction = data.direction;
+	}
 	this.spin = data.spin;
 }
 
+AirController.prototype.onStateChange = function (data) {
+	const maxValue = 255;
+	let color = data.color;
+	if(color !== undefined) {
+		this.color = new THREE.Color(color.red / maxValue, color.green / maxValue, color.blue / maxValue);
+	}
+}
+
 AirController.prototype.update = function () {
-	if(this.spin !== undefined) {
+	if (this.spin !== undefined) {
 		this.direction += this.spin * 5.0 * DT;
 	}
 }
 
 //Inherits from Property
-AirProperty = function(value, maxValue, stateKey, deviceId) {
+AirProperty = function (value, maxValue, stateKey, deviceId) {
 	Property.call(this, value);
 	this.maxValue = maxValue;
 	this.stateKey = stateKey;
@@ -131,23 +150,23 @@ AirProperty = function(value, maxValue, stateKey, deviceId) {
 AirProperty.prototype = Object.create(Property.prototype);
 AirProperty.prototype.constructor = AirProperty;
 
-AirProperty.prototype.set = function(value) {
+AirProperty.prototype.set = function (value) {
 	//Trim old and new value in order to not send changes if trimmed values did not change.
 	trimmedOldValue = this.trim(this.value);
 	trimmedNewValue = this.trim(value);
 
 	//Set un-trimmed value by intention
 	Property.prototype.set.call(this, value);
-	
-	if(trimmedNewValue != trimmedOldValue) {
+
+	if (trimmedNewValue != trimmedOldValue) {
 		normalizedValue = trimmedNewValue / this.maxValue;
-		
+
 		message = {};
 		message[this.stateKey] = normalizedValue;
 		AirControl.sendMessage(this.deviceId, message);
 	}
 }
 
-AirProperty.prototype.trim = function(value) {
+AirProperty.prototype.trim = function (value) {
 	return Math.max(0, Math.min(this.maxValue, value));
 }
