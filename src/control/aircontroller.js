@@ -20,6 +20,12 @@ AirController.prototype.onConnect = function() {
 AirController.prototype.onDisconnect = function() {
 	console.log("AirController disconnected", this.device_id);
 	this.connected = false;
+
+	//Reset all control parameters except direction
+	this.thrust = 0;
+	this.spin = 0;
+	this.fire = false;
+	this.special = false;
 }
 
 AirController.prototype.onMenuMessage = function (navi, eventSupport) {
