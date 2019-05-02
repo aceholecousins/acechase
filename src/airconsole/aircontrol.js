@@ -51,21 +51,23 @@ var AirControl = {};
 			// if its a new device create a new controller instance
 			// But this is only allowed in menu
 			let newController = new AirController(device_id);
-			newController.nickName = airConsole.getNickname(device_id)
+			newController.nickName = airConsole.getNickname(device_id);
 			controllers.set(device_id, newController);
+			eventSupport.fireEvent({ type: "menu", value: "connected", controller: newController });
 		}
 	}
 
 	var onDisconnect = function (device_id) {
 		console.log("AirController.onDisconnect: " + device_id);
 
-		if(gameState == context.GAME_STATES.game) {
-			let controller = controllers.get(device_id);
-			if (controller !== undefined) {
+		let controller = controllers.get(device_id);
+		if (controller !== undefined) {
+			if(gameState == context.GAME_STATES.game) {
 				controller.onDisconnect();
-			}
-		} else {
-			controllers.delete(device_id);
+			} else {
+				controllers.delete(device_id);
+				eventSupport.fireEvent({ type: "menu", value: "disconnected", controller: controller });
+			}	
 		}
 	}
 

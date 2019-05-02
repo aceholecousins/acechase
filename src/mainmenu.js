@@ -1,72 +1,81 @@
 
 MainMenu = {};
-(function(context) {
+(function (context) {
 
     currentMapIndex = 0;
 
-    context.init = function() {
+    context.init = function () {
         console.log("init main menu");
         document.getElementById("mainmenu").style.visibility = "visible";
-        showMap(currentMapIndex); 
-        
+        showMap(currentMapIndex);
+
         AirControl.init();
         AirControl.addEventHandler(onControllerEvent);
     }
 
-    context.close = function() {
+    context.close = function () {
         AirControl.removeEventHandler(onControllerEvent);
         document.getElementById("mainmenu").style.visibility = "hidden";
         setParameters();
-    
+
         AirControl.setGameState(AirControl.GAME_STATES.game);
-    
+
         initGame();
     }
 
-    setParameters = function() {
+    setParameters = function () {
         const mapToUse = getMapForIndex(currentMapIndex);
         MAP = mapToUse.svg;
         GAME_MODE = mapToUse.gameMode;
         GAME_LEVEL = mapToUse.gameLevel;
     }
 
-    showMap = function(index) {
+    showMap = function (index) {
         left = getMapForIndex(index - 1);
         center = getMapForIndex(index);
         right = getMapForIndex(index + 1);
-    
+
         document.getElementById("leftmenuitem").src = left.thumbnail;
         document.getElementById("centermenuitem").src = center.thumbnail;
         document.getElementById("rightmenuitem").src = right.thumbnail;
-    
+
         document.getElementById("descriptionmenuitem").innerHTML = center.description;
     }
 
-    getMapForIndex = function(index) {
+    getMapForIndex = function (index) {
         i = index % GameMap.maps.length;
-        if(i < 0) {
+        if (i < 0) {
             i += GameMap.maps.length;
         }
         return GameMap.maps[i];
     }
 
-    onControllerEvent = function(event) {
+    onControllerEvent = function (event) {
+        console.log("MainMenu.onControllerEvent:", event);
         if(event.type == "menu") {
-            console.log("MainMenu.onControllerEvent: " + event.value + ", Device " + event.controller.device_id);
-            switch(event.value) {
+            switch (event.value) {
                 case "left":
-                currentMapIndex--;
-                showMap(currentMapIndex); 
-                break;
+                    currentMapIndex--;
+                    showMap(currentMapIndex);
+                    break;
                 case "right":
-                currentMapIndex++;
-                showMap(currentMapIndex); 
-                break;
+                    currentMapIndex++;
+                    showMap(currentMapIndex);
+                    break;
                 case "enter":
-                context.close();
-                break;
+                    context.close();
+                    break;
+                case "connected":
+                    console.log("Controller connected: ", event.controller);
+                    //TODO: Add information from event.controller to menu
+                    break;
+                case "disconnected":
+                    console.log("Controller disconnected: ", event.controller);
+                    //TODO: Add information from event.controller to menu
+                    break;
             }
+              
         }
     }
-})(MainMenu);
+}) (MainMenu);
 

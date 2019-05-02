@@ -45,8 +45,7 @@ var MUSIC_VOLUME = 0.2;
 var RESOLUTION = 1;
 
 var RESPAWN_TIME = 3;
-var ROUND_TIME = 40;
-var PAUSE_TIME = 10;
+var ROUND_TIME = 120;
 
 var TERRAIN_BUMP_MAPPING = false;
 var FANCY_WATER = true;
