@@ -69,14 +69,14 @@ MainMenu = {};
 					document.getElementById("avatarlist").innerHTML += `
 						<div id="avatarDiv_{DEVICEID}">
 							<table><tr><td>
-								<img id="avatarImg_{DEVICEID}" src="media/images/avatar.png" style="background-color:{COLOR}"></img>
+								<img id="avatarImg_{DEVICEID}" src="media/images/avatar.png" style="background-color:{COLOR}; width:50%"></img>
 							</td><td>
-								&nbsp;&nbsp;{NICK}
-							</td></tr></table><br>
+								{NICK}
+							</td></tr></table>
 						</div>`
 							.split("{DEVICEID}").join(event.controller.device_id)
 							.replace("{COLOR}", "#" + event.controller.color.getHexString())
-							.replace("{NICK}", event.controller.nickName)
+							.replace("{NICK}", event.controller.nickName.split(" ").join("&nbsp;"))
 					break;
 				case "disconnected":
 					document.getElementById("avatarDiv_" + event.controller.device_id).outerHTML = ""
