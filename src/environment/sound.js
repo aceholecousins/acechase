@@ -61,9 +61,6 @@ SOUNDTRACK_LIST = [
 	{file:'media/music/nutcracker.mp3',
 	 attr:'Sebastian Kreck - Nutcracker',
 	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
-	{file:'media/music/Life_lq.ogg',
-	 attr:'Sebastian Kreck - Life',
-	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
 	{file:'media/music/Facing_Your_Nemesis_lq.ogg',
 	 attr:'TeknoAXE - Facing Your Nemesis',
 	 link:'https://youtu.be/wewGsomVJNo'},
@@ -115,12 +112,12 @@ function loadNextSoundtrack(){
 }
 
 function manageSoundtrack(){
-	
+
 	if(!SOUNDTRACK_PLAYING && NEXT_SOUNDTRACK_READY){
 		nodes = playSound(NEXT_SOUNDTRACK_BUFFER, MUSIC_VOLUME, 1.0, false);
 		SOUNDTRACK_PLAYING = true;
 
-		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA; text-decoration:none; border-bottom: 1px solid gray;' target='_blank' href='" + 
+		ATTRIBUTION_DIV.innerHTML = "<a style='color:#EEFFAA; text-decoration:none; border-bottom: 1px solid gray;' target='_blank' href='" +
 			NEXT_SOUNDTRACK.link + "'>&sung; " + NEXT_SOUNDTRACK.attr + " &sung;</a>";
 		ATTRIBUTION_DIV.style.visibility = "visible";
 
@@ -160,4 +157,3 @@ ATTRIBUTION_DIV.style.fontFamily = "monospace";
 ATTRIBUTION_DIV.style.visibility = "hidden";
 
 document.body.appendChild(ATTRIBUTION_DIV)
-

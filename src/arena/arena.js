@@ -39,7 +39,7 @@ function monotex(r, g, b, a){ // 0..255
 function bump2nml(bumptex){
 	var texw = bumptex.image.width;
 	var texh = bumptex.image.height;
-	var nmlgen = new TextureGenerator(texw, texh, RENDERER, `
+	var nmlgen = new TextureGenerator(texw, texh, Scene.renderer, `
 		varying vec2 vUv;
 		uniform sampler2D tex;
 		uniform vec2 h;
@@ -226,7 +226,7 @@ function Arena(filename){
 					geom.vertices.push(new THREE.Vector3(poly[iil][0][0], poly[iil][0][1], 0.01));
 
 					var line = new THREE.Line(geom, mat);
-					GRAPHICS_SCENE.add(line);
+					Scene.graphicsScene.add(line);
 				}
 			}
 
@@ -256,7 +256,7 @@ function Arena(filename){
 							0.01));
 
 						var line = new THREE.Line(geom, mat);
-						GRAPHICS_SCENE.add(line);
+						Scene.graphicsScene.add(line);
 					}
 				}
 				body.inDistanceMap = true;
@@ -431,7 +431,7 @@ function Arena(filename){
 			});
 
 			this.mesh = new THREE.Mesh(geometry, material );
-			GRAPHICS_SCENE.add( this.mesh );			
+			Scene.graphicsScene.add( this.mesh );			
 
 			if(!TERRAIN_BUMP_MAPPING){ // prerender arena texture
 				var res = 2048;
@@ -440,10 +440,10 @@ function Arena(filename){
 				var cam = new THREE.OrthographicCamera( -MAP_WIDTH/2, MAP_WIDTH/2, MAP_HEIGHT/2, -MAP_HEIGHT/2, 1, 100 ); 
 				scn.add(new THREE.Mesh(geometry, material ));
 				cam.position.z = 50;
-				var sizeBefore = RENDERER.getSize();
-				RENDERER.setSize(res, res);
-				RENDERER.render( scn, cam, rentrg );
-				RENDERER.setSize(sizeBefore.width, sizeBefore.height);
+				var sizeBefore = Scene.renderer.getSize();
+				Scene.renderer.setSize(res, res);
+				Scene.renderer.render( scn, cam, rentrg );
+				Scene.renderer.setSize(sizeBefore.width, sizeBefore.height);
 				this.mesh.material = new THREE.MeshBasicMaterial({map:rentrg.texture});
 			}
 

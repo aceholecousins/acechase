@@ -46,11 +46,11 @@ function Target(pos, isMine, attractforce){ // powerup box class
 
 	if(!isMine){
 		this.type = 'target';
-		this.hitpoints = PUBOX_HITPOINTS;
+		this.hitpoints = new Property(PUBOX_HITPOINTS);
 	}
 	else{
 		this.type = 'bomb';
-		this.hitpoints = PUBOX_HITPOINTS/3;
+		this.hitpoints = new Property(PUBOX_HITPOINTS/3);
 		this.attractforce = attractforce;
 		mineSizeFactor = 2;
 	}
@@ -132,7 +132,7 @@ Target.prototype = Object.create(HBObject.prototype); // Target inherits from HB
 Target.prototype.constructor = Target;
 
 Target.prototype.shotBy = function(shooter){ // what happens on phaser impact
-	this.hitpoints--;
+	this.hitpoints.change(-1);
 	this.destroyedBy = shooter; // stores the last hover that hit this thing
 }
 
@@ -179,7 +179,7 @@ Target.prototype.specificUpdate=function(){
 	this.mesh.rotation.x = Math.sin(INGAME_TIME*this.oscillation[0])*0.4;
 	this.mesh.rotation.y = Math.sin(INGAME_TIME*this.oscillation[1])*0.4;
 
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		if(this.destroyedBy != null){
 			if(this.type == 'bomb'){
 				this.destroyedBy.mines++;

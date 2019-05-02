@@ -1,4 +1,3 @@
-var CFGVERSION = 1; // version of the config string pattern
 var SINGLEMULTI = 0; // 1 for single, 2 for multiplayer
 var MAP0 = ""; // selected singleplayer level
 var GAME0 = ""; // selected singleplayer game mode
@@ -249,7 +248,7 @@ function startgame(){
 	var url = window.location.href.replace("index.html", "");
 	while(url.slice(-1) == "/"){url = url.substring(0, url.length-1);}
 
-	url = url + "/game.html" + urltail;
+	url = url + "/screen.html" + urltail;
 	
 	GamepadManager.stop();
 	

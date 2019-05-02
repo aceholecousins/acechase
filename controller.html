@@ -1,0 +1,92 @@
+<html>
+<head>
+
+	<script src="src/jslibs/airconsole-1.7.0.js"></script>
+	<script src="src/utils/tools.js"></script>
+	<script src="src/jslibs/rate-limiter.js"></script>
+
+	<script src="src/controller/airconsoleinterface.js"></script>
+	<script src="src/controller/controllersvg.js"></script>
+	<script src="src/controller/controllertouchcallbacks.js"></script>
+	<script src="src/controller/touch.js"></script>
+	<script src="src/controller/controller.js"></script>
+
+	<style>
+	:root {
+	  --main-color: red;
+	  --dark-color: darkred;
+	}
+	* {
+		margin: 0;
+		padding: 0;
+		touch-action: none;
+		font-size:20pt;
+		font-family:sans-serif;
+		color:white;
+	}
+	div, img{
+		position:absolute;
+		display:inline-block;
+		/*background-color:yellow;*/
+	}
+	svg{
+		pointer-events:none;
+	}
+	body{
+		overflow:hidden;
+		background-color:black;
+	}
+	.button{
+		box-shadow: 0px 0px 5pt 3pt white;
+	}
+	</style>
+
+</head>
+<body onLoad="Controller.init()">
+
+	<div id="svgdefs"></div>
+
+	<div class="tab" id="menu">
+		<div id="left" class="button touchable" data-downcallback="menuLeft" style="background-color:var(--dark-color)"></div>
+		<div id="go" class="button touchable" data-downcallback="menuGo" style="background-color:var(--dark-color)"></div>
+		<div id="right" class="button touchable" data-downcallback="menuRight" style="background-color:var(--dark-color)"></div>
+		<img id="palette" class="button"></img>
+		<div id="palettetouch" class="touchable" data-movecallback="touchPalette"></div>
+		<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0 0 0 2pt black;"></div>
+	</div>
+
+	<div class="tab" id="game">
+
+		<!-- joystick -->
+		<div class="controller" id="joystickcontroller">
+			<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
+				<div id="joystick" style="pointer-events:none"></div>
+			</div>
+			<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+		</div>
+
+		<!-- thrust lever -->
+		<div class="controller" id="levercontroller">
+			<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
+				<div id="lever" style="pointer-events:none"></div>
+			</div>
+			<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+		</div>
+
+		<!-- yoke -->
+		<div class="controller" id="yokecontroller">
+			<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+			<div id="yoketriggericon1" style="pointer-events:none"></div>
+			<div id="yoketriggericon2" style="pointer-events:none"></div>
+		</div>
+
+		<div id="status"></div>
+		<div id="changecontroller" class="touchable" data-downcallback="changeController"></div>
+	</div>
+
+	<div id="log" style="left:0px; top:0px; width:100%; height:100%; font-size:24px; pointer-events:none; word-wrap:break-word; display:none"></div>
+
+	<div id="togglelog" style="right:0px; bottom:0px; width:5%; height:10%; font-size:18px; color:#aaa">Log</div>
+
+</body>
+</html>

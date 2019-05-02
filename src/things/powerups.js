@@ -48,7 +48,7 @@ function Pubox(pos, pu){ // powerup box class
 
 	this.type = 'pubox';
 	this.pu = pu;
-	this.hitpoints = PUBOX_HITPOINTS;
+	this.hitpoints = new Property(PUBOX_HITPOINTS);
 
 	// physics
 
@@ -116,7 +116,7 @@ Pubox.prototype = Object.create(HBObject.prototype); // Pubox inherits from HBOb
 Pubox.prototype.constructor = Pubox;
 
 Pubox.prototype.shot = function(damage = 1){ // what happens on phaser impact
-	this.hitpoints -= damage;
+	this.hitpoints.change(-damage);
 }
 
 Pubox.prototype.destroyed = function(){ // when collected or destroyed by phaser
@@ -140,7 +140,7 @@ Pubox.prototype.destroyed = function(){ // when collected or destroyed by phaser
 }
 
 Pubox.prototype.specificUpdate=function(){
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		this.destroyed();
 	}
 

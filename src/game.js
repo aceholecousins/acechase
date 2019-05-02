@@ -1,6 +1,4 @@
 
-var CFGVERSION = 1; // version of the config string pattern
-
 var PARAMS = location.hash;
 
 var GAME_PHASE; // S for pre start, G for... going... on, O for over, R for results, P for paused
@@ -9,29 +7,35 @@ var hovers=[];
 var ARENA;
 var SCORETABLE;
 var SCORETABLE_PROTECT = false;
-var NUM_PLAYERS = 0;
+
+var USING_AIR_CONSOLE = false;
 
 var STARTLINE, FINISHLINE;
 
-function init() {
+var LAST_TIMESTAMP;
+
+
+function initGame() {
+	document.getElementById("splashscreen").style.visibility = "visible";
 	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
 		+ "</b><br><br><i>loading...</i>";
-	
+
+	Scene.init();
+
 	ARENA = new Arena(MAP);
 	SCORETABLE = new ScoreTable();
-	
-	GRAPHICS_SCENE.add(SCORETABLE.plane);
+
+	Scene.graphicsScene.add(SCORETABLE.plane);
 	SCORETABLE.plane.visible = false;
-	
+
 	LOADING_LIST.setCallback(prepareGame);
 }
 
 function readParams() {
-	
+
 	if(PARAMS == ""){
-		PARAMS = "#hbcfgv:" + CFGVERSION
-			+ "debug:0;player:Dani,keyboard,pink;player:Mirko,mouse,lime;"
-			+ "player:Oli,gamepad1,red;player:Sebbi,gamepad2,yellow";
+		USING_AIR_CONSOLE = true;
+		return;
 	}
 	PARAMS = PARAMS.slice(1).split(';');
 	if(PARAMS[0] != 'hbcfgv:' + CFGVERSION){
@@ -50,7 +54,6 @@ function readParams() {
 			GAME_MODE = value[0];
 			if(key.length > 1){GAME_LEVEL = value[1];}
 		}
-		if(key == "player" || key == "player0"){NUM_PLAYERS++;} // players are read later
 		if(key == "hp"){HITPOINTS = value * 1;}
 		if(key == "shld"){SHIELD = value *1;}
 		if(key == "shldreg"){SHIELD_REGEN = value * 1;}
@@ -68,29 +71,33 @@ function readParams() {
 
 function prepareGame() {
 
-	if(GAME_MODE == "T" || GAME_MODE == "R"){ // race or time trial
+	if(GAME_MODE == "R"){ // race or time trial
 		STARTLINE = ASL.getline("startline");
 		FINISHLINE = ASL.getline("finishline");
 	}
 
-	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trials or race
-		SCORETABLE.prepare(NUM_PLAYERS+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
+	if(GAME_MODE == "R"){ // time trials or race
+		SCORETABLE.prepare( hovers.length+4, [1,1], [0.4,0.2,0.4], ["c", "c"]); // room for medal
 	}
 	else if(GAME_MODE == "D"){ // deathmatch
-		SCORETABLE.prepare(NUM_PLAYERS+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
+		SCORETABLE.prepare( hovers.length+2, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 	}
 	else if(GAME_MODE == "X"){ // shooting range
-		SCORETABLE.prepare(NUM_PLAYERS+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
+		SCORETABLE.prepare( hovers.length+4, [1,0.3,0.3,0.3], [0.2,0.1,0.1,0.1,0.2], ["c", "c", "c", "c"]);
 	}
 
-	createHovercraftsFromParams();
+	if(USING_AIR_CONSOLE) {
+		createHovercraftsFromAirControllers();
+	} else {
+		createHovercraftsFromParams();
+	}
 
 	if(isAtLeastOneMobileDevice()) {
 		console.log("At least one mobile device");
 		initMobileDevice();
 	} else {
 		start();
-	}				
+	}
 }
 
 function createHovercraftsFromParams() {
@@ -110,15 +117,26 @@ function createHovercraftsFromParams() {
 	}
 }
 
+function createHovercraftsFromAirControllers() {
+	AirControl.getControllers().forEach(function(controller) {
+		let newHover = new Hovercraft(controller.color, controller);
+		newHover.playerName = controller.nickName;
+		newHover.hitpoints = new VibratingAirProperty(0, HITPOINTS, "hull", controller.device_id);
+		newHover.shield = new AirProperty(0, SHIELD, "shield", controller.device_id);
+		newHover.ammo = new AirProperty(0, PHASER_AMMO, "ammo", controller.device_id);
+		hovers.push(newHover);
+	});
+}
+
 function isAtLeastOneMobileDevice() {
 	return hovers.findIndex(function (element, index, array) {
 		return element.control instanceof MobileDevice;
 	}) != -1;
-}			
+}
 
 function initMobileDevice() {
-	document.getElementById("splashscreentext").innerHTML = 
-			"Hold your device in desired initial position and touch screen!<br>" + 
+	document.getElementById("splashscreentext").innerHTML =
+			"Hold your device in desired initial position and touch screen!<br>" +
 			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>";
 	document.body.onclick = start;
 }
@@ -137,20 +155,44 @@ function start() {
 		document.body.onclick = null;
 		captureMobileDevicesInitialPosition();
 		ScreenControl.enterFullScreen();
-		ScreenControl.lockScreenToLandscape();					
+		ScreenControl.lockScreenToLandscape();
 	}
 
 	onWindowResize(); // call to initially adjust camera
 	document.getElementById("splashscreen").style.visibility = "hidden";
-	RENDERER.setClearColor( FOG_COLOR );	
+	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
-	gameloop();
+
+	//Start game animation
+	requestAnimationFrame(newAnimationFrame);
+}
+
+function newAnimationFrame(currentTimestamp) {
+
+	requestAnimationFrame(newAnimationFrame);
+
+	//For some reason when using the air-console simulator this method is called several
+	//times with the same time stamp. To deal with this we check for a change of the timestamp.
+	if(currentTimestamp > LAST_TIMESTAMP || LAST_TIMESTAMP === undefined) {
+		calculateCurrentDt(currentTimestamp);
+		gameloop();
+	}
+}
+
+function calculateCurrentDt(currentTimestamp) {
+	//In order to deal with changing framerate DT is adjusted to it.
+	if(LAST_TIMESTAMP !== undefined) {
+		DT = (currentTimestamp - LAST_TIMESTAMP) / 1000.0;
+		if(DT <= 0) {
+			//This should never happen.
+			console.error("DT <= 0: ", DT);
+		}
+	}
+	LAST_TIMESTAMP = currentTimestamp;
 }
 
 function gameloop() {
-
-	requestAnimationFrame( gameloop );
 
 	if(GAME_PHASE != "P"){ // not paused
 		updateIngameTimeouts(); // ingame timeouts also run during start and over phase (for triggering their end)
@@ -159,7 +201,7 @@ function gameloop() {
 
 		PHYSICS_WORLD.step(DT);
 
-		if((GAME_MODE == "T" || GAME_MODE == "R") && GAME_PHASE == "G"){ // time trial or race, ongoing
+		if(GAME_MODE == "R" && GAME_PHASE == "G"){ // time trial or race, ongoing
 
 			var allFinished = true;
 
@@ -174,7 +216,7 @@ function gameloop() {
 
 				if(finish.bool){ // crossed the finish line
 					hovers[i].finished = true;
-					hovers[i].hitpoints = 0; // explode
+					hovers[i].hitpoints.set(0); // explode
 					hovers[i].racetime += -DT + finish.s*DT; // subframe accuracy for time measurement!
 				}
 			}
@@ -191,7 +233,7 @@ function gameloop() {
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
-			if(continus > NUM_PLAYERS/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
+			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
 		}
 
 		THRUST_SOUND.gn.gain.value = 0.0;
@@ -205,7 +247,7 @@ function gameloop() {
 
 	}
 
-	RENDERER.render( GRAPHICS_SCENE, CAMERA );
+	Scene.renderer.render( Scene.graphicsScene, CAMERA );
 	if(DEBUG>=1){STATS.update()};
 
 	FRAME_COUNTER++;
@@ -217,71 +259,73 @@ function gameloop() {
 
 }
 
-
-
 function endRound(){ // display results
 
 	GAME_PHASE = "R";
 	SCORETABLE_PROTECT = true;
 	ingameTimeout(2, function(){SCORETABLE_PROTECT = false;}); // show scoretable for at least 2 seconds
+	
+	let numOfPlayers = hovers.length;
+	if(GAME_MODE == "R"){ 
+		if(hovers.length == 1) {// time trial
+			hovers.sort(function(a, b){return (a.racetime - b.racetime);});
+			// not sure if it is a good idea to shuffle this array, lets see
+			SCORETABLE.clear();
+			SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
+			SCORETABLE.line(["", ""], new THREE.Color("black"));
 
-	if(GAME_MODE == "T"){ // time trial
-		hovers.sort(function(a, b){return (a.racetime - b.racetime);});
-		// not sure if it is a good idea to shuffle this array, lets see
-		SCORETABLE.clear();
-		SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
-		SCORETABLE.line(["", ""], new THREE.Color("black"));
+			var highscore = 1e6;
 
-		var highscore = 1e6;
+			for(var i=0; i<hovers.length; i++){
+				SCORETABLE.line([hovers[i].playerName,
+						Math.floor(hovers[i].racetime/60) + ":"
+						+ pad(Math.floor(hovers[i].racetime%60),2) + "."
+						+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
+						hovers[i].color);
 
-		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
-					Math.floor(hovers[i].racetime/60) + ":"
-					+ pad(Math.floor(hovers[i].racetime%60),2) + "."
-					+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
-					hovers[i].color);
+				highscore = getCookie(MAP);
+				if(highscore == ""){highscore = 1e6;}
+				highscore *= 1; // string to numba
+				if(hovers[i].racetime < highscore){
+					setCookie(MAP, hovers[i].racetime + "", 3650); // +"" for numba 2 string
+					SCORETABLE.centeredLine("Highscore!", hovers[i].color);
+					highscore = hovers[i].racetime;
+				}
 
-			highscore = getCookie(MAP);
-			if(highscore == ""){highscore = 1e6;}
-			highscore *= 1; // string to numba
-			if(hovers[i].racetime < highscore){
-				setCookie(MAP, hovers[i].racetime + "", 3650); // +"" for numba 2 string
-				SCORETABLE.centeredLine("Highscore!", hovers[i].color);
-				highscore = hovers[i].racetime;
+				var award = medal(MAP, hovers[i].racetime);
+				if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
+				if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
+				if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
+				if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
+
 			}
 
-			var award = medal(MAP, hovers[i].racetime);
-			if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
-			if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
-			if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
-			if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
+			SCORETABLE.line(["Highscore",
+					Math.floor(highscore/60) + ":"
+					+ pad(Math.floor(highscore%60),2) + "."
+					+ pad(Math.round(1000*(highscore%1)),3)],
+					new THREE.Color("black"));
 
+			SCORETABLE.plane.visible = true;
+
+			// remove all players that are not connected
+			hovers = hovers.filter(h => !((h.control instanceof AirController) && !h.control.connected))
+		} else { // race
+			hovers.sort(function(a, b){return (a.racetime - b.racetime);});
+			// not sure if it is a good idea to shuffle this array, lets see
+			SCORETABLE.clear();
+			SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
+			SCORETABLE.line(["", ""], new THREE.Color("black"));
+
+			for(var i=0; i<hovers.length; i++){
+				SCORETABLE.line([hovers[i].playerName,
+						Math.floor(hovers[i].racetime/60) + ":"
+						+ pad(Math.floor(hovers[i].racetime%60),2) + "."
+						+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
+						hovers[i].color);
+			}
+			SCORETABLE.plane.visible = true;
 		}
-
-		SCORETABLE.line(["Highscore", 
-				Math.floor(highscore/60) + ":"
-				+ pad(Math.floor(highscore%60),2) + "."
-				+ pad(Math.round(1000*(highscore%1)),3)],
-				new THREE.Color("black"));
-
-		SCORETABLE.plane.visible = true;
-	}
-
-	if(GAME_MODE == "R"){ // race
-		hovers.sort(function(a, b){return (a.racetime - b.racetime);});
-		// not sure if it is a good idea to shuffle this array, lets see
-		SCORETABLE.clear();
-		SCORETABLE.line(["P L A Y E R", "T I M E"], new THREE.Color("black"));
-		SCORETABLE.line(["", ""], new THREE.Color("black"));
-
-		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
-					Math.floor(hovers[i].racetime/60) + ":"
-					+ pad(Math.floor(hovers[i].racetime%60),2) + "."
-					+ pad(Math.round(1000*(hovers[i].racetime%1)),3)],
-					hovers[i].color);
-		}
-		SCORETABLE.plane.visible = true;
 	}
 
 	else if(GAME_MODE == "D"){ // death match
@@ -292,62 +336,62 @@ function endRound(){ // display results
 		SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
 
 		for(var i=0; i<hovers.length; i++){
-			SCORETABLE.line([hovers[i].playerName, 
+			SCORETABLE.line([hovers[i].playerName,
 					Math.round((hovers[i].kills*1.1 - hovers[i].deaths)*10)/10, // prevents 1.100000000002
 					hovers[i].kills,
 					hovers[i].deaths],
-					hovers[i].color);			
+					hovers[i].color);
 		}
 		SCORETABLE.plane.visible = true;
 	}
 
-	if(GAME_MODE == "X" && NUM_PLAYERS == 1){ // shooting range, single player
+	if(GAME_MODE == "X"){ // shooting range
+		if(hovers.length == 1) { // single player
 
-		hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
-		SCORETABLE.clear();
-		SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
-		SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
+			hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
+			SCORETABLE.clear();
+			SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
+			SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
 
-		var highscore = 0;
+			var highscore = 0;
 
-		for(var i=0; i<hovers.length; i++){
-			var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
+			for(var i=0; i<hovers.length; i++){
+				var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
 
-			SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
+				SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
 
-			highscore = getCookie(MAP);
-			if(highscore == ""){highscore = 0;}
-			highscore *= 1; // string to numba
-			if(score > highscore){
-				setCookie(MAP, score + "", 3650); // +"" for numba 2 string
-				SCORETABLE.centeredLine("Highscore!", hovers[i].color);
-				highscore = score;
+				highscore = getCookie(MAP);
+				if(highscore == ""){highscore = 0;}
+				highscore *= 1; // string to numba
+				if(score > highscore){
+					setCookie(MAP, score + "", 3650); // +"" for numba 2 string
+					SCORETABLE.centeredLine("Highscore!", hovers[i].color);
+					highscore = score;
+				}
+
+				var award = medal(MAP, score);
+				if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
+				if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
+				if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
+				if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
+
 			}
 
-			var award = medal(MAP, score);
-			if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
-			if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
-			if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
-			if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
+			SCORETABLE.line(["Highscore", highscore, "", ""], new THREE.Color("black"));
+			SCORETABLE.plane.visible = true;
+		} else { // shooting range, multiplayer
 
+			hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
+			SCORETABLE.clear();
+			SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
+			SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
+
+			for(var i=0; i<hovers.length; i++){
+				var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
+				SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
+			}
+			SCORETABLE.plane.visible = true;
 		}
-
-		SCORETABLE.line(["Highscore", highscore, "", ""], new THREE.Color("black"));
-		SCORETABLE.plane.visible = true;
-	}
-
-	if(GAME_MODE == "X" && NUM_PLAYERS > 1){ // shooting range, multiplayer
-
-		hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
-		SCORETABLE.clear();
-		SCORETABLE.line(["P L A Y E R", " SCORE ", "TARGETS", " MINES "], new THREE.Color("black"));
-		SCORETABLE.line(["", "", "", ""], new THREE.Color("black"));
-
-		for(var i=0; i<hovers.length; i++){
-			var score = Math.round((hovers[i].targets - 0.9*hovers[i].mines)*10)/10; // prevents 1.100000000002
-			SCORETABLE.line([hovers[i].playerName, score, hovers[i].targets, hovers[i].mines], hovers[i].color);
-		}
-		SCORETABLE.plane.visible = true;
 	}
 }
 
@@ -356,7 +400,7 @@ function newRound(){
 
 	INGAME_TIME = 0;
 
-	SCORETABLE.plane.visible = false;				
+	SCORETABLE.plane.visible = false;
 
 	for(var i=0; i<hovers.length; i++){
 		hovers[i].initNewRound(i);
@@ -374,10 +418,9 @@ function newRound(){
 	}
 	NPUBOXES = 0;
 
-	DT = DT_ORIGINAL;
 	WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
-	updateAllHBObjects();				
+	updateAllHBObjects();
 
 	TIMEOUT_LIST = [];
 

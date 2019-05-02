@@ -27,7 +27,7 @@ function Missile(shooter){ // missile shot class, needs the HBObject of the shoo
 
 	this.type = 'missile';
 
-	this.hitpoints = MISSILE_HITPOINTS;
+	this.hitpoints = new Property(MISSILE_HITPOINTS);
 
 	this.lock = null;
 
@@ -72,7 +72,7 @@ Missile.prototype.constructor = Missile;
 
 Missile.prototype.specificUpdate = function(){
 
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		this.impact()
 	}
 

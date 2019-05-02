@@ -16,6 +16,8 @@
 				margin: 0px;
 				background-color: #000000;
 				overflow: hidden;
+				font-family:sans-serif;
+				font-size:24pt
 			}
 			td {
 				text-align: center;
@@ -24,22 +26,43 @@
 	</head>
 	<body>
 		<table id ="splashscreen" style="position:absolute;
-			top:20%; left:20%; width:60%; height:60%; zIndex:1000;">
-		<tr><td style="color:black; background-color:white; font-size:30pt; font-family:monospace; font-variant: small-caps;
+			top:20%; left:20%; width:60%; height:60%; zIndex:1000; visibility: hidden" >
+		<tr><td style="color:black; background-color:whites; font-size:30pt; font-family:monospace; font-variant: small-caps;
 			vertical-align:middle; text-align:center; padding:5%;
 			border-radius:15px 50px; background: url(media/images/quotebg.jpg);
 			-webkit-background-size: cover;	-moz-background-size: cover;
 			-o-background-size: cover; background-size: cover;">
 		<span id="splashscreentext"></span>
-		</td></tr></table>	
+		</td></tr></table>
 
-		<script src="config.js"></script> <!-- configuration file -->	
+		<table id="mainmenu" style="color:white; position:absolute; top:10%; left:10%; width:80%; height:80%; visibility:hidden">
+			<tr>
+				<td><img id="leftmenuitem" width="50%"></img></td>
+				<td><img id="centermenuitem" width="100%"></img></td>
+				<td><img id="rightmenuitem" width="50%"></img></td>
+				<td rowspan=2 width="3%"></td>
+				<td rowspan=2 width="20%">
+					<table id="avatartable"></table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" id="descriptionmenuitem"></td>
+			</tr>
+		</table>
+
+
+		<script src="config.js"></script> <!-- configuration file -->
+		<script src="src/utils/property.js"></script>
 		<script src="src/game.js"></script>
-		
+		<script src="src/gamemap.js">s</script>
+
 		<script>
 			readParams();
 		</script>
-		
+
+		<script src="src/jslibs/airconsole-1.7.0.js"></script> <!-- air console api -->
+		<script src="src/jslibs/rate-limiter.js"></script> <!-- rate limiter for air console -->
+
 		<script src="src/misc/quotes.js"></script> <!-- quotes to nicen loading time -->
 		<script src="src/jslibs/three.js"></script> <!-- WebGL wrapper, main framework (http://threejs.org) -->
 		<!--<script src="src/jslibs/math.min.js"></script>--> <!-- math functions (http://mathjs.org/) (SEEMS BUGGY)-->
@@ -56,6 +79,7 @@
 
 		<script src="src/utils/tools.js"></script>
 		<script src="src/utils/imglib.js"></script>
+		<script src="src/utils/eventsupport.js"></script>
 
 		<script src="src/environment/mechanics.js"></script>
 		<script src="src/environment/scene.js"></script>
@@ -67,14 +91,19 @@
 		<script src="src/fx/trail.js"></script>
 		<script src="src/fx/explosion.js"></script>
 		<script src="src/fx/flame.js"></script>
-		
+
 		<script src="src/control/screencontrol.js"></script>
         <script src="src/control/control.js"></script>
         <script src="src/control/mouse.js"></script>
         <script src="src/control/gamepad.js"></script>
-        <script src="src/control/keyboard.js"></script>                
-        <script src="src/control/mobiledevice.js"></script>
-		
+        <script src="src/control/keyboard.js"></script>
+		<script src="src/control/mobiledevice.js"></script>
+		<script src="src/control/aircontroller.js"></script>
+
+		<script src="src/airconsole/aircontrol.js"></script>
+		<script src="src/airconsole/airproperty.js"></script>
+		<script src="src/airconsole/vibratingairproperty.js"></script>
+
 		<script src="src/things/hovercraft.js"></script>
 		<script src="src/things/phaser.js"></script>
 		<script src="src/things/missile.js"></script>
@@ -87,10 +116,16 @@
 		<script src="src/arena/water.js"></script>
 
 		<script src="src/misc/scoretable.js"></script>
-		<script src="src/misc/medals.js"></script>		
-		
+		<script src="src/misc/medals.js"></script>
+		<script src="src/mainmenu.js">s</script>
+
 		<script type="text/javascript">
-			init();
+			if(USING_AIR_CONSOLE) {
+				MainMenu.init();
+			} else {
+				initGame();
+			}
+
 		</script>
 	</body>
 </html>

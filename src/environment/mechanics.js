@@ -38,8 +38,7 @@ if(DEBUG>=1){
 // LOGIC
 
 var FRAME_COUNTER = 0; // increased by 1 in every game step
-var DT = 1.0/60.0; // time between two frames // TODO: should adjust to screen framerate
-var DT_ORIGINAL = DT; // to restore DT after coffee
+var DT = 1.0/60.0; // time between two frames in seconds. Dynamically adjusts to screen framerate
 var COFFEE_STRETCH = 2.5;
 var INGAME_TIME = 0; // seconds since start of the current game
 
@@ -169,8 +168,8 @@ PHYSICS_WORLD.on('impact', function(event){
 	}
 	if(firstBody.HBO.type == "bomb" && secondBody.HBO.type == "hover"){
 		if(GAME_PHASE == "G"){
-			firstBody.HBO.hitpoints = 0;
-			secondBody.HBO.hitpoints = 0;
+			firstBody.HBO.hitpoints.set(0);
+			secondBody.HBO.hitpoints.set(0);
 			firstBody.HBO.destroyedBy = secondBody.HBO;
 		}
 	}
@@ -188,7 +187,7 @@ PHYSICS_WORLD.on('impact', function(event){
 		secondBody.HBO.wallhit();
 	}
 	if(firstBody.HBO.type == "missile" && secondBody.HBO.type == 'phaser'){
-		firstBody.HBO.hitpoints--;
+		firstBody.HBO.hitpoints.change(-1);
 	}
 	else{
 		if(firstBody.HBO.type == "missile"){

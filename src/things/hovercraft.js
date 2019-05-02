@@ -33,9 +33,9 @@ function Hovercraft(color, control){
 	this.hidden = false; // if the hovercraft is on the map and taking part in the game
 	this.color = color;
 	this.playerName = '';
-	this.hitpoints = 0;
-	this.shield = 0;
-	this.ammo = 0;
+	this.hitpoints = new Property(0);
+	this.shield = new Property(0);
+	this.ammo = new Property(0);
 	this.radius = HOVER_RADIUS;
 	this.control = control;
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
@@ -133,8 +133,8 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 
 	var startPos;
 
-	if(GAME_MODE == "T" || GAME_MODE == "R"){ // time trial or race: place players along start line
-		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(NUM_PLAYERS+1));
+	if(GAME_MODE == "R"){ // time trial or race: place players along start line
+		startPos = STARTLINE.p0.clone().lerp(STARTLINE.p1,(iPlayer+1)/(hovers.length+1));
 		this.control.direction = this.body.angle =
 			Math.atan2(STARTLINE.p1.y-STARTLINE.p0.y, STARTLINE.p1.x-STARTLINE.p0.x)+Math.PI/2;
 		this.racetime = 0;
@@ -155,9 +155,9 @@ Hovercraft.prototype.initNewRound = function (iPlayer) {
 
 	this.kills = 0;
 	this.deaths = 0;
-	this.hitpoints = HITPOINTS;
-	this.shield = SHIELD;
-	this.ammo = PHASER_AMMO;
+	this.hitpoints.set(HITPOINTS);
+	this.shield.set(SHIELD);
+	this.ammo.set(PHASER_AMMO);
 	this.powerup = POWERUPS.nothing;
 	this.powerupLasts = 0;
 	this.fireReleased = false;
@@ -202,27 +202,26 @@ Hovercraft.prototype.update = function(){
 
 	var localdt = DT;
 	
-
-	this.shield += SHIELD_REGEN*localdt;
-	if(this.shield > SHIELD){this.shield = SHIELD;}
+	this.shield.set(Math.min(SHIELD, this.shield.get() + SHIELD_REGEN*localdt))
 	this.shieldMesh.material.opacity *= 0.98;
 	this.powershieldMesh.rotation.set(Math.random()*10000, Math.random()*10000, Math.random()*10000)
 	this.powershieldMesh.visible = false;
 	this.body.mass = HOVER_MASS;
 
 	if(this.powerup == POWERUPS.powershield){
-		this.shield = SHIELD;
+		this.shield.set(SHIELD);
 		this.powershieldMesh.visible = true;
 		this.body.mass = POWERSHIELD_MASS;
 	}
 	this.body.updateMassProperties();
 
-	this.ammo += PHASER_REGEN*localdt;
-	if(this.powerup == POWERUPS.adrenaline){
-		this.ammo = PHASER_AMMO;
+	newAmmoValue = this.ammo.get() + PHASER_REGEN*localdt;
+	if(newAmmoValue > PHASER_AMMO || this.powerup == POWERUPS.adrenaline){
+		newAmmoValue = PHASER_AMMO;
 	}
-	if(this.ammo >= PHASER_AMMO){
-		this.ammo = PHASER_AMMO;
+	this.ammo.set(newAmmoValue); 
+
+	if(this.ammo.get() >= PHASER_AMMO){
 		this.phaserGlow1.visible = this.phaserGlow2.visible = true;
 	}
 	else{
@@ -238,7 +237,7 @@ Hovercraft.prototype.update = function(){
 	}
 
 	// smoke
-	if(Math.random() < Math.pow(1-this.hitpoints/HITPOINTS,1.7)*10*DT){
+	if(Math.random() < Math.pow(1-this.hitpoints.get()/HITPOINTS,1.7)*10*DT){
 		var effect = new Effect();
 		effect.type = 'smoke';
 		effect.mesh = SMOKE_MESH.clone();
@@ -261,7 +260,7 @@ Hovercraft.prototype.update = function(){
 	this.controlHover();
 
 	// explode and respawn after 3 seconds
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		explosion(this.mesh.position.clone(), this.color.clone());
 		playSound(SOUNDS.explosion, 1.4, 1.0, 0.0);
 		this.deaths++;
@@ -271,12 +270,8 @@ Hovercraft.prototype.update = function(){
 		//Sleep and wake up again in order to stop hover movement
 		this.body.sleep();
 		this.body.wakeUp();
-		
-		this.hitpoints = HITPOINTS;
-		this.shieldpoints = SHIELD;
-		this.powerup = POWERUPS.nothing;
 
-		if(GAME_MODE != "T" && GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
+		if(GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
 
 				var pos;
@@ -302,6 +297,10 @@ Hovercraft.prototype.update = function(){
 					}
 				}
 			
+				this.hitpoints.set(HITPOINTS);
+				this.shield.set(SHIELD);
+				this.powerup = POWERUPS.nothing;
+
 				this.body.position[0] = pos.x;
 				this.body.position[1] = pos.y;				
 				this.body.angle = Math.random()*2*Math.PI;				
@@ -428,13 +427,15 @@ Hovercraft.prototype.controlHover = function() {
 			}
 			else{ // phaser
 				// race or death match or shooting range ongoing?
-				if((GAME_MODE == "R" || GAME_MODE == "D" || GAME_MODE == "X") && GAME_PHASE == "G"){
-					this.shootPhaser();
-				}
-				else if(GAME_MODE == "T" && GAME_PHASE == "G"){ // time trial
-					this.hitpoints = 0; // explode
-					GAME_PHASE = "O"; // round over
-					ingameTimeout(1, function(){newRound();});
+				if(GAME_PHASE == "G")
+				{
+					if(GAME_MODE == "R" && hovers.length == 1) {
+						this.hitpoints.set(0); // explode
+						GAME_PHASE = "O"; // round over
+						ingameTimeout(1, function(){newRound();});
+					} else {
+						this.shootPhaser();
+					}
 				}
 			}
 			this.fireReleased = false;
@@ -453,8 +454,10 @@ Hovercraft.prototype.shootPhaser = function(){
 		boost = ADRENALINE_BOOST;
 	}
 
-	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo > 2){ // can I fire already?
-		this.ammo -= 2;
+	if(this.lastPhaserShot < INGAME_TIME - 1/PHASER_FIRE_RATE/boost && this.ammo.get() > 2){ // can I fire already?
+		if(this.powerup != POWERUPS.adrenaline) {
+			this.ammo.change(-2);
+		}		
 		var p;
 		var locktarget;
 
@@ -485,13 +488,13 @@ Hovercraft.prototype.hitBy = function(thing){
 	
 	if(GAME_MODE != "R" && this.powerup != POWERUPS.powershield){ // no damage during race or when powershield is on
 		if(thing.type == "phaser"){
-			this.shield -= 1;
+			this.shield.change(-1);
 		}
 		if(thing.type == "missile"){
-			this.shield -= MISSILE_DAMAGE;
+			this.shield.change(-MISSILE_DAMAGE);
 		}
 		if(thing.type == "seamine"){
-			this.shield -= SEAMINE_DAMAGE;
+			this.shield.change(-SEAMINE_DAMAGE);
 		}
 	}
 
@@ -504,21 +507,21 @@ Hovercraft.prototype.hitBy = function(thing){
 			this.body.velocity[1] -= dy/d*POWERSHIELD_BOUNCE_VELOCITY;
 
 			if(this.powerup != POWERUPS.powershield){
-				this.shield -= POWERSHIELD_DAMAGE;
+				this.shield.change(-POWERSHIELD_DAMAGE);
 			}
 		}
 	}
 
-	if(this.shield<=0){
-		this.hitpoints += this.shield;
-		this.shield = 0;
+	if(this.shield.get()<=0){
+		this.hitpoints.change(this.shield.get());
+		this.shield.set(0);
 		this.shieldMesh.material.opacity = 0;
 	}
 	else{
-		this.shieldMesh.material.opacity = this.shield/SHIELD*0.5+0.5; // will be reduced by update before first render...
+		this.shieldMesh.material.opacity = this.shield.get()/SHIELD*0.5+0.5; // will be reduced by update before first render...
 	}
 
-	if(this.hitpoints <= 0){
+	if(this.hitpoints.get() <= 0){
 		if(thing.type == "phaser" || thing.type == "missile" || thing.type == "seamine"){		
 			this.killedBy = thing.shooter;
 		}
@@ -529,7 +532,7 @@ Hovercraft.prototype.hitBy = function(thing){
 }
 
 Hovercraft.prototype.wallhit = function(){
-	if(GAME_MODE == "R" || GAME_MODE == "T"){ // penalty
+	if(GAME_MODE == "R"){ // penalty
 		this.body.velocity[0] *= 0.2;
 		this.body.velocity[1] *= 0.2;
 		effect = new Effect();
@@ -552,7 +555,7 @@ Hovercraft.prototype.wallhit = function(){
 Hovercraft.prototype.collect = function(pu){
 
 	if(pu == POWERUPS.repair){
-		this.hitpoints = HITPOINTS;	
+		this.hitpoints.set(HITPOINTS);	
 	}
 	else{
 		if(this.powerup == POWERUPS.nothing){

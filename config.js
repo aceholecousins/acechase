@@ -1,8 +1,9 @@
+var CFGVERSION = 2; // version of the config string pattern
 
-var GAME_MODE = "D"; // R for race, T for time trial, D for deathmatch, X for shooting range
+var GAME_MODE = "D"; // R for race or time trial (depending on num of players), D for deathmatch, X for shooting range
 var GAME_LEVEL = 0; // for different levels of the same game mode
 
-var MAP = 'maps/islandisle.svg';
+var MAP = 'maps/hackerland.svg';
 
 var HOVER_RADIUS = 0.4;
 var HOVER_THRUST = 17.0;
@@ -44,8 +45,7 @@ var MUSIC_VOLUME = 0.2;
 var RESOLUTION = 1;
 
 var RESPAWN_TIME = 3;
-var ROUND_TIME = 40;
-var PAUSE_TIME = 10;
+var ROUND_TIME = 60;
 
 var TERRAIN_BUMP_MAPPING = false;
 var FANCY_WATER = true;
