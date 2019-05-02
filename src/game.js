@@ -12,6 +12,7 @@ var USING_AIR_CONSOLE = false;
 
 var STARTLINE, FINISHLINE;
 
+var LAST_TIMESTAMP;
 
 
 function initGame() {
@@ -162,10 +163,12 @@ function start() {
 	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
-	gameloop();
+	gameloop(performance.now());
 }
 
-function gameloop() {
+function gameloop(currentTimestamp) {
+
+	calculateCurrentDt(currentTimestamp);
 
 	requestAnimationFrame( gameloop );
 
@@ -234,7 +237,12 @@ function gameloop() {
 
 }
 
-
+function calculateCurrentDt(currentTimestamp) {
+	if(LAST_TIMESTAMP !== undefined) {
+		DT = (currentTimestamp - LAST_TIMESTAMP) / 1000.0;
+	}
+	LAST_TIMESTAMP = currentTimestamp;
+}
 
 function endRound(){ // display results
 
@@ -395,7 +403,6 @@ function newRound(){
 	}
 	NPUBOXES = 0;
 
-	DT = DT_ORIGINAL;
 	WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
 	updateAllHBObjects();
