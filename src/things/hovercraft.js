@@ -507,7 +507,7 @@ Hovercraft.prototype.hitBy = function(thing){
 			this.body.velocity[1] -= dy/d*POWERSHIELD_BOUNCE_VELOCITY;
 
 			if(this.powerup != POWERUPS.powershield){
-				this.shield -= POWERSHIELD_DAMAGE;
+				this.shield.change(-POWERSHIELD_DAMAGE);
 			}
 		}
 	}
