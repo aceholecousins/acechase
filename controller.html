@@ -1,478 +1,92 @@
 <html>
 <head>
 
-<script src="src/jslibs/airconsole-1.7.0.js"></script>
-<script src="src/utils/tools.js"></script>
-<script src="src/jslibs/rate-limiter.js"></script>
-<script src="src/controller/touch.js"></script>
-<script src="src/controller/graphics.js"></script>
+	<script src="src/jslibs/airconsole-1.7.0.js"></script>
+	<script src="src/utils/tools.js"></script>
+	<script src="src/jslibs/rate-limiter.js"></script>
 
-<style>
-:root {
-  --main-color: red;
-  --dark-color: darkred;
-}
-* {
-	margin: 0;
-	padding: 0;
-	touch-action: none;
-	font-size:20pt;
-	font-family:sans-serif;
-	color:white;
-}
-div, img{
-	position:absolute;
-	display:inline-block;
-	/*background-color:yellow;*/
-}
-svg{
-	pointer-events:none;
-}
-body{
-	overflow:hidden;
-	background-color:black;
-}
-.button{
-	box-shadow: 0px 0px 5pt 3pt white;
-}
-</style>
+	<script src="src/controller/airconsoleinterface.js"></script>
+	<script src="src/controller/controllersvg.js"></script>
+	<script src="src/controller/controllertouchcallbacks.js"></script>
+	<script src="src/controller/touch.js"></script>
+	<script src="src/controller/controller.js"></script>
+
+	<style>
+	:root {
+	  --main-color: red;
+	  --dark-color: darkred;
+	}
+	* {
+		margin: 0;
+		padding: 0;
+		touch-action: none;
+		font-size:20pt;
+		font-family:sans-serif;
+		color:white;
+	}
+	div, img{
+		position:absolute;
+		display:inline-block;
+		/*background-color:yellow;*/
+	}
+	svg{
+		pointer-events:none;
+	}
+	body{
+		overflow:hidden;
+		background-color:black;
+	}
+	.button{
+		box-shadow: 0px 0px 5pt 3pt white;
+	}
+	</style>
+
 </head>
+<body onLoad="Controller.init()">
 
-<body onLoad="init()">
+	<div id="svgdefs"></div>
 
-<div id="svgdefs"></div>
+	<div class="tab" id="menu">
+		<div id="left" class="button touchable" data-downcallback="menuLeft" style="background-color:var(--dark-color)"></div>
+		<div id="go" class="button touchable" data-downcallback="menuGo" style="background-color:var(--dark-color)"></div>
+		<div id="right" class="button touchable" data-downcallback="menuRight" style="background-color:var(--dark-color)"></div>
+		<img id="palette" class="button"></img>
+		<div id="palettetouch" class="touchable" data-movecallback="touchPalette"></div>
+		<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0 0 0 2pt black;"></div>
+	</div>
 
-<div class="tab" id="menu">
-	<div id="left" class="button touchable" data-downcallback="left" style="background-color:var(--dark-color)"></div>
-	<div id="go" class="button touchable" data-downcallback="go" style="background-color:var(--dark-color)"></div>
-	<div id="right" class="button touchable" data-downcallback="right" style="background-color:var(--dark-color)"></div>
-	<img id="palette" class="button"></img>
-	<div id="palettetouch" class="touchable" data-movecallback="touchPalette"></div>
-	<div id="colorslider" style="pointer-events:none; background-color:blue; box-shadow: 0 0 0 2pt black;"></div>
-</div>
+	<div class="tab" id="game">
 
-<div class="tab" id="game">
-
-	<!-- joystick -->
-	<div class="controller" id="joystickcontroller">
-		<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
-			<div id="joystick" style="pointer-events:none"></div>
+		<!-- joystick -->
+		<div class="controller" id="joystickcontroller">
+			<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
+				<div id="joystick" style="pointer-events:none"></div>
+			</div>
+			<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 		</div>
-		<div id="joytrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-	</div>
 
-	<!-- thrust lever -->
-	<div class="controller" id="levercontroller">
-		<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
-			<div id="lever" style="pointer-events:none"></div>
+		<!-- thrust lever -->
+		<div class="controller" id="levercontroller">
+			<div id="leverarea" class="touchable" data-movecallback="moveLever" data-upcallback="releaseLever">
+				<div id="lever" style="pointer-events:none"></div>
+			</div>
+			<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
 		</div>
-		<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+
+		<!-- yoke -->
+		<div class="controller" id="yokecontroller">
+			<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+			<div id="yoketriggericon1" style="pointer-events:none"></div>
+			<div id="yoketriggericon2" style="pointer-events:none"></div>
+		</div>
+
+		<div id="status"></div>
+		<div id="changecontroller" class="touchable" data-downcallback="changeController"></div>
 	</div>
 
-	<!-- yoke -->
-	<div class="controller" id="yokecontroller">
-		<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-		<div id="yoketriggericon1" style="pointer-events:none"></div>
-		<div id="yoketriggericon2" style="pointer-events:none"></div>
-	</div>
+	<div id="log" style="left:0px; top:0px; width:100%; height:100%; font-size:24px; pointer-events:none; word-wrap:break-word; display:none"></div>
 
-	<div id="status"></div>
-	<div id="changecontroller" class="touchable" data-downcallback="changeController"></div>
-</div>
-
-<div id="log" style="left:0px; top:0px; width:100%; height:100%; font-size:24px; pointer-events:none; word-wrap:break-word; display:none"></div>
-
-<div style="right:0px; bottom:0px; width:5%; height:10%; font-size:24px; color:#aaa" onclick="toggleLog()">Log</div>
-
-<script>
-
-var airConsole
-var rateLimiter
-
-var sizes = {}
-var activeController = 0
-
-var lastDirection = undefined
-var lastSpin = undefined
-var lastThrust = undefined
-var lastFire = undefined
-var lastState = undefined
-
-var currentDirection = Math.random()*2*Math.PI - Math.PI
-var currentSpin = 0
-var currentThrust = 0
-var currentFire = 0
-var currentState = "menu"
-
-var colorSliderPosition = Math.random()
-
-sizes.w = 800
-sizes.h = 600
-
-var img = document.getElementById('palette');
-var paletteCanvas = document.createElement('canvas');
-var paletteContext = paletteCanvas.getContext('2d')
-
-img.onload = function(){
-	paletteCanvas.width = 600;
-	paletteCanvas.height = 6;
-	paletteContext.drawImage(img, 0, 0, 600, 6);
-	changeColor()
-}
-
-function log(txt, color){
-	var history = document.getElementById("log").innerHTML
-	var display = "<span style='color:" + color + "'>" + txt + "</span><br>" + history
-	display = display.substr(0, 4000)
-	document.getElementById("log").innerHTML = display
-}
-
-function toggleLog(){
-	var logwindow = document.getElementById("log")
-	if(logwindow.style.display == "none"){
-		logwindow.style.display = "inline-block"
-	}
-	else{
-		logwindow.style.display = "none"
-	}
-}
-
-Touch.init()
-
-function init(){
-	airConsole = new AirConsole({orientation: "landscape", device_motion:30})
-	rateLimiter = new RateLimiter(airConsole);
-
-	airConsole.onCustomDeviceStateChange = function(device_id, custom_data){
-		log(JSON.stringify(custom_data), 'orange')
-
-		if(AirConsole.SCREEN == device_id){
-			if(custom_data == undefined){
-				currentState = "menu"
-			}
-			else{
-				currentState = custom_data.state
-			}
-
-			var tabs = document.getElementsByClassName("tab")
-			for(var i=0; i<tabs.length; i++){
-				tabs[i].style.display = "none"
-			}
-			if(currentState == "menu"){
-				document.getElementById("menu").style.display = "inline-block"
-			}
-			if(currentState == "game"){
-				document.getElementById("game").style.display = "inline-block"
-			}
-		}
-	}
-	airConsole.onCustomDeviceStateChange(AirConsole.SCREEN, airConsole.getCustomDeviceState(AirConsole.SCREEN))
-
-	airConsole.onDeviceMotion = function (data){
-		if(currentState == "game" && document.getElementById("yokecontroller").style.display != "none"){
-			var x = data.beta/40.0
-			var y = (data.gamma+45.0)/40.0
-
-			var dir = Math.atan2(y, x)
-			var r = Math.sqrt(x*x + y*y)
-
-			if(r < 0.01){
-				x = 0
-				y = 0
-				r = 0
-				dir = undefined
-			}
-			if(r > 1.0){
-				x = x/r
-				y = y/r
-				r = 1.0
-			}
-			currentDirection = dir
-			currentSpin = undefined
-			currentThrust = r
-
-			sendControls()
-		}
-	}
-
-	airConsole.onMessage = function(device_id, data){
-		log(JSON.stringify(data), 'red')
-		if(device_id == AirConsole.SCREEN){
-			if(data.hull != undefined){
-				Graphics.setHull(data.hull)
-			}
-			if(data.shield != undefined){
-				Graphics.setShield(data.shield)
-			}
-			if(data.ammo != undefined){
-				Graphics.setAmmo(data.ammo)
-			}
-		}
-	}
-
-	window.onresize()
-
-	Graphics.init()
-
-	img.src = "media/images/palette.png" // this triggers canvas drawing and setCustomDeviceState so it should be done once those things are functional
-}
-
-function message(msg){
-	log(JSON.stringify(msg), 'limegreen')
-	rateLimiter.message(AirConsole.SCREEN, msg)
-}
-
-function sendControls(){
-	if(currentState == "game"){
-		if(
-			lastDirection != currentDirection ||
-			lastSpin != currentSpin ||
-			lastThrust != currentThrust ||
-			lastFire != currentFire ||
-			lastState != currentState
-		){
-			var data = {type:"control", thrust:currentThrust, fire:currentFire}
-			if(currentDirection != undefined){
-				data.direction = currentDirection
-			}
-			if(currentSpin != undefined){
-				data.spin = currentSpin
-			}
-			message(data)
-
-			lastDirection = currentDirection
-			lastSpin = currentSpin
-			lastThrust = currentThrust
-			lastFire = currentFire
-		}
-	}
-
-	lastState = currentState
-}
-
-Touch.callbacks.left = function(){
-	message({type:"menu", navi:"left"})
-}
-
-Touch.callbacks.right = function(){
-	message({type:"menu", navi:"right"})
-}
-
-Touch.callbacks.go = function(){
-	message({type:"menu", navi:"go"})
-}
-
-Touch.callbacks.startFiring = function(){
-	currentFire = 1
-	sendControls()
-}
-
-Touch.callbacks.stopFiring = function(){
-	currentFire = 0
-	sendControls()
-}
-
-Touch.callbacks.moveStick = function(mx, my){
-	var x = mx-sizes.joyHomeX
-	var y = my-sizes.joyHomeY
-
-	var dir = Math.atan2(-y, x)
-	var r = Math.sqrt(x*x + y*y)/sizes.joyRange
-
-	if(r < 0.01){
-		x = 0
-		y = 0
-		r = 0
-		dir = undefined
-	}
-	if(r > 1.0){
-		x = x/r
-		y = y/r
-		r = 1.0
-	}
-
-	currentDirection = dir
-	currentSpin = undefined
-	currentThrust = r
-	sendControls()
-	reposition("joystick", x + sizes.joyRange, y + sizes.joyRange)
-}
-
-Touch.callbacks.releaseStick = function(){
-	currentThrust = 0
-	sendControls()
-	reposition("joystick", sizes.joyRange, sizes.joyRange)
-}
-
-Touch.callbacks.moveLever = function(mx, my){
-	var x = mx-sizes.joyHomeX
-	var y = my-sizes.joyHomeY
-
-	if(x > sizes.joyRange){x = sizes.joyRange}
-	if(x < -sizes.joyRange){x = -sizes.joyRange}
-	if(y > sizes.joyRange){y = sizes.joyRange}
-	if(y < -sizes.joyRange){y = -sizes.joyRange}
-
-	currentDirection = undefined
-	currentSpin = -x/sizes.joyRange
-	currentThrust = (-y/sizes.joyRange + 1.0)/2.0
-	sendControls()
-	reposition("lever", x + sizes.joyRange, y + sizes.joyRange)
-}
-
-Touch.callbacks.releaseLever = function(){
-	currentDirection = undefined
-	currentSpin = 0
-	currentThrust = 0
-	sendControls()
-	reposition("lever", sizes.joyRange, sizes.joyRange*2.0)
-}
-
-Touch.callbacks.changeController = function(){
-	var controllers = document.getElementsByClassName("controller")
-	activeController = (activeController + 1) % controllers.length
-	for(var i=0; i<controllers.length; i++){
-		controllers[i].style.display = "none"
-	}
-	controllers[activeController].style.display = "inline-block"
-	currentSpin = 0
-	currentThrust = 0
-	currentFire = 0
-	sendControls()
-}
-activeController = -1
-Touch.callbacks.changeController()
-
-function changeColor(){
-	var c = paletteContext.getImageData(Math.round(colorSliderPosition*599), 1, 1, 1).data;
-	var mainColorString = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"
-	var darkColorString = "rgb(" + c[0]/2 + "," + c[1]/2 + "," + c[2]/2 + ")"
-	document.getElementById("colorslider").style.backgroundColor = mainColorString
-	document.documentElement.style.setProperty('--main-color', mainColorString);
-	document.documentElement.style.setProperty('--dark-color', darkColorString);
-	var msg = {red:c[0], green:c[1], blue:c[2]}
-	log(JSON.stringify(msg), 'cyan')
-	rateLimiter.setCustomDeviceStateProperty("color", msg);
-}
-
-Touch.callbacks.touchPalette = function(x, y){
-	colorSliderPosition = (x-sizes.w*0.05)/(sizes.w*0.9)
-	if(colorSliderPosition<0){colorSliderPosition=0}
-	if(colorSliderPosition>1){colorSliderPosition=1}
-	reposition("colorslider",
-			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
-			sizes.h*0.79,
-			sizes.h*0.06,
-			sizes.h*0.12)
-	changeColor()
-}
-
-window.onresize = function(){
-	sizes.w = window.innerWidth
-	sizes.h = window.innerHeight
-
-	sizes.tile = Math.min(sizes.w/3.0, sizes.h)
-	sizes.joyHomeX = sizes.tile*0.5
-	sizes.joyHomeY = sizes.h*0.5
-	sizes.joyDiam = sizes.tile*0.4
-	sizes.joyRange = (sizes.tile - sizes.joyDiam)*0.5
-	sizes.triggerDiam = sizes.tile*0.8
-
-	reposition("status",
-			(sizes.w-sizes.tile*0.7)*0.5,
-			(sizes.h-sizes.tile*0.7)*0.4,
-			sizes.tile*0.7,
-			sizes.tile*0.7)
-
-	reposition("joyarea",
-			sizes.joyHomeX - sizes.joyRange-sizes.joyDiam*0.5,
-			sizes.joyHomeY - sizes.joyRange-sizes.joyDiam*0.5,
-			sizes.tile,
-			sizes.tile)
-	reposition("joystick",
-			sizes.joyRange,
-			sizes.joyRange,
-			sizes.joyDiam,
-			sizes.joyDiam)
-	reposition("joytrigger",
-			sizes.w-sizes.tile,
-			(sizes.h-sizes.tile)*0.5,
-			sizes.tile,
-			sizes.tile)
-
-	reposition("leverarea",
-			sizes.joyHomeX - sizes.joyRange-sizes.joyDiam*0.5,
-			sizes.joyHomeY - sizes.joyRange-sizes.joyDiam*0.5,
-			sizes.tile,
-			sizes.tile)
-	reposition("lever",
-			sizes.joyRange,
-			sizes.joyRange*2.0,
-			sizes.joyDiam,
-			sizes.joyDiam)
-	reposition("levertrigger",
-			sizes.w-sizes.tile,
-			(sizes.h-sizes.tile)*0.5,
-			sizes.tile,
-			sizes.tile)
-
-	reposition("yoketriggericon1",
-			0,
-			(sizes.h-sizes.tile)*0.5,
-			sizes.tile,
-			sizes.tile)
-	reposition("yoketriggericon2",
-			sizes.w-sizes.tile,
-			(sizes.h-sizes.tile)*0.5,
-			sizes.tile,
-			sizes.tile)
-	reposition("yoketriggerarea",
-			0,
-			0,
-			sizes.w,
-			sizes.h)
-
-	reposition("changecontroller",
-			sizes.w*0.4,
-			sizes.h - sizes.w*0.06,
-			sizes.w*0.2,
-			sizes.w*0.06)
-
-
-	reposition("left",
-			0.05*sizes.w,
-			0.1*sizes.h,
-			0.25*sizes.w,
-			0.6*sizes.h)
-	reposition("go",
-			0.37*sizes.w,
-			0.1*sizes.h,
-			0.26*sizes.w,
-			0.6*sizes.h)
-	reposition("right",
-			0.7*sizes.w,
-			0.1*sizes.h,
-			0.25*sizes.w,
-			0.6*sizes.h)
-	reposition("palette",
-			sizes.w*0.05,
-			sizes.h*0.8,
-			sizes.w*0.9,
-			sizes.h*0.1)
-	reposition("palettetouch",
-			sizes.w*0.05,
-			sizes.h*0.8,
-			sizes.w*0.9,
-			sizes.h*0.1)
-	reposition("colorslider",
-			sizes.w*(0.05 + 0.9*colorSliderPosition) - sizes.h*0.03,
-			sizes.h*0.79,
-			sizes.h*0.06,
-			sizes.h*0.12)
-
-}
-
-</script>
+	<div id="togglelog" style="right:0px; bottom:0px; width:5%; height:10%; font-size:18px; color:#aaa">Log</div>
 
 </body>
 </html>
