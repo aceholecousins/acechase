@@ -44,8 +44,9 @@ ctx.simulateStateChange = onStateChange
 
 var onDeviceMotion = function (data){
 	if(Controller.current.tab == "game" && document.getElementById("yokecontroller").style.display != "none"){
-		var x = data.beta/40.0
-		var y = (data.gamma+45.0)/40.0
+		const maxDegree = 20.0
+		var x = data.beta/maxDegree
+		var y = (data.gamma+45.0)/maxDegree
 
 		var dir = Math.atan2(y, x)
 		var r = Math.sqrt(x*x + y*y)
