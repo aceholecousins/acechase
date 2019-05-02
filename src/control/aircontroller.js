@@ -12,6 +12,16 @@ function AirController(device_id) {
 AirController.prototype = Object.create(Control.prototype);
 AirController.prototype.constructor = AirController;
 
+AirController.prototype.onConnect = function() {
+	console.log("AirController re-connected", this.device_id);
+	this.connected = true;
+}
+
+AirController.prototype.onDisconnect = function() {
+	console.log("AirController disconnected", this.device_id);
+	this.connected = false;
+}
+
 AirController.prototype.onMenuMessage = function (navi, eventSupport) {
 	switch (navi) {
 		case "right":

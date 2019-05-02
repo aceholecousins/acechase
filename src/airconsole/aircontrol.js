@@ -1,12 +1,14 @@
 "use strict";
 var AirControl = {};
 (function (context) {
+	
+	context.GAME_STATES = { menu: "menu", game: "game" };
+
 	var airConsole = null;
 	var rateLimiter = null;
 	var controllers = new Map();
 	var eventSupport = new EventSupport();
-
-	context.GAME_STATES = { menu: "menu", game: "game" };
+	var gameState = context.GAME_STATES.menu;
 
 	context.init = function () {
 		airConsole = new AirConsole();
@@ -22,6 +24,7 @@ var AirControl = {};
 	}
 
 	context.setGameState = function (state) {
+		gameState = state;
 		rateLimiter.setCustomDeviceStateProperty("state", state);
 	}
 
@@ -43,9 +46,10 @@ var AirControl = {};
 		// see if we already know this device and it just reconnects
 		let controller = controllers.get(device_id);
 		if (controller !== undefined) {
-			controller.connected = true
-		} else {
+			controller.onConnect();
+		} else if(gameState == context.GAME_STATES.menu) {
 			// if its a new device create a new controller instance
+			// But this is only allowed in menu
 			let newController = new AirController(device_id);
 			newController.nickName = airConsole.getNickname(device_id)
 			controllers.set(device_id, newController);
@@ -54,11 +58,15 @@ var AirControl = {};
 
 	var onDisconnect = function (device_id) {
 		console.log("AirController.onDisconnect: " + device_id);
-		controllers.delete(device_id);
-		// let controller = AirController.controllers.get(device_id);
-		// if (controller !== undefined) {
-		// 	controller.connected = false
-		// }
+
+		if(gameState == context.GAME_STATES.game) {
+			let controller = controllers.get(device_id);
+			if (controller !== undefined) {
+				controller.onDisconnect();
+			}
+		} else {
+			controllers.delete(device_id);
+		}
 	}
 
 	var onMessage = function (device_id, data) {
