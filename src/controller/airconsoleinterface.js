@@ -14,6 +14,16 @@ ctx.init = function(){
 
 	airConsole.onDeviceMotion = onDeviceMotion
 	airConsole.onMessage = onMessage
+
+	airConsole.onReady = function(code){
+		Controller.log("ready " + code, 'yellow')
+		Controller.changeColor(undefined, true) // repeat color state update
+	}
+
+	airConsole.onConnect = function(device_id){
+		Controller.log("connected with " + device_id, 'magenta')
+	}
+
 }
 
 var onStateChange = function(device_id, custom_data){

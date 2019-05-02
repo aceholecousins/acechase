@@ -12,10 +12,11 @@ ctx.init = function(){
 	ctx.current = {direction:(Math.random()*2-1)*Math.PI, spin:0, thrust:0, fire:0, tab:"menu"}
 	colorParameter = Math.random()
 
-	initPalette()
 	document.getElementById("togglelog").onclick = toggleLog
 
 	AirConsoleInterface.init()
+
+	initPalette()
 
 	Touch.callbacks = ControllerTouchCallbacks
 	Touch.callbacks.changeController(0)
@@ -94,7 +95,7 @@ ctx.sendControls = function(force = false){
 }
 
 var colorParameter = 0
-ctx.changeColor = function(newParam){
+ctx.changeColor = function(newParam, forceSend=false){
 
 	if(newParam != undefined){
 		colorParameter = newParam
@@ -106,7 +107,7 @@ ctx.changeColor = function(newParam){
 			ctx.sizes.h*0.06,
 			ctx.sizes.h*0.12)
 
-	if(newParam != undefined){
+	if(newParam != undefined || forceSend){
 		var c = paletteColor(colorParameter)
 		var mainColorString = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"
 		var darkColorString = "rgb(" + c[0]/2 + "," + c[1]/2 + "," + c[2]/2 + ")"
