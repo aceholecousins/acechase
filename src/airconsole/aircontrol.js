@@ -1,7 +1,7 @@
 "use strict";
 var AirControl = {};
 (function (context) {
-	
+
 	context.GAME_STATES = { menu: "menu", game: "game" };
 
 	var airConsole = null;
@@ -47,7 +47,7 @@ var AirControl = {};
 		let controller = controllers.get(device_id);
 		if (controller !== undefined) {
 			controller.onConnect();
-		} else if(gameState == context.GAME_STATES.menu) {
+		} else if (gameState == context.GAME_STATES.menu) {
 			// if its a new device create a new controller instance
 			// But this is only allowed in menu
 			let newController = new AirController(device_id);
@@ -62,12 +62,12 @@ var AirControl = {};
 
 		let controller = controllers.get(device_id);
 		if (controller !== undefined) {
-			if(gameState == context.GAME_STATES.game) {
+			if (gameState == context.GAME_STATES.game) {
 				controller.onDisconnect();
 			} else {
 				controllers.delete(device_id);
 				eventSupport.fireEvent({ type: "menu", value: "disconnected", controller: controller });
-			}	
+			}
 		}
 	}
 
@@ -92,7 +92,7 @@ var AirControl = {};
 		let controller = controllers.get(device_id);
 
 		if (controller !== undefined) {
-			controller.onStateChange(data);
+			controller.onStateChange(data, eventSupport);
 		}
 	}
 })(AirControl);

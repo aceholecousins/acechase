@@ -71,7 +71,11 @@ MainMenu = {};
                     break;
                 case "disconnected":
                     console.log("Controller disconnected: ", event.controller);
-                    //TODO: Add information from event.controller to menu
+                    //TODO: Remove information from event.controller to menu
+                    break;
+                case "state":
+                    console.log("Controller state changed: ", event.controller);
+                    //TODO: Change information from event.controller to menu
                     break;
             }
               

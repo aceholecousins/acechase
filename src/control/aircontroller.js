@@ -51,12 +51,13 @@ AirController.prototype.onControllerMessage = function (data) {
 	}
 }
 
-AirController.prototype.onStateChange = function (data) {
+AirController.prototype.onStateChange = function (data, eventSupport) {
 	const maxValue = 255;
 	let color = data.color;
 	if(color !== undefined) {
 		this.color = new THREE.Color(color.red / maxValue, color.green / maxValue, color.blue / maxValue);
 	}
+	eventSupport.fireEvent({ type: "menu", value: "state", controller: this });
 }
 
 AirController.prototype.update = function () {
