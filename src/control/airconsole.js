@@ -117,12 +117,18 @@ AirController.prototype.onMenuMessage = function (navi, eventSupport) {
 }
 
 AirController.prototype.onControllerMessage = function (data) {
-	this.fire = data.fire
-	this.thrust = data.thrust;
+	if(data.fire !== undefined) {
+		this.fire = data.fire
+	}
+	if(data.thrust !== undefined) {
+		this.thrust = data.thrust;
+	}
 	if (data.direction !== undefined) {
 		this.direction = data.direction;
 	}
-	this.spin = data.spin;
+	if(data.spin !== undefined) {
+		this.spin = data.spin;
+	}
 }
 
 AirController.prototype.onStateChange = function (data) {
@@ -134,7 +140,7 @@ AirController.prototype.onStateChange = function (data) {
 }
 
 AirController.prototype.update = function () {
-	if (this.spin !== undefined) {
+	if (this.spin !== undefined && this.spin != 0) {
 		this.direction += this.spin * 5.0 * DT;
 	}
 }
