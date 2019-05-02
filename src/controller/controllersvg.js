@@ -162,8 +162,8 @@ ctx.setShield = function(value){
 }
 
 ctx.setAmmo = function(value){
-	document.getElementById("crossgrad1").offset.baseVal = 0.83-value*0.73
-	document.getElementById("crossgrad2").offset.baseVal = 0.83-value*0.73+0.03
+	document.getElementById("triggergrad1").offset.baseVal = 0.83-value*0.73
+	document.getElementById("triggergrad2").offset.baseVal = 0.83-value*0.73+0.03
 }
 
 })(ControllerSvg);

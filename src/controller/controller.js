@@ -9,8 +9,6 @@ ctx.init = function(){
 	onResize()
 
 	ctx.activeController = 0
-
-	ctx.last = {direction:undefined, spin:undefined, thrust:undefined, fire:undefined, tab:undefined}
 	ctx.current = {direction:(Math.random()*2-1)*Math.PI, spin:0, thrust:0, fire:0, tab:"menu"}
 	colorParameter = Math.random()
 
@@ -61,32 +59,38 @@ var toggleLog = function(){
 	}
 }
 
-ctx.sendControls = function(){
-	if(ctx.current.tab == "game"){
-		if(
-			ctx.last.direction != ctx.current.direction ||
-			ctx.last.spin != ctx.current.spin ||
-			ctx.last.thrust != ctx.current.thrust ||
-			ctx.last.fire != ctx.current.fire ||
-			ctx.last.tab != ctx.current.tab
-		){
-			var data = {type:"control", thrust:ctx.current.thrust, fire:ctx.current.fire}
-			if(!isNaN(ctx.current.direction)){
-				data.direction = ctx.current.direction
-			}
-			if(!isNaN(ctx.current.spin)){
-				data.spin = ctx.current.spin
-			}
-			AirConsoleInterface.message(data)
-
-			ctx.last.direction = ctx.current.direction
-			ctx.last.spin = ctx.current.spin
-			ctx.last.thrust = ctx.current.thrust
-			ctx.last.fire = ctx.current.fire
-		}
+var last = {direction:undefined, spin:undefined, thrust:undefined, fire:undefined, tab:undefined}
+ctx.sendControls = function(force = false){
+	if(ctx.current.tab != last.tab){
+		last.tab = ctx.current.tab
+		force = true
 	}
 
-	ctx.last.tab = ctx.current.tab
+	if(ctx.current.tab == "game"){
+		var data = {type:"control"}
+
+		if(!isNaN(ctx.current.direction) && (ctx.current.direction != last.direction || force)){
+			data.direction = ctx.current.direction
+			last.direction = ctx.current.direction
+		}
+
+		if(!isNaN(ctx.current.spin) && (ctx.current.spin != last.spin || force)){
+			data.spin = ctx.current.spin
+			last.spin = ctx.current.spin
+		}
+
+		if(ctx.current.thrust != last.thrust || force){
+			data.thrust = ctx.current.thrust
+			last.thrust = ctx.current.thrust
+		}
+
+		if(ctx.current.fire != last.fire || force){
+			data.fire = ctx.current.fire
+			last.fire = ctx.current.fire
+		}
+
+		AirConsoleInterface.message(data)
+	}
 }
 
 var colorParameter = 0
