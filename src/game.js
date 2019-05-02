@@ -121,7 +121,7 @@ function createHovercraftsFromAirControllers() {
 	AirControl.getControllers().forEach(function(controller) {
 		let newHover = new Hovercraft(controller.color, controller);
 		newHover.playerName = controller.nickName;
-		newHover.hitpoints = new AirProperty(0, HITPOINTS, "hull", controller.device_id);
+		newHover.hitpoints = new VibratingAirProperty(0, HITPOINTS, "hull", controller.device_id);
 		newHover.shield = new AirProperty(0, SHIELD, "shield", controller.device_id);
 		newHover.ammo = new AirProperty(0, PHASER_AMMO, "ammo", controller.device_id);
 		hovers.push(newHover);

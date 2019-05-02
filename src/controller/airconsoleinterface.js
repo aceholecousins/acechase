@@ -66,13 +66,16 @@ var onMessage = function(device_id, data){
 	Controller.log(JSON.stringify(data), 'red')
 	if(device_id == AirConsole.SCREEN){
 		if(data.hull != undefined){
-			ControllerSvg.setHull(data.hull)
+			ControllerSvg.setHull(data.hull)			
 		}
 		if(data.shield != undefined){
 			ControllerSvg.setShield(data.shield)
 		}
 		if(data.ammo != undefined){
 			ControllerSvg.setAmmo(data.ammo)
+		}
+		if(data.vibrate != undefined) {
+			airConsole.vibrate(data.vibrate);
 		}
 	}
 }

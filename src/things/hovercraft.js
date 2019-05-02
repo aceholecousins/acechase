@@ -270,10 +270,6 @@ Hovercraft.prototype.update = function(){
 		//Sleep and wake up again in order to stop hover movement
 		this.body.sleep();
 		this.body.wakeUp();
-		
-		this.hitpoints.set(HITPOINTS);
-		this.shieldpoints = SHIELD;
-		this.powerup = POWERUPS.nothing;
 
 		if(GAME_MODE != "R"){ // don't respawn in time trials after suicide or in race
 			ingameTimeout(RESPAWN_TIME, function(){
@@ -301,6 +297,10 @@ Hovercraft.prototype.update = function(){
 					}
 				}
 			
+				this.hitpoints.set(HITPOINTS);
+				this.shield.set(SHIELD);
+				this.powerup = POWERUPS.nothing;
+
 				this.body.position[0] = pos.x;
 				this.body.position[1] = pos.y;				
 				this.body.angle = Math.random()*2*Math.PI;				
