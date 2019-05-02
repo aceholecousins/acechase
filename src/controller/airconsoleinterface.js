@@ -54,7 +54,7 @@ ctx.simulateStateChange = onStateChange
 
 var onDeviceMotion = function (data){
 	if(Controller.current.tab == "game" && document.getElementById("yokecontroller").style.display != "none"){
-		const maxDegree = 20.0
+		const maxDegree = 30.0
 		var x = data.beta/maxDegree
 		var y = (data.gamma+45.0)/maxDegree
 
