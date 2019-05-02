@@ -345,7 +345,7 @@ function endRound(){ // display results
 		SCORETABLE.plane.visible = true;
 	}
 
-	if(GAME_MODE == "X" && hovers.length == 1){ // shooting range
+	if(GAME_MODE == "X"){ // shooting range
 		if(hovers.length == 1) { // single player
 
 			hovers.sort(function(a, b){return (b.targets-0.9*b.mines) - (a.targets-0.9*a.mines);});
