@@ -163,14 +163,36 @@ function start() {
 	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
-	gameloop(performance.now());
+
+	//Start game animation
+	requestAnimationFrame(newAnimationFrame);
 }
 
-function gameloop(currentTimestamp) {
+function newAnimationFrame(currentTimestamp) {
 
-	calculateCurrentDt(currentTimestamp);
+	requestAnimationFrame(newAnimationFrame);
 
-	requestAnimationFrame( gameloop );
+	//For some reason when using the air-console simulator this method is called several
+	//times with the same time stamp. To deal with this we check for a change of the timestamp.
+	if(currentTimestamp > LAST_TIMESTAMP || LAST_TIMESTAMP === undefined) {
+		calculateCurrentDt(currentTimestamp);
+		gameloop();
+	}
+}
+
+function calculateCurrentDt(currentTimestamp) {
+	//In order to deal with changing framerate DT is adjusted to it.
+	if(LAST_TIMESTAMP !== undefined) {
+		DT = (currentTimestamp - LAST_TIMESTAMP) / 1000.0;
+		if(DT <= 0) {
+			//This should never happen.
+			console.error("DT <= 0: ", DT);
+		}
+	}
+	LAST_TIMESTAMP = currentTimestamp;
+}
+
+function gameloop() {
 
 	if(GAME_PHASE != "P"){ // not paused
 		updateIngameTimeouts(); // ingame timeouts also run during start and over phase (for triggering their end)
@@ -235,13 +257,6 @@ function gameloop(currentTimestamp) {
 		explosion(new THREE.Vector3(Math.random()*40-20, Math.random()*30-15, 0), new THREE.Color(Math.floor(Math.random()*0x1000000)));
 	}*/
 
-}
-
-function calculateCurrentDt(currentTimestamp) {
-	if(LAST_TIMESTAMP !== undefined) {
-		DT = (currentTimestamp - LAST_TIMESTAMP) / 1000.0;
-	}
-	LAST_TIMESTAMP = currentTimestamp;
 }
 
 function endRound(){ // display results
