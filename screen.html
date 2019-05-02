@@ -16,6 +16,8 @@
 				margin: 0px;
 				background-color: #000000;
 				overflow: hidden;
+				font-family:sans-serif;
+				font-size:24pt
 			}
 			td {
 				text-align: center;
@@ -33,18 +35,20 @@
 		<span id="splashscreentext"></span>
 		</td></tr></table>
 
-		<table id="mainmenu" style="color:white;position:absolute; top:10%; left:10%; width:80%; height:80%; visibility: hidden">
+		<table id="mainmenu" style="color:white; position:absolute; top:10%; left:10%; width:80%; height:80%; visibility:hidden">
 			<tr>
-				<td><img id="leftmenuitem" width="50%"></td>
-				<td><img id="centermenuitem" width="100%"></td>
-				<td><img id="rightmenuitem" width="50%"></td>
+				<td><img id="leftmenuitem" width="50%"></img></td>
+				<td><img id="centermenuitem" width="100%"></img></td>
+				<td><img id="rightmenuitem" width="50%"></img></td>
+				<td rowspan=2 width="5%"></td>
+				<td id="avatarlist" rowspan=2 width="40%"></td>
 			</tr>
 			<tr>
-				<td colspan="3" id="descriptionmenuitem"  style="border:solid"></td>
+				<td colspan="3" id="descriptionmenuitem" style="border:solid;"></td>
 			</tr>
 		</table>
 
-		
+
 		<script src="config.js"></script> <!-- configuration file -->
 		<script src="src/utils/property.js"></script>
 		<script src="src/game.js"></script>
@@ -93,7 +97,7 @@
         <script src="src/control/keyboard.js"></script>
 		<script src="src/control/mobiledevice.js"></script>
 		<script src="src/control/aircontroller.js"></script>
-		
+
 		<script src="src/airconsole/aircontrol.js"></script>
 		<script src="src/airconsole/airproperty.js"></script>
 
@@ -118,7 +122,7 @@
 			} else {
 				initGame();
 			}
-			
+
 		</script>
 	</body>
 </html>
