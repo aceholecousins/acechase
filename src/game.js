@@ -22,7 +22,8 @@ function initGame() {
 
 	Scene.init();
 
-	ARENA = new Arena(MAP);
+	//ARENA = new Arena(MAP);
+	ARENA = new Arena("maps/hackerland2/model.dae", "maps/hackerland2/map.svg");
 	SCORETABLE = new ScoreTable();
 
 	Scene.graphicsScene.add(SCORETABLE.plane);
@@ -160,7 +161,7 @@ function start() {
 
 	onWindowResize(); // call to initially adjust camera
 	document.getElementById("splashscreen").style.visibility = "hidden";
-	Scene.renderer.setClearColor( FOG_COLOR );
+	Scene.renderer.setClearColor( "black" );
 
 	newRound();
 
@@ -243,7 +244,7 @@ function gameloop() {
 		INGAME_TIME += DT;
 
 		updateAllEffects();
-		updateWater();
+		//updateWater();
 
 	}
 
@@ -264,9 +265,9 @@ function endRound(){ // display results
 	GAME_PHASE = "R";
 	SCORETABLE_PROTECT = true;
 	ingameTimeout(2, function(){SCORETABLE_PROTECT = false;}); // show scoretable for at least 2 seconds
-	
+
 	let numOfPlayers = hovers.length;
-	if(GAME_MODE == "R"){ 
+	if(GAME_MODE == "R"){
 		if(hovers.length == 1) {// time trial
 			hovers.sort(function(a, b){return (a.racetime - b.racetime);});
 			// not sure if it is a good idea to shuffle this array, lets see
@@ -418,7 +419,7 @@ function newRound(){
 	}
 	NPUBOXES = 0;
 
-	WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
+	//WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
 	updateAllHBObjects();
 

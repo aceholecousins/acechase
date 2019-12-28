@@ -343,7 +343,7 @@ function fillWaterTexture( texture ) {
 }
 
 function updateWater(){
-
+	return;
 	WATER_MATERIAL.uniforms.time.value += DT;
 
 	if(FANCY_WATER){
