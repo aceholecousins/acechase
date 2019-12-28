@@ -2,7 +2,7 @@
 var AirControl = {};
 (function (context) {
 
-	context.GAME_STATES = { menu: "menu", game: "game" };
+	context.GAME_STATES = { menu: "menu", game: "game", highscore: "highscore" };
 
 	var airConsole = null;
 	var rateLimiter = null;
@@ -38,6 +38,19 @@ var AirControl = {};
 
 	context.removeEventHandler = function (handler) {
 		eventSupport.removeHandler(handler);
+	}
+
+	context.showAd = function(adFinishedCallback) {
+		
+		airConsole.onAdShow = function() {
+			console.log("onAdShow")
+		}
+		airConsole.onAdComplete = function(ad_was_shown) {
+			console.log("onAdComplete " + ad_was_shown)
+			adFinishedCallback()
+		}
+		console.log("Show ad")
+		airConsole.showAd()		
 	}
 
 	var onConnect = function (device_id) {
