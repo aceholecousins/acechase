@@ -2,7 +2,7 @@
 var AirControl = {};
 (function (context) {
 
-	context.GAME_STATES = { menu: "menu", game: "game", highscore: "highscore" };
+	context.GAME_STATES = { menu: "menu", game: "game" };
 
 	var airConsole = null;
 	var rateLimiter = null;
