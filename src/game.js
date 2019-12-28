@@ -399,7 +399,14 @@ function askForNewRound() {
 	GAME_PHASE = "S";
 	
 	if(USING_AIR_CONSOLE) {
-		AirControl.showAd(newRound)
+		AirControl.showAd(function(){
+			switchAudioOutput(false)
+		}, function(adWasShown) {
+			if(adWasShown){
+				switchAudioOutput(true)
+			}
+			newRound()
+		})
 	} else {
 		newRound()
 	}

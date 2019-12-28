@@ -31,6 +31,14 @@ function playSound(buffer, volume, pitch, loop, offset=0.0){
 	return {src:source, gn:gainNode};
 }
 
+function switchAudioOutput(on) {
+	if(on) {
+		AUDIO_CONTEXT.resume()
+	} else {
+		AUDIO_CONTEXT.suspend()
+	}
+}
+
 sfxBufferLoader = new BufferLoader(
     AUDIO_CONTEXT, [
         'media/sound/phaser2.ogg',

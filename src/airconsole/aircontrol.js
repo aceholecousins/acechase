@@ -40,14 +40,15 @@ var AirControl = {};
 		eventSupport.removeHandler(handler);
 	}
 
-	context.showAd = function(adFinishedCallback) {
+	context.showAd = function(adShownCallback, adFinishedCallback) {
 		
 		airConsole.onAdShow = function() {
 			console.log("onAdShow")
+			adShownCallback()
 		}
 		airConsole.onAdComplete = function(ad_was_shown) {
 			console.log("onAdComplete " + ad_was_shown)
-			adFinishedCallback()
+			adFinishedCallback(ad_was_shown)
 		}
 		console.log("Show ad")
 		airConsole.showAd()		
