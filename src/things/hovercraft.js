@@ -432,7 +432,7 @@ Hovercraft.prototype.controlHover = function() {
 					if(GAME_MODE == "R" && hovers.length == 1) {
 						this.hitpoints.set(0); // explode
 						GAME_PHASE = "O"; // round over
-						ingameTimeout(1, function(){newRound();});
+						ingameTimeout(1, function(){askForNewRound();});
 					} else {
 						this.shootPhaser();
 					}

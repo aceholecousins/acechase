@@ -233,7 +233,7 @@ function gameloop() {
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
-			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){newRound();} // majority vote
+			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){askForNewRound();} // majority vote
 		}
 
 		THRUST_SOUND.gn.gain.value = 0.0;
@@ -395,8 +395,24 @@ function endRound(){ // display results
 	}
 }
 
-function newRound(){
+function askForNewRound() {
 	GAME_PHASE = "S";
+	
+	if(USING_AIR_CONSOLE) {
+		AirControl.showAd(function(){
+			switchAudioOutput(false)
+		}, function(adWasShown) {
+			if(adWasShown){
+				switchAudioOutput(true)
+			}
+			newRound()
+		})
+	} else {
+		newRound()
+	}
+}
+
+function newRound(){
 
 	INGAME_TIME = 0;
 

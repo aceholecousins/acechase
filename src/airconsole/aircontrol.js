@@ -40,6 +40,20 @@ var AirControl = {};
 		eventSupport.removeHandler(handler);
 	}
 
+	context.showAd = function(adShownCallback, adFinishedCallback) {
+		
+		airConsole.onAdShow = function() {
+			console.log("onAdShow")
+			adShownCallback()
+		}
+		airConsole.onAdComplete = function(ad_was_shown) {
+			console.log("onAdComplete " + ad_was_shown)
+			adFinishedCallback(ad_was_shown)
+		}
+		console.log("Show ad")
+		airConsole.showAd()		
+	}
+
 	var onConnect = function (device_id) {
 		console.log("AirController.onConnect: " + device_id);
 
