@@ -244,7 +244,7 @@ function gameloop() {
 		INGAME_TIME += DT;
 
 		updateAllEffects();
-		//updateWater();
+		updateWater();
 
 	}
 
@@ -419,7 +419,7 @@ function newRound(){
 	}
 	NPUBOXES = 0;
 
-	//WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
+	WATER_MATERIAL.uniforms.waterColor.value.set(WATER_COLOR.r, WATER_COLOR.g, WATER_COLOR.b, WATER_OPACITY);
 
 	updateAllHBObjects();
 

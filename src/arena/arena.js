@@ -254,7 +254,7 @@ function Arena(modelDaeFile, boundarySvgFile){
 		}
 		*/
 
-		//initWater();
+		initWater();
 	}.bind(this));
 
 }
