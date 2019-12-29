@@ -16,9 +16,8 @@ var LAST_TIMESTAMP;
 
 
 function initGame() {
-	document.getElementById("splashscreen").style.visibility = "visible";
-	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
-		+ "</b><br><br><i>loading...</i>";
+	showSplash(true, "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
+		+ "</b><br><br><i>loading...</i>");
 
 	Scene.init();
 
@@ -29,6 +28,13 @@ function initGame() {
 	SCORETABLE.plane.visible = false;
 
 	LOADING_LIST.setCallback(prepareGame);
+}
+
+function showSplash(show, htmlToShow) {
+	document.getElementById("splashscreen").style.visibility = show ? "visible" : "hidden";
+	if(htmlToShow != null) {
+		document.getElementById("splashscreentext").innerHTML = htmlToShow;
+	}
 }
 
 function readParams() {
@@ -144,9 +150,9 @@ function isAtLeastOneMobileDevice() {
 }
 
 function initMobileDevice() {
-	document.getElementById("splashscreentext").innerHTML =
+	showSplash(true,
 			"Hold your device in desired initial position and touch screen!<br>" +
-			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>";
+			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>");
 	document.body.onclick = start;
 }
 
@@ -168,7 +174,7 @@ function start() {
 	}
 
 	onWindowResize(); // call to initially adjust camera
-	document.getElementById("splashscreen").style.visibility = "hidden";
+	showSplash(false);
 	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
@@ -479,9 +485,11 @@ function newRound(){
 function pauseOrResumeGame() {
 	if(GAME_PHASE == "G") {
 		console.log("Game paused");
-		GAME_PHASE = "P"
+		GAME_PHASE = "P";
+		showSplash(true, "<b>Game Paused</b><br>press pause button again to resume");
 	} else if(GAME_PHASE == "P") {
 		console.log("Game resumed");
-		GAME_PHASE = "G"
+		GAME_PHASE = "G";
+		showSplash(false);
 	}
 }
