@@ -112,9 +112,18 @@ function createHovercraftsFromParams() {
 					new THREE.Color(value.split(',')[1]),
 					Control.createControl(value));
 			hovers[iPlayer].playerName = value.split(',')[0];
+			addEventHandlersToControl(hovers[iPlayer].control);
 			iPlayer++;
 		}
 	}
+}
+
+function addEventHandlersToControl(control) {
+	control.addEventHandler(function(event) {
+		if(event.type == Control.EventTypes.pause) {
+			pauseOrResumeGame()
+		}				
+	});
 }
 
 function createHovercraftsFromAirControllers() {
@@ -464,5 +473,15 @@ function newRound(){
 			ingameTimeout(6, function(){spawnTarget(true, 60);});
 			ingameTimeout(7, function(){spawnTarget(true, 120);});
 		}
+	}
+}
+
+function pauseOrResumeGame() {
+	if(GAME_PHASE == "G") {
+		console.log("Game paused");
+		GAME_PHASE = "P"
+	} else if(GAME_PHASE == "P") {
+		console.log("Game resumed");
+		GAME_PHASE = "G"
 	}
 }

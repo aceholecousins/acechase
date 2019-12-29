@@ -20,6 +20,8 @@ function Keyboard(params) {
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
 }
 
+Keyboard.PAUSE_KEYS = [80, 19];
+
 Keyboard.prototype = Object.create(Control.prototype);
 Keyboard.prototype.constructor = Keyboard;
 
@@ -37,7 +39,12 @@ Keyboard.prototype.update = function () {
 };
 
 Keyboard.prototype.handleKeyDown = function (event) {
-    this.keyDownMap[event.keyCode] = true;
+    if(!event.repeat) {
+        this.keyDownMap[event.keyCode] = true;
+        if(Keyboard.PAUSE_KEYS.indexOf(event.keyCode) != -1) {
+            this.pausePressed();
+        }
+    }
 };
 
 Keyboard.prototype.handleKeyUp = function (event) {

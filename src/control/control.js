@@ -6,8 +6,11 @@ function Control(){
 	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
 	this.thrust = 0;
 	this.fire = false; // primary fire (phaser)
-	this.special = false; // secondary fire (collected item)
+    this.special = false; // secondary fire (collected item)
+    this.eventSupport = new EventSupport();
 }
+
+Control.EventTypes = {pause: "pause"}
 
 Control.createControl = function(configValues) { // player config string including name and color
     var params = configValues.split(',');
@@ -28,4 +31,16 @@ Control.createControl = function(configValues) { // player config string includi
 Control.prototype.update = function(){
     // Nothing done in the base class. Sub classes have to override this method
     // TODO: test all the control modalities
+}
+
+Control.prototype.pausePressed = function() {
+    this.eventSupport.fireEvent({type: Control.EventTypes.pause});
+}
+
+Control.prototype.addEventHandler = function(handler) {
+    this.eventSupport.addHandler(handler);
+}
+
+Control.prototype.removeEventHandler = function(handler) {
+    this.eventSupport.removeHandler(handler);
 }
