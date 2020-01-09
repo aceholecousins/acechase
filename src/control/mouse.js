@@ -92,6 +92,9 @@ Mouse.prototype.handleMouseDown = function (event) {
                 this.lr = true;
             }
         }
+        if (event.button == 1) {
+            this.pausePressed();
+        }
     } else {
         for (var i = 0; i < this.button.length; i++) {
             this.button[i] = false;
