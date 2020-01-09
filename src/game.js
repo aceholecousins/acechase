@@ -149,8 +149,8 @@ function createHovercraftsFromAirControllers() {
 }
 
 function isAtLeastOneMobileDevice() {
-	return hovers.findIndex(function (element, index, array) {
-		return element.control instanceof MobileDevice;
+	return gameControllers.findIndex(function (element, index, array) {
+		return element instanceof MobileDevice;
 	}) != -1;
 }
 
@@ -162,9 +162,9 @@ function initMobileDevice() {
 }
 
 function captureMobileDevicesInitialPosition() {
-	hovers.forEach(function(element, index, array) {
-		if(element.control instanceof MobileDevice) {
-			element.control.captureRotationMatrix();
+	gameControllers.forEach(function(element, index, array) {
+		if(element instanceof MobileDevice) {
+			element.captureRotationMatrix();
 		}
 	});
 }
