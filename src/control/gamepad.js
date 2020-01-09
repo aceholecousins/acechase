@@ -75,10 +75,16 @@ Gamepad.prototype.update = function () {
         this.control.fire = this.gamepad.buttons[this.firebutton].value;
         this.control.special = this.gamepad.buttons[this.spclbutton].value;
 
-        let currentPauseButtonState = this.gamepad.buttons[this.pausebutton].pressed;
-        if(this.lastPauseButtonState != currentPauseButtonState) {
-            this.lastPauseButtonState = currentPauseButtonState;
-            this.pausePressed();
-        }
+        this.processPauseButton();
     }
 };
+
+Gamepad.prototype.processPauseButton = function() {
+    let currentPauseButtonState = this.gamepad.buttons[this.pausebutton].pressed;        
+
+    //Recognize positive edge        
+    if(this.lastPauseButtonState != currentPauseButtonState && currentPauseButtonState == true) {            
+        this.pausePressed();
+    }
+    this.lastPauseButtonState = currentPauseButtonState;
+}

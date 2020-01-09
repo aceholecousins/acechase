@@ -214,6 +214,8 @@ function calculateCurrentDt(currentTimestamp) {
 
 function gameloop() {
 
+	updateControls();
+
 	if(GAME_PHASE != "P"){ // not paused
 		updateIngameTimeouts(); // ingame timeouts also run during start and over phase (for triggering their end)
 
@@ -253,9 +255,7 @@ function gameloop() {
 				if(hovers[i].continu){continus++;}
 			}
 			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){askForNewRound();} // majority vote
-		}
-
-		updateControls();
+		}		
 
 		THRUST_SOUND.gn.gain.value = 0.0;
 		updateAllHBObjects();
