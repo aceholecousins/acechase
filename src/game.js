@@ -4,6 +4,7 @@ var PARAMS = location.hash;
 var GAME_PHASE; // S for pre start, G for... going... on, O for over, R for results, P for paused
 
 var hovers=[];
+var gameControllers=[];
 var ARENA;
 var SCORETABLE;
 var SCORETABLE_PROTECT = false;
@@ -115,10 +116,14 @@ function createHovercraftsFromParams() {
 
 		if(key=="player" || key=="player0"){
 			hovers[iPlayer] = new Hovercraft(
-					new THREE.Color(value.split(',')[1]),
-					Control.createControl(value));
+					new THREE.Color(value.split(',')[1]));
 			hovers[iPlayer].playerName = value.split(',')[0];
-			addEventHandlersToControl(hovers[iPlayer].control);
+			
+			let controller = GameController.createControl(value);
+			addEventHandlersToControl(controller);
+			controller.setControl(hovers[iPlayer].control)
+			gameControllers.push(controller);
+
 			iPlayer++;
 		}
 	}
@@ -126,7 +131,7 @@ function createHovercraftsFromParams() {
 
 function addEventHandlersToControl(control) {
 	control.addEventHandler(function(event) {
-		if(event.type == Control.EventTypes.pause) {
+		if(event.type == GameController.EventTypes.pause) {
 			pauseOrResumeGame()
 		}				
 	});
@@ -243,13 +248,14 @@ function gameloop() {
 
 		if(GAME_PHASE == "R"){
 			var continus = 0;
-			for(var i=0; i<hovers.length; i++){
-				hovers[i].control.update();
+			for(var i=0; i<hovers.length; i++){				
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
 			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){askForNewRound();} // majority vote
 		}
+
+		updateControls();
 
 		THRUST_SOUND.gn.gain.value = 0.0;
 		updateAllHBObjects();
@@ -491,5 +497,11 @@ function pauseOrResumeGame() {
 		console.log("Game resumed");
 		GAME_PHASE = "G";
 		showSplash(false);
+	}
+}
+
+function updateControls() {
+	for (gameController of gameControllers) {
+		gameController.update();
 	}
 }

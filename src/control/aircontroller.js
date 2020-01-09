@@ -1,7 +1,7 @@
-// Inherits from Control
+// Inherits from GameController
 "use strict";
 function AirController(device_id) {
-	Control.call(this);
+	GameController.call(this);
 
 	this.device_id = device_id;
 	this.nickName = "No Name";
@@ -9,7 +9,7 @@ function AirController(device_id) {
 	this.connected = true;
 }
 
-AirController.prototype = Object.create(Control.prototype);
+AirController.prototype = Object.create(GameController.prototype);
 AirController.prototype.constructor = AirController;
 
 AirController.prototype.onConnect = function() {
@@ -22,10 +22,10 @@ AirController.prototype.onDisconnect = function() {
 	this.connected = false;
 
 	//Reset all control parameters except direction
-	this.thrust = 0;
+	this.control.thrust = 0;	
+	this.control.fire = false;
+	this.control.special = false;
 	this.spin = 0;
-	this.fire = false;
-	this.special = false;
 }
 
 AirController.prototype.onMenuMessage = function (navi, eventSupport) {
@@ -44,13 +44,13 @@ AirController.prototype.onMenuMessage = function (navi, eventSupport) {
 
 AirController.prototype.onControllerMessage = function (data) {
 	if(data.fire !== undefined) {
-		this.fire = data.fire
+		this.control.fire = data.fire
 	}
 	if(data.thrust !== undefined) {
-		this.thrust = data.thrust;
+		this.control.thrust = data.thrust;
 	}
 	if (data.direction !== undefined) {
-		this.direction = data.direction;
+		this.control.direction = data.direction;
 	}
 	if(data.spin !== undefined) {
 		this.spin = data.spin;
@@ -68,6 +68,6 @@ AirController.prototype.onStateChange = function (data, eventSupport) {
 
 AirController.prototype.update = function () {
 	if (this.spin !== undefined && this.spin != 0) {
-		this.direction += this.spin * 5.0 * DT;
+		this.control.direction += this.spin * 5.0 * DT;
 	}
 }

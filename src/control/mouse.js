@@ -1,7 +1,7 @@
-// Inherits from Control
+// Inherits from GameController
 "use strict";
 function Mouse(params) {
-    Control.call(this);
+    GameController.call(this);
 
     this.relative = params[3] == "rel"; // false for absolute direction control
     this.thrustbutton = 2;
@@ -26,7 +26,7 @@ function Mouse(params) {
     document.addEventListener("onscroll", this.handleOnScroll.bind(this), true);
 }
 
-Mouse.prototype = Object.create(Control.prototype);
+Mouse.prototype = Object.create(GameController.prototype);
 Mouse.prototype.constructor = Mouse;
 
 Mouse.prototype.update = function () {
@@ -41,24 +41,24 @@ Mouse.prototype.update = function () {
             mousevx = mousevx / mousev * 10;
             mousevy = mousevy / mousev * 10;
         }
-        this.direction += (Math.cos(this.direction) * mousevy - Math.sin(this.direction) * mousevx) * DT;
+        this.control.direction += (Math.cos(this.control.direction) * mousevy - Math.sin(this.control.direction) * mousevx) * DT;
     } else { //absolute direction control
         if (mousev > 5) { //TODO: tweak this parameter
-            this.direction = Math.atan2(mousevy, mousevx);
+            this.control.direction = Math.atan2(mousevy, mousevx);
         }
     }
 
-    this.thrust = this.button[this.thrustbutton];
-    this.fire = this.button[this.firebutton];
-    this.special = false;
+    this.control.thrust = this.button[this.thrustbutton];
+    this.control.fire = this.button[this.firebutton];
+    this.control.special = false;
     if (this.spcltrigger == "ws" && this.scrolled) { // wheel scroll
-        this.special = true;
+        this.control.special = true;
     }
     if (this.spcltrigger == "wp" && this.button[1]) { // wheel press
-        this.special = true;
+        this.control.special = true;
     }
     if (this.spcltrigger == "lr" && this.lr) { // simultaneous left+right click
-        this.special = true;
+        this.control.special = true;
     }
     
     // Reset some controls

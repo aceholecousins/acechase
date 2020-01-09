@@ -25,8 +25,15 @@ HEADLIGHT_MESH.scale.set(7,3.5,1);
 
 var POWERSHIELD_TEXTURE = loadTexture( 'media/textures/powershield.png' );
 
+//Structure to group hover controls. Also interface between Hover and GameController
+function Control() {
+	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
+	this.thrust = 0;
+	this.fire = false; // primary fire (phaser)
+    this.special = false; // secondary fire (collected item)
+}
 
-function Hovercraft(color, control){
+function Hovercraft(color) {
 	HBObject.call(this); // inheritance
 
 	this.type = 'hover';
@@ -37,7 +44,6 @@ function Hovercraft(color, control){
 	this.shield = new Property(0);
 	this.ammo = new Property(0);
 	this.radius = HOVER_RADIUS;
-	this.control = control;
 	this.beamed = false; // so that the trail does not draw a stroke all over the place
 	this.kills = 0;
 	this.killedBy = {};
@@ -46,6 +52,9 @@ function Hovercraft(color, control){
 	this.powerupLasts = 0; // time/shots until powerup is over
 	this.lastPosition = new THREE.Vector2(0,0); // for line crossing tests
 	this.newPosition = new THREE.Vector2(0,0);
+
+	// control
+	this.control = new Control();
 
 	// physics
 
@@ -351,99 +360,95 @@ Hovercraft.prototype.update = function(){
 }
 
 Hovercraft.prototype.controlHover = function() {
-	if(typeof(this.control) != "undefined"){
-
-		this.control.update();
-
-		if(GAME_PHASE != "G"){this.control.thrust = 0;} // game not going
-
-		var tau = 0.1; // for rotation lowpass filter
-		var q = 1.0 - Math.exp(-DT/tau);
-
-		var watchdog = 0;
-		while(this.control.direction > Math.PI && watchdog<10){this.control.direction -= 2*Math.PI; watchdog++;}
-		while(this.control.direction <-Math.PI && watchdog<10){this.control.direction += 2*Math.PI; watchdog++;}
-		while(this.body.angle - this.control.direction > Math.PI && watchdog<10){this.body.angle -= 2*Math.PI; watchdog++;}
-		while(this.control.direction - this.body.angle > Math.PI && watchdog<10){this.body.angle += 2*Math.PI; watchdog++;}
-
-		if(watchdog>6){
-			console.log("This should not have happened. Sorry.")
-		}
-
-		addThrustSound(this.control.thrust*0.3);
-
-		this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
-		//this.body.angle = this.control.direction;
-
-		var boost = 1.0;
-		if(this.powerup == POWERUPS.adrenaline){boost = ADRENALINE_BOOST;}
-
-		this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
-		this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
 
 
-		if(this.control.fire){
-			if(this.powerup == POWERUPS.missile){
-				if(this.fireReleased){
-					var m = new Missile(this);
+	if(GAME_PHASE != "G"){this.control.thrust = 0;} // game not going
 
-					var locktarget = null;
-					var deltamin = 1000;
+	var tau = 0.1; // for rotation lowpass filter
+	var q = 1.0 - Math.exp(-DT/tau);
 
-					for(var i=0; i<hovers.length; i++){
-						if(hovers[i] == this || hovers[i].hidden){continue;} // don't aim at yourself or hidden hovers
-						var targetdir = Math.atan2( // TODO this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
-							hovers[i].body.position[1] - this.body.position[1],
-							hovers[i].body.position[0] - this.body.position[0]);
-						var dir = this.body.angle;
-						var delta = targetdir - dir;
-						if(delta >  Math.PI){delta -= 2*Math.PI;}
-						if(delta < -Math.PI){delta += 2*Math.PI;}
-						if(Math.abs(delta) < deltamin){
-							deltamin = Math.abs(delta);
-							locktarget = hovers[i];
-						}
+	var watchdog = 0;
+	while(this.control.direction > Math.PI && watchdog<10){this.control.direction -= 2*Math.PI; watchdog++;}
+	while(this.control.direction <-Math.PI && watchdog<10){this.control.direction += 2*Math.PI; watchdog++;}
+	while(this.body.angle - this.control.direction > Math.PI && watchdog<10){this.body.angle -= 2*Math.PI; watchdog++;}
+	while(this.control.direction - this.body.angle > Math.PI && watchdog<10){this.body.angle += 2*Math.PI; watchdog++;}
+
+	if(watchdog>6){
+		console.log("This should not have happened. Sorry.")
+	}
+
+	addThrustSound(this.control.thrust*0.3);
+
+	this.body.angle = q * this.control.direction + (1.0-q) * this.body.angle;
+	//this.body.angle = this.control.direction;
+
+	var boost = 1.0;
+	if(this.powerup == POWERUPS.adrenaline){boost = ADRENALINE_BOOST;}
+
+	this.body.force[0] = Math.cos(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
+	this.body.force[1] = Math.sin(this.body.angle)*HOVER_THRUST*this.body.mass * this.control.thrust * boost;
+
+
+	if(this.control.fire){
+		if(this.powerup == POWERUPS.missile){
+			if(this.fireReleased){
+				var m = new Missile(this);
+
+				var locktarget = null;
+				var deltamin = 1000;
+
+				for(var i=0; i<hovers.length; i++){
+					if(hovers[i] == this || hovers[i].hidden){continue;} // don't aim at yourself or hidden hovers
+					var targetdir = Math.atan2( // TODO this could be done faster with dot product but I'm too tired now and just copied from the phaser homing code
+						hovers[i].body.position[1] - this.body.position[1],
+						hovers[i].body.position[0] - this.body.position[0]);
+					var dir = this.body.angle;
+					var delta = targetdir - dir;
+					if(delta >  Math.PI){delta -= 2*Math.PI;}
+					if(delta < -Math.PI){delta += 2*Math.PI;}
+					if(Math.abs(delta) < deltamin){
+						deltamin = Math.abs(delta);
+						locktarget = hovers[i];
 					}
+				}
+			
+				m.lock = locktarget;
 				
-					m.lock = locktarget;
-					
-					this.powerupLasts--;
-					if(this.powerupLasts <= 0.000001){
-						this.powerupLasts = 0;
-						this.powerup = POWERUPS.nothing;
-					}
+				this.powerupLasts--;
+				if(this.powerupLasts <= 0.000001){
+					this.powerupLasts = 0;
+					this.powerup = POWERUPS.nothing;
 				}
 			}
-			else if(this.powerup == POWERUPS.seamine){
-				if(this.fireReleased){
-					var m = new Seamine(this);
-
-					this.powerupLasts--;
-					if(this.powerupLasts <= 0.000001){
-						this.powerupLasts = 0;
-						this.powerup = POWERUPS.nothing;
-					}
-				}
-			}
-			else{ // phaser
-				// race or death match or shooting range ongoing?
-				if(GAME_PHASE == "G")
-				{
-					if(GAME_MODE == "R" && hovers.length == 1) {
-						this.hitpoints.set(0); // explode
-						GAME_PHASE = "O"; // round over
-						ingameTimeout(1, function(){askForNewRound();});
-					} else {
-						this.shootPhaser();
-					}
-				}
-			}
-			this.fireReleased = false;
 		}
-		else{
-			this.fireReleased = true;
-		}
+		else if(this.powerup == POWERUPS.seamine){
+			if(this.fireReleased){
+				var m = new Seamine(this);
 
+				this.powerupLasts--;
+				if(this.powerupLasts <= 0.000001){
+					this.powerupLasts = 0;
+					this.powerup = POWERUPS.nothing;
+				}
+			}
+		}
+		else{ // phaser
+			// race or death match or shooting range ongoing?
+			if(GAME_PHASE == "G")
+			{
+				if(GAME_MODE == "R" && hovers.length == 1) {
+					this.hitpoints.set(0); // explode
+					GAME_PHASE = "O"; // round over
+					ingameTimeout(1, function(){askForNewRound();});
+				} else {
+					this.shootPhaser();
+				}
+			}
+		}
+		this.fireReleased = false;
+	}
+	else{
+		this.fireReleased = true;
 	}
 }
 

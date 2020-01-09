@@ -1,7 +1,7 @@
-// Inherits from Control
+// Inherits from GameController
 "use strict";
 function MobileDevice(params) {
-    Control.call(this);
+    GameController.call(this);
 	
 	this.invertLeftRight = params[3] != 0 ? true : false;
 	this.invertUpDown = params[4] != 0 ? true : false;
@@ -15,7 +15,7 @@ function MobileDevice(params) {
     window.addEventListener('devicemotion', this.handleDeviceMotion.bind(this));
 }
 
-MobileDevice.prototype = Object.create(Control.prototype);
+MobileDevice.prototype = Object.create(GameController.prototype);
 MobileDevice.prototype.constructor = MobileDevice;
 
 MobileDevice.THRUST_THRESHOLD = 0.1;
@@ -30,7 +30,7 @@ MobileDevice.prototype.captureRotationMatrix = function () {
 };
 
 MobileDevice.prototype.update = function() {
-    this.fire = this.touch;
+    this.control.fire = this.touch;
             
     var thrustVector3D = this.gravityVector.clone();
     
@@ -45,13 +45,13 @@ MobileDevice.prototype.update = function() {
 
     var length = thrustVector2D.length() * this.sensitivity;
     if(length > MobileDevice.THRUST_THRESHOLD) {
-        this.thrust = Math.min(length, 1);
+        this.control.thrust = Math.min(length, 1);
     } else {
-        this.thrust = 0;
+        this.control.thrust = 0;
     }
 
     if(length > MobileDevice.ROTATE_THRESHOLD) {
-        this.direction = thrustVector2D.angle();
+        this.control.direction = thrustVector2D.angle();
     }
 };
 

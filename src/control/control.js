@@ -1,18 +1,14 @@
 
 // depends on scene.js
 
-function Control(){
-	// parameters read by the rest of the game:
-	this.direction = 0; // target direction, 0=right, pi/2=up, -pi/2=down
-	this.thrust = 0;
-	this.fire = false; // primary fire (phaser)
-    this.special = false; // secondary fire (collected item)
+function GameController(){
     this.eventSupport = new EventSupport();
+    this.control = new Control();
 }
 
-Control.EventTypes = {pause: "pause"}
+GameController.EventTypes = {pause: "pause"}
 
-Control.createControl = function(configValues) { // player config string including name and color
+GameController.createControl = function(configValues) { // player config string including name and color
     var params = configValues.split(',');
     switch (params[2]) {
         case 'md':
@@ -24,23 +20,27 @@ Control.createControl = function(configValues) { // player config string includi
         case 'kb':
             return new Keyboard(params);
         default:
-            return new Control(params);
+            return new GameController(params);
     }
 }
 
-Control.prototype.update = function(){
+GameController.prototype.setControl = function(control) {
+    this.control = control;
+}
+
+GameController.prototype.update = function(){
     // Nothing done in the base class. Sub classes have to override this method
     // TODO: test all the control modalities
 }
 
-Control.prototype.pausePressed = function() {
-    this.eventSupport.fireEvent({type: Control.EventTypes.pause});
+GameController.prototype.pausePressed = function() {
+    this.eventSupport.fireEvent({type: GameController.EventTypes.pause});
 }
 
-Control.prototype.addEventHandler = function(handler) {
+GameController.prototype.addEventHandler = function(handler) {
     this.eventSupport.addHandler(handler);
 }
 
-Control.prototype.removeEventHandler = function(handler) {
+GameController.prototype.removeEventHandler = function(handler) {
     this.eventSupport.removeHandler(handler);
 }
