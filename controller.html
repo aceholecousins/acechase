@@ -57,6 +57,13 @@
 
 	<div class="tab" id="game">
 
+		<!-- yoke -->
+		<div class="controller" id="yokecontroller">
+			<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
+			<div id="yoketriggericon1" style="pointer-events:none"></div>
+			<div id="yoketriggericon2" style="pointer-events:none"></div>
+		</div>
+
 		<!-- joystick -->
 		<div class="controller" id="joystickcontroller">
 			<div id="joyarea" class="touchable" data-movecallback="moveStick" data-upcallback="releaseStick">
@@ -71,13 +78,6 @@
 				<div id="lever" style="pointer-events:none"></div>
 			</div>
 			<div id="levertrigger" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-		</div>
-
-		<!-- yoke -->
-		<div class="controller" id="yokecontroller">
-			<div id="yoketriggerarea" class="touchable" data-downcallback="startFiring" data-upcallback="stopFiring"></div>
-			<div id="yoketriggericon1" style="pointer-events:none"></div>
-			<div id="yoketriggericon2" style="pointer-events:none"></div>
 		</div>
 
 		<div id="status"></div>
