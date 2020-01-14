@@ -59,11 +59,15 @@ MobileDevice.prototype.getInverter = function(invert) {
 	return invert ? -1.0 : 1.0;
 };
 
-MobileDevice.prototype.handleTouchStart = function(event) {
-    this.touch = true;
+MobileDevice.prototype.handleTouchStart = function(event) {    
+    if(event.touches.length > 1) {
+        this.eventSupport.fireEvent({type: GameController.EventTypes.pause});
+    } else {
+        this.touch = true;
+    }    
 };
 
-MobileDevice.prototype.handleTouchEnd = function(event) {
+MobileDevice.prototype.handleTouchEnd = function(event) {    
     this.touch = false;
 };
 
