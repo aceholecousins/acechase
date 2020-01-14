@@ -95,6 +95,11 @@ ctx.message = function(msg){
 	rateLimiter.message(AirConsole.SCREEN, msg)
 }
 
+ctx.importantMessage = function(msg){
+	Controller.log(JSON.stringify(msg), 'green')
+	airConsole.message(AirConsole.SCREEN, msg)
+}
+
 ctx.changeProperty = function(key, value){
 	Controller.log(key + ": " + JSON.stringify(value), 'cyan')
 	rateLimiter.setCustomDeviceStateProperty(key, value);

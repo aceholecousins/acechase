@@ -57,6 +57,12 @@ AirController.prototype.onControllerMessage = function (data) {
 	}
 }
 
+AirController.prototype.onEventMessage = function (eventType) {
+	if(eventType == "pause") {		
+		this.pausePressed();
+	}
+}
+
 AirController.prototype.onStateChange = function (data, eventSupport) {
 	const maxValue = 255;
 	let color = data.color;

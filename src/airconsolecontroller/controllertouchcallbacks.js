@@ -90,7 +90,7 @@ ctx.changeController = function(select){
 }
 
 ctx.pause = function() {
-	console.log("pause");
+	Controller.pause();
 }
 
 ctx.touchPalette = function(x, y){

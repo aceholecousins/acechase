@@ -120,6 +120,11 @@ ctx.changeColor = function(newParam, forceSend=false){
 	}
 }
 
+ctx.pause = function() {
+	var data = {type:"event", eventType: "pause"};
+	AirConsoleInterface.importantMessage(data);
+}
+
 var onResize = function(){
 	ctx.sizes.w = window.innerWidth
 	ctx.sizes.h = window.innerHeight

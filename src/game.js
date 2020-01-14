@@ -140,6 +140,7 @@ function addEventHandlersToControl(control) {
 function createHovercraftsFromAirControllers() {
 	AirControl.getControllers().forEach(function(controller) {
 		let newHover = new Hovercraft(controller.color);
+		addEventHandlersToControl(controller);
 		controller.setControl(newHover.control);
 		newHover.playerName = controller.nickName;
 		newHover.hitpoints = new VibratingAirProperty(0, HITPOINTS, "hull", controller.device_id);

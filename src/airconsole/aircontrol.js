@@ -97,6 +97,8 @@ var AirControl = {};
 				case 'control':
 					controller.onControllerMessage(data);
 					break;
+				case 'event':
+					controller.onEventMessage(data.eventType);
 			}
 		}
 	}
