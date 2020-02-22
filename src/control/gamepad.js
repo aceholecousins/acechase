@@ -1,9 +1,10 @@
-// Inherits from Control
+// Inherits from GameController
 "use strict";
 function Gamepad(params) {
-    Control.call(this);
+    GameController.call(this);
 
     this.gpindex = params[3] - 1; // so the configuration can say 1 and we understand 0
+    this.gamepad;
     this.relative = params[4] == "rel"; // false for absolute direction control
     this.lraxis = params[5].slice(2, 3);
     this.lrsign = 1;
@@ -27,35 +28,63 @@ function Gamepad(params) {
     }
     this.firebutton = params[8].slice(1, 3) * 1;
     this.spclbutton = params[9].slice(1, 3) * 1;
+
+    this.pausebutton = 9;
+
+    this.lastPauseButtonState = false;
 }
 
-Gamepad.prototype = Object.create(Control.prototype);
+Gamepad.prototype = Object.create(GameController.prototype);
 Gamepad.prototype.constructor = Gamepad;
 
-Gamepad.prototype.update = function () {
-    var gp = navigator.getGamepads()[this.gpindex];
+Gamepad.prototype.initGamepad = function() {
+    this.gamepad = navigator.getGamepads()[this.gpindex];
+    if(this.gamepad) {        
+        if(this.gamepad.mapping == "standard") {
+            this.pausebutton = 9;
+        } else {
+            this.pausebutton = 7;
+        }
+    }
+}
 
-    if (gp) {
+Gamepad.prototype.update = function () {
+
+    this.initGamepad();    
+
+    if (this.gamepad) {
         if (this.relative) {
-            if (Math.abs(gp.axes[this.lraxis]) > 0.2) {
-                this.direction -= this.lrsign * gp.axes[this.lraxis] * 5.0 * DT;				
+            if (Math.abs(this.gamepad.axes[this.lraxis]) > 0.2) {
+                this.control.direction -= this.lrsign * this.gamepad.axes[this.lraxis] * 5.0 * DT;				
             }
         } else { //absolute direction control
-            if (gp.axes[this.lraxis] * gp.axes[this.lraxis] + gp.axes[this.udaxis] * gp.axes[this.udaxis] > 0.6 * 0.6) {
-                this.direction = Math.atan2(this.udsign * gp.axes[this.udaxis], this.lrsign * gp.axes[this.lraxis]);
+            if (this.gamepad.axes[this.lraxis] * this.gamepad.axes[this.lraxis] + this.gamepad.axes[this.udaxis] * this.gamepad.axes[this.udaxis] > 0.6 * 0.6) {
+                this.control.direction = Math.atan2(this.udsign * this.gamepad.axes[this.udaxis], this.lrsign * this.gamepad.axes[this.lraxis]);
             }
         }
 
         if (this.thrustIsAxis) {
-            this.thrust = this.thrustsign * gp.axes[this.thrustaxis];
-            if (this.thrust < 0) {
-                this.thrust = 0;
+            this.control.thrust = this.thrustsign * this.gamepad.axes[this.thrustaxis];
+            if (this.control.thrust < 0) {
+                this.control.thrust = 0;
             }
         } else {
-            this.thrust = gp.buttons[this.thrustbutton].value;
+            this.control.thrust = this.gamepad.buttons[this.thrustbutton].value;
         }
 
-        this.fire = gp.buttons[this.firebutton].value;
-        this.special = gp.buttons[this.spclbutton].value;
+        this.control.fire = this.gamepad.buttons[this.firebutton].value;
+        this.control.special = this.gamepad.buttons[this.spclbutton].value;
+
+        this.processPauseButton();
     }
 };
+
+Gamepad.prototype.processPauseButton = function() {
+    let currentPauseButtonState = this.gamepad.buttons[this.pausebutton].pressed;        
+
+    //Recognize positive edge        
+    if(this.lastPauseButtonState != currentPauseButtonState && currentPauseButtonState == true) {            
+        this.pausePressed();
+    }
+    this.lastPauseButtonState = currentPauseButtonState;
+}

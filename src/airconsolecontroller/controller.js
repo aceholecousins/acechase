@@ -120,6 +120,11 @@ ctx.changeColor = function(newParam, forceSend=false){
 	}
 }
 
+ctx.pause = function() {
+	var data = {type:"event", eventType: "pause"};
+	AirConsoleInterface.importantMessage(data);
+}
+
 var onResize = function(){
 	ctx.sizes.w = window.innerWidth
 	ctx.sizes.h = window.innerHeight
@@ -147,7 +152,7 @@ var onResize = function(){
 	reposition("yoketriggericon2", ctx.sizes.w-ctx.sizes.tile, (ctx.sizes.h-ctx.sizes.tile)*0.5, ctx.sizes.tile, ctx.sizes.tile)
 	reposition("yoketriggerarea", 0, 0, ctx.sizes.w, ctx.sizes.h)
 
-	reposition("changecontroller", ctx.sizes.w*0.4, ctx.sizes.h-ctx.sizes.w*0.06, ctx.sizes.w*0.2, ctx.sizes.w*0.06)
+	reposition("pause", ctx.sizes.w*0.4, ctx.sizes.h-ctx.sizes.w*0.06, ctx.sizes.w*0.2, ctx.sizes.w*0.06)
 
 	reposition("left", 0.05*ctx.sizes.w, 0.1*ctx.sizes.h, 0.25*ctx.sizes.w, 0.6*ctx.sizes.h)
 	reposition("go", 0.37*ctx.sizes.w, 0.1*ctx.sizes.h, 0.26*ctx.sizes.w, 0.6*ctx.sizes.h)

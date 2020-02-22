@@ -1,7 +1,7 @@
-// Inherits from Control
+// Inherits from GameController
 "use strict";
 function Keyboard(params) {
-    Control.call(this);
+    GameController.call(this);
 
     this.relative = params[3] == "rel"; // false for absolute direction control
     this.lkey = params[4] * 1; // *1 for string to int
@@ -20,24 +20,31 @@ function Keyboard(params) {
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
 }
 
-Keyboard.prototype = Object.create(Control.prototype);
+Keyboard.PAUSE_KEYS = [80, 19];
+
+Keyboard.prototype = Object.create(GameController.prototype);
 Keyboard.prototype.constructor = Keyboard;
 
 Keyboard.prototype.update = function () {
     if (this.relative) {
-        this.direction += (this.keyDownMap[this.lkey] - this.keyDownMap[this.rkey]) * 5.0 * DT;
+        this.control.direction += (this.keyDownMap[this.lkey] - this.keyDownMap[this.rkey]) * 5.0 * DT;
     } else { // absolute direction control
         if (this.keyDownMap[this.lkey] - this.keyDownMap[this.rkey] != 0 || this.keyDownMap[this.ukey] - this.keyDownMap[this.dkey] != 0) {
-            this.direction = Math.atan2(this.keyDownMap[this.ukey] - this.keyDownMap[this.dkey], this.keyDownMap[this.rkey] - this.keyDownMap[this.lkey]);
+            this.control.direction = Math.atan2(this.keyDownMap[this.ukey] - this.keyDownMap[this.dkey], this.keyDownMap[this.rkey] - this.keyDownMap[this.lkey]);
         }
     }
-    this.thrust = this.keyDownMap[this.thrustkey];
-    this.fire = this.keyDownMap[this.firekey];
-    this.special = this.keyDownMap[this.specialkey];
+    this.control.thrust = this.keyDownMap[this.thrustkey];
+    this.control.fire = this.keyDownMap[this.firekey];
+    this.control.special = this.keyDownMap[this.specialkey];
 };
 
 Keyboard.prototype.handleKeyDown = function (event) {
-    this.keyDownMap[event.keyCode] = true;
+    if(!event.repeat) {
+        this.keyDownMap[event.keyCode] = true;
+        if(Keyboard.PAUSE_KEYS.indexOf(event.keyCode) != -1) {
+            this.pausePressed();
+        }
+    }
 };
 
 Keyboard.prototype.handleKeyUp = function (event) {

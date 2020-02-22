@@ -89,6 +89,10 @@ ctx.changeController = function(select){
 	Controller.sendControls()
 }
 
+ctx.pause = function() {
+	Controller.pause();
+}
+
 ctx.touchPalette = function(x, y){
 	var param = (x-Controller.sizes.w*0.05)/(Controller.sizes.w*0.9)
 	if(param<0){param=0}

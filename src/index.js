@@ -245,7 +245,7 @@ function startgame(){
 
 	var urltail = "#" + config2string(false);
 
-	var url = window.location.href.replace("index.html", "");
+	var url = window.location.href.replace(/index\.html.*/, "");
 	while(url.slice(-1) == "/"){url = url.substring(0, url.length-1);}
 
 	url = url + "/screen.html" + urltail;

@@ -4,6 +4,7 @@ var PARAMS = location.hash;
 var GAME_PHASE; // S for pre start, G for... going... on, O for over, R for results, P for paused
 
 var hovers=[];
+var gameControllers=[];
 var ARENA;
 var SCORETABLE;
 var SCORETABLE_PROTECT = false;
@@ -16,9 +17,8 @@ var LAST_TIMESTAMP;
 
 
 function initGame() {
-	document.getElementById("splashscreen").style.visibility = "visible";
-	document.getElementById("splashscreentext").innerHTML = "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
-		+ "</b><br><br><i>loading...</i>";
+	showSplash(true, "<b>" + QUOTES[Math.floor(Math.random()*QUOTES.length)]
+		+ "</b><br><br><i>loading...</i>");
 
 	Scene.init();
 
@@ -29,6 +29,13 @@ function initGame() {
 	SCORETABLE.plane.visible = false;
 
 	LOADING_LIST.setCallback(prepareGame);
+}
+
+function showSplash(show, htmlToShow) {
+	document.getElementById("splashscreen").style.visibility = show ? "visible" : "hidden";
+	if(htmlToShow != null) {
+		document.getElementById("splashscreentext").innerHTML = htmlToShow;
+	}
 }
 
 function readParams() {
@@ -109,17 +116,32 @@ function createHovercraftsFromParams() {
 
 		if(key=="player" || key=="player0"){
 			hovers[iPlayer] = new Hovercraft(
-					new THREE.Color(value.split(',')[1]),
-					Control.createControl(value));
+					new THREE.Color(value.split(',')[1]));
 			hovers[iPlayer].playerName = value.split(',')[0];
+			
+			let controller = GameController.createControl(value);
+			addEventHandlersToControl(controller);
+			controller.setControl(hovers[iPlayer].control)
+			gameControllers.push(controller);
+
 			iPlayer++;
 		}
 	}
 }
 
+function addEventHandlersToControl(control) {
+	control.addEventHandler(function(event) {
+		if(event.type == GameController.EventTypes.pause) {
+			pauseOrResumeGame()
+		}				
+	});
+}
+
 function createHovercraftsFromAirControllers() {
 	AirControl.getControllers().forEach(function(controller) {
-		let newHover = new Hovercraft(controller.color, controller);
+		let newHover = new Hovercraft(controller.color);
+		addEventHandlersToControl(controller);
+		controller.setControl(newHover.control);
 		newHover.playerName = controller.nickName;
 		newHover.hitpoints = new VibratingAirProperty(0, HITPOINTS, "hull", controller.device_id);
 		newHover.shield = new AirProperty(0, SHIELD, "shield", controller.device_id);
@@ -129,22 +151,22 @@ function createHovercraftsFromAirControllers() {
 }
 
 function isAtLeastOneMobileDevice() {
-	return hovers.findIndex(function (element, index, array) {
-		return element.control instanceof MobileDevice;
+	return gameControllers.findIndex(function (element, index, array) {
+		return element instanceof MobileDevice;
 	}) != -1;
 }
 
 function initMobileDevice() {
-	document.getElementById("splashscreentext").innerHTML =
+	showSplash(true,
 			"Hold your device in desired initial position and touch screen!<br>" +
-			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>";
+			"<img src='media/images/hold_phone.png' alt='Hold Phone Image'>");
 	document.body.onclick = start;
 }
 
 function captureMobileDevicesInitialPosition() {
-	hovers.forEach(function(element, index, array) {
-		if(element.control instanceof MobileDevice) {
-			element.control.captureRotationMatrix();
+	gameControllers.forEach(function(element, index, array) {
+		if(element instanceof MobileDevice) {
+			element.captureRotationMatrix();
 		}
 	});
 }
@@ -159,7 +181,7 @@ function start() {
 	}
 
 	onWindowResize(); // call to initially adjust camera
-	document.getElementById("splashscreen").style.visibility = "hidden";
+	showSplash(false);
 	Scene.renderer.setClearColor( FOG_COLOR );
 
 	newRound();
@@ -193,6 +215,8 @@ function calculateCurrentDt(currentTimestamp) {
 }
 
 function gameloop() {
+
+	updateControls();
 
 	if(GAME_PHASE != "P"){ // not paused
 		updateIngameTimeouts(); // ingame timeouts also run during start and over phase (for triggering their end)
@@ -228,13 +252,12 @@ function gameloop() {
 
 		if(GAME_PHASE == "R"){
 			var continus = 0;
-			for(var i=0; i<hovers.length; i++){
-				hovers[i].control.update();
+			for(var i=0; i<hovers.length; i++){				
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
 			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){askForNewRound();} // majority vote
-		}
+		}		
 
 		THRUST_SOUND.gn.gain.value = 0.0;
 		updateAllHBObjects();
@@ -464,5 +487,23 @@ function newRound(){
 			ingameTimeout(6, function(){spawnTarget(true, 60);});
 			ingameTimeout(7, function(){spawnTarget(true, 120);});
 		}
+	}
+}
+
+function pauseOrResumeGame() {
+	if(GAME_PHASE == "G") {
+		console.log("Game paused");
+		GAME_PHASE = "P";
+		showSplash(true, "<b>Game Paused</b><br>press pause button again to resume");
+	} else if(GAME_PHASE == "P") {
+		console.log("Game resumed");
+		GAME_PHASE = "G";
+		showSplash(false);
+	}
+}
+
+function updateControls() {
+	for (gameController of gameControllers) {
+		gameController.update();
 	}
 }
