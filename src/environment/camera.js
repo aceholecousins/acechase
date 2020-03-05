@@ -45,6 +45,8 @@ if(DEBUG>3){ // render camera frustum
 	var camview = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camview);
 	camview.material.color = new THREE.Color("blue");
 	camview.geometry.vertices = [CNW, CNE, CSE, CSW, CNW];
+	var axesHelper = new THREE.AxesHelper();
+	Scene.graphicsScene.add( axesHelper );
 }
 
 function linePlaneIntersect(p1, p2, n, d){

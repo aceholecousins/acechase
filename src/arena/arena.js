@@ -92,8 +92,8 @@ function Arena(modelDaeFile, boundarySvgFile){
 		wSvg = BOUNDARY_LOADER.wSvg
 		hSvg = BOUNDARY_LOADER.hSvg
 
-		MAP_WIDTH = wSvg * MAP_SCALING;
-		MAP_HEIGHT = hSvg * MAP_SCALING;
+		MAP_WIDTH = wSvg * MAP_SCALING
+		MAP_HEIGHT = hSvg * MAP_SCALING
 
 		MAP_MAXDIM = Math.max(MAP_WIDTH, MAP_HEIGHT);
 
