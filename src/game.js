@@ -25,7 +25,8 @@ function initGame() {
 	//ARENA = new Arena(MAP);
 	//ARENA = new Arena("maps/hackerland2/model.dae", "maps/hackerland2/map.svg");
 	//ARENA = new Arena("maps/grassicemountains/model.dae", "maps/grassicemountains/map.svg");
-	ARENA = new Arena("maps/hive/model.dae", "maps/hive/map.svg");
+	//ARENA = new Arena("maps/hive/model.dae", "maps/hive/map.svg");
+	ARENA = new Arena("maps/temple/model.dae", "maps/temple/map.svg");
 	SCORETABLE = new ScoreTable();
 
 	Scene.graphicsScene.add(SCORETABLE.plane);

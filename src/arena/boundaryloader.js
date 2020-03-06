@@ -104,6 +104,14 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 					this.polygons[j].push(p);
 					commands[i] = "L " + commands[i].split(" ")[3]; // replace by line for physics distance map
 					break;
+				case "H":
+					p = [commands[i].split(" ")[1] * 1, p[1]]
+					this.polygons[j].push(p);
+					break;
+				case "V":
+					p = [p[0], commands[i].split(" ")[1] * 1]
+					this.polygons[j].push(p);
+					break;
 				case "Z": case "z":
 					var k = this.polygons[j].length-1;
 					if(Math.abs(this.polygons[j][k][0]-this.polygons[j][0][0] < 0.001) &&
