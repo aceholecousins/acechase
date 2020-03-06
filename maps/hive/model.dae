@@ -5,84 +5,84 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.82.7 commit date:2020-02-12, commit time:16:20, hash:77d23b0bd76f</authoring_tool>
     </contributor>
-    <created>2020-03-05T21:14:37</created>
-    <modified>2020-03-05T21:14:37</modified>
+    <created>2020-03-06T16:16:28</created>
+    <modified>2020-03-06T16:16:28</modified>
     <unit name="meter" meter="1"/>
-    <up_axis>Z_UP</up_axis>
   </asset>
   <library_images>
-    <image id="diffuse" name="diffuse">
-      <init_from>diffuse.png</init_from>
+    <image id="comb_diffuse" name="comb_diffuse">
+      <init_from>comb_diffuse.png</init_from>
     </image>
-    <image id="normal" name="normal">
-      <init_from>normal.png</init_from>
+    <image id="comb_normal" name="comb_normal">
+      <init_from>comb_normal.png</init_from>
     </image>
-    <image id="specular" name="specular">
-      <init_from>specular.png</init_from>
+    <image id="comb_specular" name="comb_specular">
+      <init_from>comb_specular.png</init_from>
     </image>
-    <image id="emissive" name="emissive">
-      <init_from>emissive.png</init_from>
+    <image id="comb_emissive" name="comb_emissive">
+      <init_from>comb_emissive.png</init_from>
     </image>
   </library_images>
   <library_effects>
-    <effect id="Mat1-effect">
+    <effect id="Mat_comb-effect">
       <profile_COMMON>
-        <newparam sid="diffuse-surface">
+        <newparam sid="comb_diffuse-surface">
           <surface type="2D">
-            <init_from>diffuse</init_from>
+            <init_from>comb_diffuse</init_from>
           </surface>
         </newparam>
-        <newparam sid="diffuse-sampler">
+        <newparam sid="comb_diffuse-sampler">
           <sampler2D>
-            <source>diffuse-surface</source>
+            <source>comb_diffuse-surface</source>
           </sampler2D>
         </newparam>
-        <newparam sid="normal-surface">
+        <newparam sid="comb_normal-surface">
           <surface type="2D">
-            <init_from>normal</init_from>
+            <init_from>comb_normal</init_from>
           </surface>
         </newparam>
-        <newparam sid="normal-sampler">
+        <newparam sid="comb_normal-sampler">
           <sampler2D>
-            <source>normal-surface</source>
+            <source>comb_normal-surface</source>
           </sampler2D>
         </newparam>
-        <newparam sid="specular-surface">
+        <newparam sid="comb_specular-surface">
           <surface type="2D">
-            <init_from>specular</init_from>
+            <init_from>comb_specular</init_from>
           </surface>
         </newparam>
-        <newparam sid="specular-sampler">
+        <newparam sid="comb_specular-sampler">
           <sampler2D>
-            <source>specular-surface</source>
+            <source>comb_specular-surface</source>
           </sampler2D>
         </newparam>
-        <newparam sid="emissive-surface">
+        <newparam sid="comb_emissive-surface">
           <surface type="2D">
-            <init_from>emissive</init_from>
+            <init_from>comb_emissive</init_from>
           </surface>
         </newparam>
-        <newparam sid="emissive-sampler">
+        <newparam sid="comb_emissive-sampler">
           <sampler2D>
-            <source>emissive-surface</source>
+            <source>comb_emissive-surface</source>
           </sampler2D>
         </newparam>
+
         <technique sid="common">
           <phong>
             <emission>
-              <texture texture="emissive-sampler" texcoord="TEXCOORD" />
+              <texture texture="comb_emissive-sampler" texcoord="TEXCOORD" />
             </emission>
             <diffuse>
-              <texture texture="diffuse-sampler" texcoord="TEXCOORD" />
+              <texture texture="comb_diffuse-sampler" texcoord="TEXCOORD" />
             </diffuse>
             <bump>
-              <texture texture="normal-sampler" texcoord="TEXCOORD" />
+              <texture texture="comb_normal-sampler" texcoord="TEXCOORD" />
             </bump>
             <specular>
               <color sid="specular">0.06666666666666667 0.06666666666666667 0.06666666666666667 1</color>
             </specular>
             <shininess>
-              <texture texture="specular-sampler" texcoord="TEXCOORD" />
+              <texture texture="comb_specular-sampler" texcoord="TEXCOORD" />
             </shininess>
             <reflective>
               <color>1 1 1 1</color>
@@ -96,17 +96,17 @@
     </effect>
   </library_effects>
   <library_materials>
-    <material id="Mat1">
-      <instance_effect url="#Mat1-effect" />
+    <material id="Mat_comb">
+      <instance_effect url="#Mat_comb-effect" />
     </material>
   </library_materials>
   <library_geometries>
     <geometry id="Cylinder-mesh" name="Cylinder">
       <mesh>
         <source id="Cylinder-mesh-positions">
-          <float_array id="Cylinder-mesh-positions-array" count="72">0 1 -1 0 0.07937943 -0.6450437 -0.8660255 1 -0.5 -0.5586243 0.07937943 -0.3225218 -0.8660254 1 0.5000001 -0.5586242 0.07937943 0.3225219 0 1 1 0 0.07937943 0.6450437 0.8660255 1 0.4999999 0.5586243 0.07937943 0.3225218 0.8660255 1 -0.4999999 0.5586243 0.07937943 -0.3225218 0 -0.3092358 -1 0 -0.3333333 -0.8071965 -0.6990527 -0.3333333 -0.4035982 -0.8660255 -0.3092358 -0.5 -0.6990526 -0.3333333 0.4035983 -0.8660254 -0.3092358 0.5000001 0 -0.3333333 0.8071965 0 -0.3092358 1 0.6990527 -0.3333333 0.4035982 0.8660254 -0.3092358 0.4999999 0.6990527 -0.3333333 -0.4035982 0.8660255 -0.3092358 -0.4999999</float_array>
+          <float_array id="Cylinder-mesh-positions-array" count="144">0 1 -1 0 0.6450437 -0.07937943 0.8660255 0.5 -1 0.5586243 0.3225218 -0.07937943 0.8660254 -0.5000001 -1 0.5586242 -0.3225219 -0.07937943 0 -1 -1 0 -0.6450437 -0.07937943 -0.8660255 -0.4999999 -1 -0.5586243 -0.3225218 -0.07937943 -0.8660255 0.4999999 -1 -0.5586243 0.3225218 -0.07937943 0 1 0.3092358 0 0.8071965 0.3333333 0.6990527 0.4035982 0.3333333 0.8660255 0.5 0.3092358 0.6990526 -0.4035983 0.3333333 0.8660254 -0.5000001 0.3092358 0 -0.8071965 0.3333333 0 -1 0.3092358 -0.6990527 -0.4035982 0.3333333 -0.8660254 -0.4999999 0.3092358 -0.6990527 0.4035982 0.3333333 -0.8660255 0.4999999 0.3092358 0.8660255 0.5 0.3092358 0.8660255 0.5 0.3092358 0.8660255 0.5 -1 0.8660254 -0.5000001 0.3092358 0.8660254 -0.5000001 0.3092358 0.8660254 -0.5000001 -1 0 -1 0.3092358 0 -1 0.3092358 0 -1 -1 -0.8660254 -0.4999999 0.3092358 -0.8660254 -0.4999999 0.3092358 -0.8660255 -0.4999999 -1 -0.8660255 0.4999999 0.3092358 -0.8660255 0.4999999 0.3092358 -0.8660255 0.4999999 -1 0 1 -1 0 1 0.3092358 0 1 0.3092358 -0.6990527 0.4035982 0.3333333 0 0.8071965 0.3333333 -0.6990527 -0.4035982 0.3333333 0 -0.8071965 0.3333333 0.6990526 -0.4035983 0.3333333 0.6990527 0.4035982 0.3333333</float_array>
           <technique_common>
-            <accessor source="#Cylinder-mesh-positions-array" count="24" stride="3">
+            <accessor source="#Cylinder-mesh-positions-array" count="48" stride="3">
               <param name="X" type="float"/>
               <param name="Y" type="float"/>
               <param name="Z" type="float"/>
@@ -114,7 +114,7 @@
           </technique_common>
         </source>
         <source id="Cylinder-mesh-normals">
-          <float_array id="Cylinder-mesh-normals-array" count="72">0 -0.7461857 0.665738 0.2855655 -0.9440723 0.1648632 0 -0.9440761 0.3297278 0.5765363 -0.746192 0.3328718 0.2855655 -0.9440723 -0.1648632 0.5765363 -0.746192 -0.3328718 0 -0.9440761 -0.3297278 0 -0.7461857 -0.665738 -0.2855655 -0.9440723 -0.1648632 -0.5765363 -0.746192 -0.3328718 -0.2855655 -0.9440723 0.1648632 -0.5765363 -0.746192 0.3328718 0.7100206 -0.5725637 -0.4099289 0 0 -1 0.8660317 0 -0.4999893 0 -0.5725648 -0.8198595 0.7100206 -0.5725637 0.4099289 0.8660317 0 0.4999893 0 -0.5725648 0.8198595 0 0 1 -0.7100206 -0.5725637 0.4099289 -0.8660317 0 0.4999893 -0.7100206 -0.5725637 -0.4099289 -0.8660317 0 -0.4999893</float_array>
+          <float_array id="Cylinder-mesh-normals-array" count="72">0 -0.665738 0.7461857 -0.806049 -0.4653604 0.3656839 0 -0.9307408 0.3656798 -0.5765363 -0.3328718 0.746192 -0.806049 0.4653604 0.3656839 -0.5765363 0.3328718 0.746192 0 0.9307408 0.3656798 0 0.665738 0.7461857 0.806049 0.4653604 0.3656839 0.5765363 0.3328718 0.746192 0.806049 -0.4653604 0.3656839 0.5765363 -0.3328718 0.746192 -0.4999893 0.8660317 0 -0.107395 0.06198328 0.9922825 0 0.1239972 0.9922826 -1 0 0 -0.107395 -0.06198328 0.9922825 -0.4999893 -0.8660317 0 0 -0.1239972 0.9922826 0.4999893 -0.8660317 0 0.107395 -0.06198328 0.9922825 1 0 0 0.107395 0.06198328 0.9922825 0.4999893 0.8660317 0</float_array>
           <technique_common>
             <accessor source="#Cylinder-mesh-normals-array" count="24" stride="3">
               <param name="X" type="float"/>
@@ -139,7 +139,7 @@
           <input semantic="VERTEX" source="#Cylinder-mesh-vertices" offset="0"/>
           <input semantic="NORMAL" source="#Cylinder-mesh-normals" offset="1"/>
           <input semantic="TEXCOORD" source="#Cylinder-mesh-map-0" offset="2" set="0"/>
-          <p>1 0 0 14 1 1 13 2 2 3 3 3 16 4 4 14 1 5 5 5 6 18 6 7 16 4 8 7 7 9 20 8 10 18 6 11 9 9 12 7 7 13 5 5 14 9 9 15 22 10 16 20 8 17 11 11 18 13 2 19 22 10 20 23 12 21 0 13 22 10 14 23 22 10 24 12 15 25 23 12 26 21 16 27 10 14 28 8 17 29 20 8 30 23 12 31 21 16 32 19 18 33 8 17 34 6 19 35 18 6 36 21 16 37 19 18 38 17 20 39 6 19 40 4 21 41 16 4 42 19 18 43 17 20 44 15 22 45 4 21 46 2 23 47 14 1 48 17 20 49 15 22 50 12 15 51 2 23 52 0 13 53 13 2 54 15 22 55 12 15 56 1 0 57 3 3 58 14 1 59 3 3 60 5 5 61 16 4 62 5 5 63 7 7 64 18 6 65 7 7 66 9 9 67 20 8 68 5 5 69 3 3 70 9 9 71 3 3 72 1 0 73 9 9 74 1 0 75 11 11 76 9 9 77 9 9 78 11 11 79 22 10 80 11 11 81 1 0 82 13 2 83 23 12 84 12 15 85 0 13 86 22 10 87 13 2 88 12 15 89 21 16 90 23 12 91 10 14 92 20 8 93 22 10 94 23 12 95 19 18 96 21 16 97 8 17 98 18 6 99 20 8 100 21 16 101 17 20 102 19 18 103 6 19 104 16 4 105 18 6 106 19 18 107 15 22 108 17 20 109 4 21 110 14 1 111 16 4 112 17 20 113 12 15 114 15 22 115 2 23 116 13 2 117 14 1 118 15 22 119</p>
+          <p>1 0 0 47 1 1 43 2 2 3 3 3 46 4 4 47 1 5 5 5 6 45 6 7 46 4 8 7 7 9 44 8 10 45 6 11 9 9 12 7 7 13 5 5 14 9 9 15 42 10 16 44 8 17 11 11 18 43 2 19 42 10 20 36 12 21 0 12 22 10 12 23 22 13 24 41 14 25 37 13 26 33 15 27 38 15 28 8 15 29 20 16 30 37 13 31 34 16 32 30 17 33 35 17 34 6 17 35 18 18 36 34 16 37 31 18 38 27 19 39 32 19 40 4 19 41 16 20 42 31 18 43 28 20 44 24 21 45 29 21 46 2 21 47 14 22 48 28 20 49 25 22 50 12 23 51 26 23 52 39 23 53 13 14 54 25 22 55 41 14 56 1 0 57 3 3 58 47 1 59 3 3 60 5 5 61 46 4 62 5 5 63 7 7 64 45 6 65 7 7 66 9 9 67 44 8 68 5 5 69 3 3 70 9 9 71 3 3 72 1 0 73 9 9 74 1 0 75 11 11 76 9 9 77 9 9 78 11 11 79 42 10 80 11 11 81 1 0 82 43 2 83 36 12 84 40 12 85 0 12 86 22 13 87 13 14 88 41 14 89 33 15 90 23 15 91 38 15 92 20 16 93 22 13 94 37 13 95 30 17 96 21 17 97 35 17 98 18 18 99 20 16 100 34 16 101 27 19 102 19 19 103 32 19 104 16 20 105 18 18 106 31 18 107 24 21 108 17 21 109 29 21 110 14 22 111 16 20 112 28 20 113 12 23 114 15 23 115 26 23 116 13 14 117 14 22 118 25 22 119</p>
         </triangles>
       </mesh>
     </geometry>
@@ -147,13 +147,13 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="combs" name="combs" type="NODE">
-        <matrix sid="transform">-0.150379 0 0.984808 0 0 1 0 0 -0.852844 0 -0.173648 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.1503792 0.9848078 0 0 -0.8528435 -0.1736481 0 0 0 0 1 0 0 0 0 1</matrix>
         <node id="comb_001" name="comb.001" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -8 0 2 0 -1 0 0 2 -8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 8 0 2 0 8.999999 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.001">
             <bind_material>
               <technique_common>
-                <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
                   <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
                 </instance_material>
               </technique_common>
@@ -161,1361 +161,1361 @@
           </instance_geometry>
         </node>
         <node id="comb_002" name="comb.002" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 -1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.002">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_003" name="comb.003" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -8 0 2 0 1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 8 0 2 0 3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.003">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_004" name="comb.004" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 -1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 -1.19209e-7 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.004">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_005" name="comb.005" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -8 0 2 0 1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 8 0 2 0 -3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.005">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_006" name="comb.006" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -10 0 2 0 -1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 10 0 2 0 -6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.006">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_007" name="comb.007" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -8 0 2 0 -1 0 0 2 8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 8 0 2 0 -8.999999 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.007">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_008" name="comb.008" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 -3 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 -12 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.008">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_009" name="comb.009" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -1 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.009">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_010" name="comb.010" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 1 0 0 2 -8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 8.999999 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.010">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_011" name="comb.011" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.011">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_012" name="comb.012" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.012">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_013" name="comb.013" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 5.96046e-8 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.013">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_014" name="comb.014" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 -3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.014">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_015" name="comb.015" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 -6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.015">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_016" name="comb.016" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 1 0 0 2 9 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 -9 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.016">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_017" name="comb.017" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -1 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 -12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.017">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_018" name="comb.018" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -1 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.018">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_019" name="comb.019" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 1 0 0 2 -9 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 1.19209e-7 0 2 0 9 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.019">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_020" name="comb.020" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.020">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_021" name="comb.021" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 -1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 0 0 2 0 3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.021">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_022" name="comb.022" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 0 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.022">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_023" name="comb.023" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 0 0 2 0 -3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.023">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_024" name="comb.024" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 -6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.024">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_025" name="comb.025" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 1 0 0 2 9 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -1.19209e-7 0 2 0 -9 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.025">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_026" name="comb.026" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -1 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 -12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.026">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_027" name="comb.027" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 -1 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.027">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_028" name="comb.028" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 -1 0 0 2 -9 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 9 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.028">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_029" name="comb.029" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.029">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_030" name="comb.030" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.030">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_031" name="comb.031" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 0 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.031">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_032" name="comb.032" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.032">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_033" name="comb.033" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 -1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.033">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_034" name="comb.034" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 1 0 0 2 8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -8.999999 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.034">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_035" name="comb.035" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 -1 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.035">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_036" name="comb.036" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 -1 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.036">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_037" name="comb.037" type="NODE">
-          <matrix sid="transform">2.309401 0 0 8 0 2 0 -1 0 0 2 -8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -8 0 2 0 8.999999 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.037">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_038" name="comb.038" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.038">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_039" name="comb.039" type="NODE">
-          <matrix sid="transform">2.309401 0 0 8 0 2 0 1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -8 0 2 0 3 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.039">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_040" name="comb.040" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 -1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -5.96046e-8 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.040">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_041" name="comb.041" type="NODE">
-          <matrix sid="transform">2.309401 0 0 8 0 2 0 -1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -8 0 2 0 -3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.041">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_042" name="comb.042" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -6 0 0 2 -1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.042">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_043" name="comb.043" type="NODE">
-          <matrix sid="transform">2.309401 0 0 8 0 2 0 -1 0 0 2 8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -8 0 2 0 -8.999999 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.043">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_044" name="comb.044" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 -1 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -12 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.044">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_045" name="comb.045" type="NODE">
-          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 -3 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 12 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.045">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_046" name="comb.046" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -3 0 0 2 -8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 8.999999 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.046">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_047" name="comb.047" type="NODE">
-          <matrix sid="transform">2.309401 0 0 10 0 2 0 -1 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -10 0 2 0 6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.047">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_048" name="comb.048" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.048">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_049" name="comb.049" type="NODE">
-          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 -1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 1.19209e-7 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.049">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_051" name="comb.051" type="NODE">
-          <matrix sid="transform">2.309401 0 0 9.999999 0 2 0 -1 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -9.999999 0 2 0 -6 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.051">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_053" name="comb.053" type="NODE">
-          <matrix sid="transform">2.309401 0 0 9.999998 0 2 0 -3 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -9.999998 0 2 0 -12 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.053">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_054" name="comb.054" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -1 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.054">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_055" name="comb.055" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -1 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 -3 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.055">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_056" name="comb.056" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -3 0 0 2 8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 -8.999999 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.056">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_050" name="comb.050" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -5 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 -15 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.050">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_052" name="comb.052" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -8 0 2 0 -3 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 8 0 2 0 -15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.052">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_057" name="comb.057" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -3 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 -15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.057">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_058" name="comb.058" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 -3 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 0 0 2 0 -15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.058">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_059" name="comb.059" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 -3 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.059">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_060" name="comb.060" type="NODE">
-          <matrix sid="transform">2.309401 0 0 7.999999 0 2 0 -3 0 0 2 15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -7.999999 0 2 0 -15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.060">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_061" name="comb.061" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -9.999998 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 9.999998 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.061">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_062" name="comb.062" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.062">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_063" name="comb.063" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.063">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_064" name="comb.064" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.064">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_065" name="comb.065" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.065">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_066" name="comb.066" type="NODE">
-          <matrix sid="transform">2.309401 0 0 10 0 2 0 -5 0 0 2 18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -10 0 2 0 -18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.066">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_073" name="comb.073" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -7.999999 0 2 0 -3 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 7.999999 0 2 0 15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.073">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_074" name="comb.074" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -4 0 2 0 -3 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 4 0 2 0 15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.074">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_075" name="comb.075" type="NODE">
-          <matrix sid="transform">2.309401 0 0 0 0 2 0 -3 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 0 0 2 0 15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.075">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_076" name="comb.076" type="NODE">
-          <matrix sid="transform">2.309401 0 0 4 0 2 0 -3 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -4 0 2 0 15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.076">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_077" name="comb.077" type="NODE">
-          <matrix sid="transform">2.309401 0 0 8 0 2 0 -3 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -8 0 2 0 15 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.077">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_078" name="comb.078" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -5 0 0 2 -15 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 15 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.078">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_079" name="comb.079" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -10 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 10 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.079">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_080" name="comb.080" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -6 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 6 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.080">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_081" name="comb.081" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -2 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 2 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.081">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_082" name="comb.082" type="NODE">
-          <matrix sid="transform">2.309401 0 0 2 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -2 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.082">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_083" name="comb.083" type="NODE">
-          <matrix sid="transform">2.309401 0 0 6 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -6 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.083">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_091" name="comb.091" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -5 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 14 0 2 0 12 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.091">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_092" name="comb.092" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -3 0 0 2 -9 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 9 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.092">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_093" name="comb.093" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -3 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 14 0 2 0 6 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.093">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_094" name="comb.094" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -1 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 14 0 2 0 0 0 0 2 1 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.094">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_095" name="comb.095" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -3 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 14 0 2 0 -6 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.095">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_096" name="comb.096" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -5 0 0 2 12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 14 0 2 0 -12 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.096">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_097" name="comb.097" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -3 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 16 0 2 0 3 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.097">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_098" name="comb.098" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -3 0 0 2 3 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.098">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_099" name="comb.099" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -5 0 0 2 9 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.099">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_103" name="comb.103" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -5 0 0 2 -15 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.103">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_107" name="comb.107" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -5 0 0 2 -8.999999 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.107">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_108" name="comb.108" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -18 0 2 0 -5 0 0 2 -6 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.108">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_109" name="comb.109" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -18 0 2 0 -3 0 0 2 0 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.109">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_110" name="comb.110" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -18 0 2 0 -5 0 0 2 6 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.110">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_121" name="comb.121" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -1 0 0 2 3 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.121">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_122" name="comb.122" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -3 0 0 2 9 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.122">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_123" name="comb.123" type="NODE">
-          <matrix sid="transform">2.309401 0 0 14 0 2 0 -5 0 0 2 -12 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.123">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_124" name="comb.124" type="NODE">
-          <matrix sid="transform">2.309401 0 0 16 0 2 0 -5 0 0 2 -9 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.124">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_125" name="comb.125" type="NODE">
-          <matrix sid="transform">2.309401 0 0 14 0 2 0 -3 0 0 2 -6 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.125">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_126" name="comb.126" type="NODE">
-          <matrix sid="transform">2.309401 0 0 16 0 2 0 -3 0 0 2 -3 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.126">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_127" name="comb.127" type="NODE">
-          <matrix sid="transform">2.309401 0 0 14 0 2 0 -1 0 0 2 0 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.127">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_128" name="comb.128" type="NODE">
-          <matrix sid="transform">2.309401 0 0 14 0 2 0 -3 0 0 2 6 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.128">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_129" name="comb.129" type="NODE">
-          <matrix sid="transform">2.309401 0 0 14 0 2 0 -5 0 0 2 12 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.129">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_130" name="comb.130" type="NODE">
-          <matrix sid="transform">2.309401 0 0 12 0 2 0 -5 0 0 2 15 0 0 0 1</matrix>
-          <instance_geometry url="#Cylinder-mesh" name="comb.130">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
-        <node id="comb_136" name="comb.136" type="NODE">
           <matrix sid="transform">2.309401 0 0 16 0 2 0 -3 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.098">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_099" name="comb.099" type="NODE">
+          <matrix sid="transform">2.309401 0 0 16 0 2 0 -9 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.099">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_103" name="comb.103" type="NODE">
+          <matrix sid="transform">2.309401 0 0 12 0 2 0 15 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.103">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_107" name="comb.107" type="NODE">
+          <matrix sid="transform">2.309401 0 0 16 0 2 0 8.999999 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.107">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_108" name="comb.108" type="NODE">
+          <matrix sid="transform">2.309401 0 0 18 0 2 0 6 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.108">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_109" name="comb.109" type="NODE">
+          <matrix sid="transform">2.309401 0 0 18 0 2 0 0 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.109">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_110" name="comb.110" type="NODE">
+          <matrix sid="transform">2.309401 0 0 18 0 2 0 -6 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.110">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_121" name="comb.121" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -3 0 0 2 1 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.121">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_122" name="comb.122" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -9 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.122">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_123" name="comb.123" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -14 0 2 0 12 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.123">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_124" name="comb.124" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -16 0 2 0 9 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.124">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_125" name="comb.125" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -14 0 2 0 6 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.125">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_126" name="comb.126" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -16 0 2 0 3 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.126">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_127" name="comb.127" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -14 0 2 0 0 0 0 2 1 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.127">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_128" name="comb.128" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -6 0 0 2 3 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.128">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_129" name="comb.129" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -14 0 2 0 -12 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.129">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_130" name="comb.130" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -12 0 2 0 -15 0 0 2 5 0 0 0 1</matrix>
+          <instance_geometry url="#Cylinder-mesh" name="comb.130">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+        <node id="comb_136" name="comb.136" type="NODE">
+          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -3 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.136">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_137" name="comb.137" type="NODE">
-          <matrix sid="transform">2.309401 0 0 16 0 2 0 -5 0 0 2 8.999999 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -16 0 2 0 -8.999999 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.137">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_140" name="comb.140" type="NODE">
-          <matrix sid="transform">2.309401 0 0 18 0 2 0 -5 0 0 2 -6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -18 0 2 0 6 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.140">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_142" name="comb.142" type="NODE">
-          <matrix sid="transform">2.309401 0 0 18 0 2 0 -3 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -18 0 2 0 0 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.142">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_143" name="comb.143" type="NODE">
-          <matrix sid="transform">2.309401 0 0 18 0 2 0 -5 0 0 2 6 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -18 0 2 0 -6 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.143">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_144" name="comb.144" type="NODE">
-          <matrix sid="transform">2.309401 0 0 9.999998 0 2 0 -5 0 0 2 -18 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -9.999998 0 2 0 18 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.144">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_145" name="comb.145" type="NODE">
-          <matrix sid="transform">2.309401 0 0 20 0 2 0 -5 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -20 0 2 0 3 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.145">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_146" name="comb.146" type="NODE">
-          <matrix sid="transform">2.309401 0 0 20 0 2 0 -5 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -20 0 2 0 -3 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.146">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_147" name="comb.147" type="NODE">
-          <matrix sid="transform">2.309401 0 0 22 0 2 0 -5 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 -22 0 2 0 0 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.147">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_148" name="comb.148" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -20 0 2 0 -5 0 0 2 -3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 20 0 2 0 3 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.148">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_149" name="comb.149" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -20 0 2 0 -5 0 0 2 3 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 20 0 2 0 -3 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.149">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_150" name="comb.150" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -22 0 2 0 -5 0 0 2 0 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 22 0 2 0 0 0 0 2 5 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.150">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
         <node id="comb_151" name="comb.151" type="NODE">
-          <matrix sid="transform">2.309401 0 0 -9.999998 0 2 0 -3 0 0 2 -12 0 0 0 1</matrix>
+          <matrix sid="transform">2.309401 0 0 9.999998 0 2 0 12 0 0 2 3 0 0 0 1</matrix>
           <instance_geometry url="#Cylinder-mesh" name="comb.151">
-<bind_material>
-  <technique_common>
-    <instance_material symbol="MESH_MATERIAL_0" target="#Mat1" >
-      <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
-    </instance_material>
-  </technique_common>
-</bind_material>
-</instance_geometry>
-</node>
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="MESH_MATERIAL_0" target="#Mat_comb" >
+                  <bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />
+                </instance_material>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
       </node>
     </visual_scene>
   </library_visual_scenes>

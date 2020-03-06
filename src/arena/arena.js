@@ -58,6 +58,16 @@ function findAccessiblePosition(minCoastDistance){ // minCoastDistance must be n
 	return new THREE.Vector2(x,y);
 }
 
+// recoursively apply THREE.ObjectSpaceNormalMap to normalMapType
+function fixNormalsRec(group){
+	if(group.type == "Mesh"){
+		group.material.normalMapType = THREE.ObjectSpaceNormalMap
+	}
+	for(var i=0; i<group.children.length; i++){
+		fixNormalsRec(group.children[i])
+	}
+}
+
 function loadCollada(filename, callback){
 	/*
 	// loading manager
@@ -73,6 +83,8 @@ function loadCollada(filename, callback){
 	// collada
 	var loader = new THREE.ColladaLoader()
 	loader.load( filename, function ( collada ) {
+		fixNormalsRec(collada.scene)
+		console.log(collada.scene)
 		callback(collada.scene)
 	})
 }
