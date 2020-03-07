@@ -27,16 +27,6 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 
 		this.domsvg = svgcontainer.getElementsByTagName("svg")[0];
 
-		var dommapconfig = this.domsvg.getElementById("config");
-		if(dommapconfig != null){
-			mapconfig = JSON.parse(dommapconfig.textContent)
-			for (var prop in mapconfig) {
-				if (Object.prototype.hasOwnProperty.call(mapconfig, prop)) {
-					window[prop] = mapconfig[prop]
-				}
-			}
-		}
-
 		this.wSvg = this.domsvg.getAttribute("width");
 		this.hSvg = this.domsvg.getAttribute("height");
 

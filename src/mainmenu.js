@@ -25,7 +25,7 @@ MainMenu = {};
 
 	setParameters = function () {
 		const mapToUse = getMapForIndex(currentMapIndex);
-		MAP = mapToUse.svg;
+		MAP = mapToUse.folder;
 		GAME_MODE = mapToUse.gameMode;
 		GAME_LEVEL = mapToUse.gameLevel;
 	}

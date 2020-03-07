@@ -68,35 +68,41 @@ function fixNormalsRec(group){
 	}
 }
 
-function loadCollada(filename, callback){
-	/*
-	// loading manager
-	var loadingManager = new THREE.LoadingManager()
+function loadMapConfig(configFile, ondone){
+	LOADING_LIST.addItem('mapconfig');
 
-	// collada
-	var loader = new THREE.ColladaLoader( loadingManager )
-	loader.load( file, function ( collada ) {
-		callback(collada.scene)
-	})
-	*/
+	var loader = new THREE.FileLoader();
+	loader.load(configFile,
+		function (data) {
+			mapconfig = JSON.parse(data)
+			for (var prop in mapconfig) {
+				if (Object.prototype.hasOwnProperty.call(mapconfig, prop)) {
+					window[prop] = mapconfig[prop]
+				}
+			}
+			LOADING_LIST.checkItem('mapconfig');
+			ondone()
+		}
+	)
+}
 
-	// collada
+function loadCollada(arena, filename){
+	LOADING_LIST.addItem('mapscene');
+
 	var loader = new THREE.ColladaLoader()
-	loader.load( filename, function ( collada ) {
+	loader.load( filename, function(collada) {
 		fixNormalsRec(collada.scene)
-		console.log(collada.scene)
-		callback(collada.scene)
+		arena.mesh = collada.scene
+		arena.mesh.scale.set(MAP_SCALING, MAP_SCALING, MAP_SCALING);
+		Scene.graphicsScene.add( arena.mesh );
+		LOADING_LIST.checkItem('mapscene');
 	})
 }
 
-function Arena(modelDaeFile, boundarySvgFile){
-	HBObject.call(this); // inheritance
+function loadBounds(arena, boundarySvgFile, ondone){
+	// load SVG for boundary
 
-	this.type = 'arena';
-
-	// load SVG for contour
-
-	LOADING_LIST.addItem('arena');
+	LOADING_LIST.addItem('mapbounds');
 
 	//ArenaSvgLoader(filename, curvdpu, curvos, polydpu, polyos, callback){
 	BOUNDARY_LOADER = new BoundaryLoader(boundarySvgFile, 4, 4, 4, 4, function(){ // to be executed when the svg is loaded:
@@ -239,17 +245,9 @@ function Arena(modelDaeFile, boundarySvgFile){
 				}
 			}
 			body.inDistanceMap = true;
-			body.HBO = this;
+			body.HBO = arena;
 			PHYSICS_WORLD.addBody(body);
 		}
-
-		// create terrain mesh
-		loadCollada(modelDaeFile, function(colladaScene){
-			this.mesh = colladaScene
-			this.mesh.scale.set(MAP_SCALING, MAP_SCALING, MAP_SCALING);
-			Scene.graphicsScene.add( this.mesh );
-			LOADING_LIST.checkItem('arena');
-		}.bind(this));
 
 		/* Debug distance map
 		for(x=-50; x<50; x+=1){
@@ -266,10 +264,24 @@ function Arena(modelDaeFile, boundarySvgFile){
 		}
 		*/
 
-		initWater();
-	}.bind(this));
-
+		LOADING_LIST.checkItem('mapbounds');
+		ondone()
+	})
 }
+
+function Arena(modelDaeFile, boundarySvgFile, configFile){
+	HBObject.call(this); // inheritance
+
+	this.type = 'arena';
+
+	loadMapConfig(configFile, function(){
+		loadCollada(this, modelDaeFile)
+		loadBounds(this, boundarySvgFile, function(){
+			initWater()
+		})
+	})
+}
+
 
 Arena.prototype = Object.create(HBObject.prototype);
 Arena.prototype.constructor = Arena;
