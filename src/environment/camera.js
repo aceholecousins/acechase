@@ -11,6 +11,7 @@ function onWindowResize() {
 	CAMERA.aspect = window.innerWidth / window.innerHeight;
 	CAMERA.updateProjectionMatrix();
 	Scene.renderer.setSize( window.innerWidth, window.innerHeight );
+	//Scene.renderer.setSize( 800, 600 );
 
 	if(CAMERA.aspect > 1){
 		SCORETABLE.plane.material.uniforms.dims.value.x = 0.9/CAMERA.aspect;

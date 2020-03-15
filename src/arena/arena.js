@@ -17,8 +17,8 @@ var OUTLINE_BOUNDS; // xmin, xmax, ymin, ymax
 function coastDistance(x, y){ // map center at (0,0), negative distance is in water, positive on land
 
 	// -0.5 because of pixel centering
-	var xhr = DISTANCE_MAP.w/2 + x/MAP_SCALING*DISTANCE_MAP.f -0.5;
-	var yhr = DISTANCE_MAP.h/2 - y/MAP_SCALING*DISTANCE_MAP.f -0.5;
+	var xhr = DISTANCE_MAP.w/2 + x*DISTANCE_MAP.f -0.5;
+	var yhr = DISTANCE_MAP.h/2 - y*DISTANCE_MAP.f -0.5;
 
 	if(xhr<0){xhr = 0;}
 	if(xhr>DISTANCE_MAP.w-1.00001){xhr = DISTANCE_MAP.w-1.00001;}
@@ -33,7 +33,7 @@ function coastDistance(x, y){ // map center at (0,0), negative distance is in wa
 	var d1 = DISTANCE_MAP.map[ yint   *DISTANCE_MAP.w+xint] * (1-xfrc) + DISTANCE_MAP.map[ yint   *DISTANCE_MAP.w+xint+1] * xfrc;
 	var d2 = DISTANCE_MAP.map[(yint+1)*DISTANCE_MAP.w+xint] * (1-xfrc) + DISTANCE_MAP.map[(yint+1)*DISTANCE_MAP.w+xint+1] * xfrc;
 
-	return ((1-yfrc)*d1 + yfrc*d2)*MAP_SCALING;
+	return ((1-yfrc)*d1 + yfrc*d2);
 }
 
 function findAccessiblePosition(minCoastDistance){ // minCoastDistance must be negative for water
@@ -110,14 +110,15 @@ function loadBounds(arena, boundarySvgFile, ondone){
 		wSvg = BOUNDARY_LOADER.wSvg
 		hSvg = BOUNDARY_LOADER.hSvg
 
-		MAP_WIDTH = wSvg * MAP_SCALING
-		MAP_HEIGHT = hSvg * MAP_SCALING
+		MAP_WIDTH = wSvg
+		MAP_HEIGHT = hSvg
 
 		MAP_MAXDIM = Math.max(MAP_WIDTH, MAP_HEIGHT);
 
 		WATER_COLOR = new THREE.Color(BOUNDARY_LOADER.getstyle("outline", "fill"));
 		WATER_OPACITY = BOUNDARY_LOADER.getstyle("outline", "fillOpacity");
 
+		/* // GridBroadphase was removed from p2 but might come back, for now using SAP broadphase
 		// tile dimensions for collision detection broadphase:
 		BROADPHASE.xmin = -MAP_WIDTH/2;
 		BROADPHASE.xmax = MAP_WIDTH/2;
@@ -127,6 +128,7 @@ function loadBounds(arena, boundarySvgFile, ondone){
 		BROADPHASE.ny = 20;
 		BROADPHASE.binsizeX = MAP_WIDTH/20;
 		BROADPHASE.binsizeY = MAP_HEIGHT/20;
+		*/
 
 		// cut open the outline at the leftest point (smallestx)
 		// the physics library can't deal with a shape that has a hole
@@ -141,8 +143,8 @@ function loadBounds(arena, boundarySvgFile, ondone){
 			poly[j] = []
 			for(var i=0; i<polysrc[j].length; i++){
 				poly[j][i] = [
-					polysrc[j][i][0]*MAP_SCALING - MAP_WIDTH/2,
-					MAP_HEIGHT/2 - polysrc[j][i][1]*MAP_SCALING
+					polysrc[j][i][0] - MAP_WIDTH/2,
+					MAP_HEIGHT/2 - polysrc[j][i][1]
 				]
 			}
 		}
@@ -231,13 +233,13 @@ function loadBounds(arena, boundarySvgFile, ondone){
 
 					for(var ipt=0; ipt<body.shapes[i].vertices.length; ipt++){
 						geom.vertices.push(new THREE.Vector3(
-							body.shapes[i].vertices[ipt][0]+body.shapeOffsets[i][0]+body.position[0],
-							body.shapes[i].vertices[ipt][1]+body.shapeOffsets[i][1]+body.position[1],
+							body.shapes[i].vertices[ipt][0]+body.shapes[i].position[0]+body.position[0],
+							body.shapes[i].vertices[ipt][1]+body.shapes[i].position[1]+body.position[1],
 							0.01));
 					}
 					geom.vertices.push(new THREE.Vector3(
-						body.shapes[i].vertices[0][0]+body.shapeOffsets[i][0]+body.position[0],
-						body.shapes[i].vertices[0][1]+body.shapeOffsets[i][1]+body.position[1],
+						body.shapes[i].vertices[0][0]+body.shapes[i].position[0]+body.position[0],
+						body.shapes[i].vertices[0][1]+body.shapes[i].position[1]+body.position[1],
 						0.01));
 
 					var line = new THREE.Line(geom, mat);
@@ -249,20 +251,24 @@ function loadBounds(arena, boundarySvgFile, ondone){
 			PHYSICS_WORLD.addBody(body);
 		}
 
-		/* Debug distance map
-		for(x=-50; x<50; x+=1){
-			for(y=-50; y<50; y+=1){
-				if (coastDistance(x, y) < 0){
-					var geometry = new THREE.CubeGeometry();
-					var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+		// Debug distance map
+		/*for(x=-50; x<50; x+=0.4){
+			for(y=-50; y<50; y+=0.4){
+				if (coastDistance(x, y) < 2){
+					var color = 0xffff00
+					if (coastDistance(x, y) < 0){
+						color = 0xff00ff
+					}
+					var geometry = new THREE.PlaneGeometry();
+					var material = new THREE.MeshBasicMaterial( {color: color, side:THREE.DoubleSide} );
 					var sphere = new THREE.Mesh( geometry, material );
-					sphere.position.set(x, y, coastDistance(x, y))
-					sphere.scale.set(0.5,0.5,0.5);
+					sphere.position.set(x, y, coastDistance(x, y)*0.3)
+					sphere.scale.set(0.2,0.2,0.2);
 					Scene.graphicsScene.add( sphere );
 				}
 			}
-		}
-		*/
+		}*/
+
 
 		LOADING_LIST.checkItem('mapbounds');
 		ondone()

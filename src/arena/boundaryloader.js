@@ -27,8 +27,8 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 
 		this.domsvg = svgcontainer.getElementsByTagName("svg")[0];
 
-		this.wSvg = this.domsvg.getAttribute("width");
-		this.hSvg = this.domsvg.getAttribute("height");
+		this.wSvg = this.domsvg.getAttribute("width") * MAP_SCALING;
+		this.hSvg = this.domsvg.getAttribute("height") * MAP_SCALING;
 
 		var wStencil = this.wSvg * waterStencilDpu * waterStencilOs;
 		var hStencil = this.hSvg * waterStencilDpu * waterStencilOs;
@@ -37,12 +37,14 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 		var domoutline = this.domsvg.getElementById("outline");
 		var domislands = this.domsvg.getElementById("islands");
 
-		var tform = 'transform="scale(' + waterStencilDpu * waterStencilOs + ',' + waterStencilDpu * waterStencilOs + ')"';
+		var tform = 'transform="scale(' + waterStencilDpu * waterStencilOs * MAP_SCALING + ','
+				+ waterStencilDpu * waterStencilOs * MAP_SCALING + ')"';
 			// svg origin is upper left, dunno what bit them
 
 		var canvas = document.createElement("canvas");
 		canvas.width = wStencil;
 		canvas.height = hStencil;
+		//document.body.appendChild(canvas)
 
 		// generate water stencil
 
@@ -68,7 +70,7 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 
 
 
-		// generate physics distance map
+		// generate physics collision map
 
 		// read polygon data
 		var commands = domoutline.getAttribute("d");
@@ -86,20 +88,20 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 			switch(commands[i].charAt(0)){
 				case "M": case "L":
 					p = commands[i].split(" ")[1].split(",");
-					p[0]*=1; p[1]*=1; // string to number
+					p[0]*=MAP_SCALING; p[1]*=MAP_SCALING;
 					this.polygons[j].push(p); break;
 				case "C":
 					p = commands[i].split(" ")[3].split(",");
-					p[0]*=1; p[1]*=1; // string to number
+					p[0]*=MAP_SCALING; p[1]*=MAP_SCALING;
 					this.polygons[j].push(p);
 					commands[i] = "L " + commands[i].split(" ")[3]; // replace by line for physics distance map
 					break;
 				case "H":
-					p = [commands[i].split(" ")[1] * 1, p[1]]
+					p = [commands[i].split(" ")[1] * MAP_SCALING, p[1]]
 					this.polygons[j].push(p);
 					break;
 				case "V":
-					p = [p[0], commands[i].split(" ")[1] * 1]
+					p = [p[0], commands[i].split(" ")[1] * MAP_SCALING]
 					this.polygons[j].push(p);
 					break;
 				case "Z": case "z":
@@ -125,7 +127,8 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 		this.collisionBoundsDpu = collisionBoundsDpu;
 
 		// generate SVG for physics distance map
-		tform = 'transform="scale(' + collisionBoundsDpu * collisionBoundsOs + ',' + collisionBoundsDpu * collisionBoundsOs + ')"';
+		tform = 'transform="scale(' + collisionBoundsDpu * collisionBoundsOs * MAP_SCALING + ','
+				+ collisionBoundsDpu * collisionBoundsOs * MAP_SCALING + ')"';
 		var rawboolsvg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + polyw + '" height="' + polyh + '" '
 			+ 'style="background-color:white"><g ' + tform + '>'
 			+ '<path style="fill:black; fill-rule:evenodd" d="' + commands.join(" ") + '"></path>';

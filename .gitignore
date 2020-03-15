@@ -2,3 +2,4 @@
 /videos/
 *.*~ # gedit backup
 .vscode/
+/todo.txt

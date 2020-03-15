@@ -70,6 +70,7 @@
         <technique sid="common">
           <phong>
             <emission>
+              <color sid="emissive">1 1 1 1</color>
               <texture texture="mountain_emissive-sampler" texcoord="TEXCOORD" />
             </emission>
             <diffuse>
@@ -79,17 +80,9 @@
               <texture texture="mountain_normal-sampler" texcoord="TEXCOORD" />
             </bump>
             <specular>
-              <color sid="specular">0.06666666666666667 0.06666666666666667 0.06666666666666667 1</color>
-            </specular>
-            <shininess>
+              <color sid="specular">1 1 1 1</color>
               <texture texture="mountain_specular-sampler" texcoord="TEXCOORD" />
-            </shininess>
-            <reflective>
-              <color>1 1 1 1</color>
-            </reflective>
-            <reflectivity>
-              <float>1</float>
-            </reflectivity>
+            </specular>
           </phong>
         </technique>
       </profile_COMMON>
