@@ -31,7 +31,7 @@ var onStateChange = function(device_id, custom_data){
 
 	if(AirConsole.SCREEN == device_id){
 		if(custom_data == undefined){
-			Controller.current.tab = "menu"
+			Controller.current.tab = "game"
 		}
 		else{
 			Controller.current.tab = custom_data.state
