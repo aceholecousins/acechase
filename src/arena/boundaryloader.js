@@ -190,11 +190,11 @@ function BoundaryLoader(filename, waterStencilDpu, waterStencilOs, collisionBoun
 		var line = this.domsvg.getElementById(id).getAttribute("d"); // make sure this is "M x1,y1 L x2,y2"
 		line = line.replaceAll(" ", "").replaceAll("M", "").split("L");
 		var p0 = new THREE.Vector2().fromArray(line[0].split(","));
-		p0.x-=MAP_WIDTH/2;
-		p0.y=MAP_HEIGHT/2-p0.y;
+		p0.x = p0.x * MAP_SCALING - MAP_WIDTH/2;
+		p0.y = MAP_HEIGHT/2 - p0.y * MAP_SCALING;
 		var p1 = new THREE.Vector2().fromArray(line[1].split(","));
-		p1.x-=MAP_WIDTH/2;
-		p1.y=MAP_HEIGHT/2-p1.y;
+		p1.x = p1.x * MAP_SCALING - MAP_WIDTH/2;
+		p1.y = MAP_HEIGHT/2 - p1.y * MAP_SCALING;
 		return {p0:p0, p1:p1};
 	}
 

@@ -72,8 +72,8 @@ function readParams() {
 function prepareGame() {
 
 	if(GAME_MODE == "R"){ // race or time trial
-		STARTLINE = ASL.getline("startline");
-		FINISHLINE = ASL.getline("finishline");
+		STARTLINE = BOUNDARY_LOADER.getline("startline");
+		FINISHLINE = BOUNDARY_LOADER.getline("finishline");
 	}
 
 	if(GAME_MODE == "R"){ // time trials or race
