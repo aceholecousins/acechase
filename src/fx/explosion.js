@@ -9,6 +9,7 @@
 //TODO: the explosion is not yet super sexy somehow
 var fireballTexture = loadTexture('media/textures/fireball.png');
 
+
 var fireballVertexShader = `
 	varying vec3 pos;
 	varying vec3 nml;
@@ -33,10 +34,10 @@ var fireballFragmentShader = `
 	float TANH(float x){return (1.0-exp(-2.0*x))/(1.0+exp(-2.0*x));}
 
 	void main(){
-		float psi=atan(pos.y, pos.x);
+		float psi = atan(pos.y, pos.x);
 		float phi = asin(pos.z/length(pos));
 		vec3 rgb = texture2D(firetex, vec2(psi/2.0/PI+0.5, phi/PI+0.5)).rgb;
-	
+
 		float process = 1.0-strength;
 		if(process<0.0){process = 0.0;}
 		if(process>1.0){process = 1.0;}
@@ -52,6 +53,7 @@ var fireballFragmentShader = `
 		float tmeat = 0.5-TANH((process-0.55)*10.0)*0.5; // transparency for meat
 
 		gl_FragColor = qcore * vec4(ccore,tcore) + qsmoke * vec4(csmoke,tsmoke) + qmeat * vec4(cmeat,tmeat);
+		//gl_FragColor = vec4(rgb, 1.0);
 	}`;
 
 
@@ -63,7 +65,7 @@ OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
 	FIREBALL_MESH.scale.x = FIREBALL_MESH.scale.y = FIREBALL_MESH.scale.z = 0.0001;
 	LOADING_LIST.checkItem('fireballmesh');
 
-	var fireballMaterial = new THREE.ShaderMaterial({ // uniforms do not get cloned so this was necessary
+	var fireballMaterial = new THREE.ShaderMaterial({ // uniforms do not get cloned (only linked) so this was necessary
 		uniforms: {
 			firetex:	{ type: "t", value: fireballTexture},
 			strength:	{ type: "f", value: 1.0},
@@ -137,6 +139,7 @@ function explosion(position, color, scale=1.0){
 	effect.mesh.material = FIREBALL_MESH.material.clone(); // so we can change the color without changing the color of all fireballs
 	effect.mesh.material.uniforms.color = { type: "c", value: new THREE.Color( color )}; // new object necessary
 	effect.mesh.material.uniforms.strength = { type: "f", value: 1.0}; // new object necessary
+	effect.mesh.material.uniforms.firetex = { type: "t", value: fireballTexture}; // TODO: Should work without this and did before but doesnt anymore
 	effect.mesh.rotation.x = Math.random()*1000;
 	effect.mesh.rotation.y = Math.random()*1000;
 	effect.mesh.rotation.z = Math.random()*1000;
@@ -149,7 +152,7 @@ function explosion(position, color, scale=1.0){
 	effect.growth = 10*scale;
 
 	// shockwave
-	
+
 	effect = new Effect();
 	effect.type = 'shockwave';
 	effect.mesh = SHOCKWAVE_MESH.clone();
@@ -162,7 +165,7 @@ function explosion(position, color, scale=1.0){
 	effect.growth = 50;
 
 	// star
-	
+
 	effect = new Effect();
 	effect.type = 'star';
 	effect.mesh = STAR_MESH.clone();
@@ -195,9 +198,9 @@ function explosion(position, color, scale=1.0){
 		effect.acceleration = new THREE.Vector3(0,0,-30);
 		effect.mesh.rotation.x = Math.random()*1000;
 		effect.mesh.rotation.y = Math.random()*1000;
-		effect.mesh.rotation.z = Math.random()*1000;	
+		effect.mesh.rotation.z = Math.random()*1000;
 		effect.spin.z = Math.random()*20;
-		
+
 		if(i<=4){ // those become smoking crumbs!
 			effect.mesh.material.color.copy(color);
 			effect.mesh.scale.x = Math.random()*0.2+0.1;
@@ -229,7 +232,7 @@ function explosion(position, color, scale=1.0){
 	}
 
 	// sparks
-	
+
 	for(var i=0; i<20; i++){
 		effect = new Effect();
 		effect.type = 'spark';
@@ -249,6 +252,6 @@ function explosion(position, color, scale=1.0){
 		effect.mesh.rotation.order = 'ZYX';
 		effect.mesh.rotation.y = -Math.atan(vz/vr);
 		effect.mesh.rotation.z = phi;
-	}	
+	}
 
 }

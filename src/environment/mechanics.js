@@ -3,27 +3,6 @@
 
 var LOADING_LIST = new Checklist(); // contains elements for things that have to be loaded from external files
 
-function xinspect(o,i){ // function for displaying objects on the console
-	if(DEBUG>=1){
-		if(typeof i=='undefined')i='';
-		if(i.length>0)return '[MAX ITERATIONS]';
-		var r=[];
-		for(var p in o){
-		    var t=typeof o[p];
-			  if(t=='object'){
-			   console.log(i+'"'+p+'"('+t+') => object:');
-			   xinspect(o[p],i+'>');
-			  }
-			  else{if(t=='function'){
-			   console.log(i+'"'+p+'"('+t+')');
-			  }
-			  else{
-			   console.log(i+'"'+p+'"('+t+') => ' + o[p]);
-			  }}
-		}
-	}
-}
-
 // STATS
 
 var STATS; // display framerate
@@ -44,8 +23,13 @@ var INGAME_TIME = 0; // seconds since start of the current game
 
 // PHYSICS
 
+/* GridBroadphase was removed from p2 but might come back
 // broadphase is a pre collision check done by the physics engine to find potential collisions
 var BROADPHASE = new p2.GridBroadphase(); // filled in when arena is loaded
+*/
+var BROADPHASE = new p2.SAPBroadphase();
+
+var USE_DISTANCE_MAP = true
 
 // the distance map is created when the arena is loaded and stores the distance
 // to the coast for each pixel in it (positive in water and negative on land)
@@ -66,12 +50,12 @@ BROADPHASE.boundingVolumeCheck = function(bodyA, bodyB){
 		else{
 			movingBody = bodyA;
 		}
-		if( coastDistance(movingBody.position[0], movingBody.position[1]) > movingBody.boundingRadius+0.2 ){
+		if( USE_DISTANCE_MAP && coastDistance(movingBody.position[0], movingBody.position[1]) > movingBody.boundingRadius+0.2 ){
 			result = false;
 		}
 		else{
-			// result = p2.Broadphase.aabbCheck(bodyA, bodyB); // TODO: THIS DOESNT WORK AND I DONT KNOW WHY. IT MAKES THINGS STOP COLLIDING
-			result = p2.Broadphase.boundingRadiusCheck(bodyA,bodyB);
+			result = p2.Broadphase.aabbCheck(bodyA, bodyB);
+			//result = p2.Broadphase.boundingRadiusCheck(bodyA,bodyB);
 		}
 	}
     return result;

@@ -22,7 +22,7 @@ function initGame() {
 
 	Scene.init();
 
-	ARENA = new Arena(MAP);
+	ARENA = new Arena("maps/" + MAP + "/scene.dae", "maps/" + MAP + "/bounds.svg", "maps/" + MAP + "/config.json");
 	SCORETABLE = new ScoreTable();
 
 	Scene.graphicsScene.add(SCORETABLE.plane);
@@ -79,8 +79,8 @@ function readParams() {
 function prepareGame() {
 
 	if(GAME_MODE == "R"){ // race or time trial
-		STARTLINE = ASL.getline("startline");
-		FINISHLINE = ASL.getline("finishline");
+		STARTLINE = BOUNDARY_LOADER.getline("startline");
+		FINISHLINE = BOUNDARY_LOADER.getline("finishline");
 	}
 
 	if(GAME_MODE == "R"){ // time trials or race
@@ -118,7 +118,7 @@ function createHovercraftsFromParams() {
 			hovers[iPlayer] = new Hovercraft(
 					new THREE.Color(value.split(',')[1]));
 			hovers[iPlayer].playerName = value.split(',')[0];
-			
+
 			let controller = GameController.createControl(value);
 			addEventHandlersToControl(controller);
 			controller.setControl(hovers[iPlayer].control)
@@ -133,7 +133,7 @@ function addEventHandlersToControl(control) {
 	control.addEventHandler(function(event) {
 		if(event.type == GameController.EventTypes.pause) {
 			pauseOrResumeGame()
-		}				
+		}
 	});
 }
 
@@ -182,7 +182,7 @@ function start() {
 
 	onWindowResize(); // call to initially adjust camera
 	showSplash(false);
-	Scene.renderer.setClearColor( FOG_COLOR );
+	Scene.renderer.setClearColor( "black" );
 
 	newRound();
 
@@ -252,12 +252,12 @@ function gameloop() {
 
 		if(GAME_PHASE == "R"){
 			var continus = 0;
-			for(var i=0; i<hovers.length; i++){				
+			for(var i=0; i<hovers.length; i++){
 				if(hovers[i].control.fire && !SCORETABLE_PROTECT){hovers[i].continu = true;}
 				if(hovers[i].continu){continus++;}
 			}
 			if(continus > hovers.length/2 && !SCORETABLE_PROTECT){askForNewRound();} // majority vote
-		}		
+		}
 
 		THRUST_SOUND.gn.gain.value = 0.0;
 		updateAllHBObjects();
@@ -287,9 +287,9 @@ function endRound(){ // display results
 	GAME_PHASE = "R";
 	SCORETABLE_PROTECT = true;
 	ingameTimeout(2, function(){SCORETABLE_PROTECT = false;}); // show scoretable for at least 2 seconds
-	
+
 	let numOfPlayers = hovers.length;
-	if(GAME_MODE == "R"){ 
+	if(GAME_MODE == "R"){
 		if(hovers.length == 1) {// time trial
 			hovers.sort(function(a, b){return (a.racetime - b.racetime);});
 			// not sure if it is a good idea to shuffle this array, lets see
@@ -420,7 +420,7 @@ function endRound(){ // display results
 
 function askForNewRound() {
 	GAME_PHASE = "S";
-	
+
 	if(USING_AIR_CONSOLE) {
 		AirControl.showAd(function(){
 			switchAudioOutput(false)

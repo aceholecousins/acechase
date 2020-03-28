@@ -10,7 +10,7 @@ OBJ_LOADER.load( 'media/objects/seamine.obj', function (object) {
 	SEAMINE_MESH.scale.set(0.5,0.5,0.5);
 	SEAMINE_MESH.getObjectByName('mine').material = new THREE.MeshLambertMaterial({color:new THREE.Color(0.0,1.0,1.0)});
 
-	SEAMINE_MESH.position.z = -0.45;
+	SEAMINE_MESH.position.z = -0.33;
 });
 
 
@@ -39,7 +39,7 @@ function Seamine(shooter){ // seamine shot class, needs the HBObject of the shoo
 	ingameTimeout(1.0, function(){
 		PHYSICS_WORLD.enableBodyCollision(this.body, this.shooter.body);
 	}.bind(this));
-	
+
 	this.body.addShape(shape);
 
 	// graphics
@@ -67,4 +67,3 @@ Seamine.prototype.impact = function(){ // what happens on impact
 	playSound(SOUNDS.explosion, 1.0, 1.0, 0.0);
 	this.despawn();
 }
-

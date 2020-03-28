@@ -95,7 +95,10 @@ var waterFragmentShader = `
 
 		float waterdepth = -dist + hmap.x*0.1; // terrain depth (negative) + wave bump height
 */
-		if(waterdepth <= 0.0){
+
+		float waterdepth_outset = waterdepth+0.5;
+
+		if(waterdepth_outset <= 0.0){
 			gl_FragColor = vec4(0.0,0.0,0.0,0.0);
 			return;
 		}
@@ -128,7 +131,7 @@ var waterFragmentShader = `
 		vec4 cCoast = cDiffuse;
 
 		gl_FragColor = wCoast*cCoast + (1.0-wCoast) * (wSpecular*cSpecular + (1.0-wSpecular) * (wDiffuse*cDiffuse + (1.0-wDiffuse)*cAmbient));
-		gl_FragColor.w *= clamp(waterdepth*5.0, 0.0, 1.0);
+		gl_FragColor.w *= clamp(waterdepth_outset*5.0, 0.0, 1.0);
 
 	}`;
 
@@ -275,7 +278,7 @@ function initWater() {
 
 	// Creates the gpu computation class and sets it up
 
-	WATER_CA_GPU = new GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, Scene.renderer );
+	WATER_CA_GPU = new THREE.GPUComputationRenderer( WATER_CA_WIDTH, WATER_CA_WIDTH, Scene.renderer );
 	var bumpmap0 = WATER_CA_GPU.createTexture();
 	fillWaterTexture( bumpmap0 );
 

@@ -11,6 +11,7 @@ function onWindowResize() {
 	CAMERA.aspect = window.innerWidth / window.innerHeight;
 	CAMERA.updateProjectionMatrix();
 	Scene.renderer.setSize( window.innerWidth, window.innerHeight );
+	//Scene.renderer.setSize( 800, 600 );
 
 	if(SCORETABLE != null) {
 		if(CAMERA.aspect > 1){
@@ -47,10 +48,12 @@ if(DEBUG>3){ // render camera frustum
 	var camview = new THREE.Line(geometry.clone(), material.clone()); Scene.graphicsScene.add(camview);
 	camview.material.color = new THREE.Color("blue");
 	camview.geometry.vertices = [CNW, CNE, CSE, CSW, CNW];
+	var axesHelper = new THREE.AxesHelper();
+	Scene.graphicsScene.add( axesHelper );
 }
 
 function linePlaneIntersect(p1, p2, n, d){
-	
+
 	//x = p1 + s*(p2-p1);
 	//x*n = d;
 	//(p1 + s*(p2-p1))*n = d
@@ -66,18 +69,27 @@ function linePlaneIntersect(p1, p2, n, d){
 	return res;
 }
 
+snapxOld = 0
+snapyOld = 0
+
 function updateCam(){
 
-	var snapx = 0; // point that controls the camera angle in a magic way
-	var snapy = 0;
+	var snapxTarget = 0; // point that controls the camera angle in a magic way
+	var snapyTarget = 0;
 
 	for(var i=0; i<hovers.length; i++){
-		snapx += hovers[i].mesh.position.x;
-		snapy += hovers[i].mesh.position.y;
+		snapxTarget += hovers[i].mesh.position.x;
+		snapyTarget += hovers[i].mesh.position.y;
 	}
-	snapx/=hovers.length;
-	snapy/=hovers.length;
-	
+	snapxTarget/=hovers.length;
+	snapyTarget/=hovers.length;
+
+	var snapx = snapxOld*0.9 + snapxTarget*0.1;
+	var snapy = snapyOld*0.9 + snapyTarget*0.1;
+
+	snapxOld = snapx
+	snapyOld = snapy
+
 	// so light looks more fancy
 	LIGHT_VECTOR.x = -1 + 2*snapx/MAP_MAXDIM;
 	LIGHT_VECTOR.y = 1 + 2*snapy/MAP_MAXDIM;
@@ -104,19 +116,19 @@ function updateCam(){
 
 	pSW = new THREE.Vector3(OUTLINE_BOUNDS.x, OUTLINE_BOUNDS.z, 0); // map corners
 	pSE = new THREE.Vector3(OUTLINE_BOUNDS.y, OUTLINE_BOUNDS.z, 0);
-	pNW = new THREE.Vector3(OUTLINE_BOUNDS.x, OUTLINE_BOUNDS.w, 0); 
-	pNE = new THREE.Vector3(OUTLINE_BOUNDS.y, OUTLINE_BOUNDS.w, 0); 
-	
+	pNW = new THREE.Vector3(OUTLINE_BOUNDS.x, OUTLINE_BOUNDS.w, 0);
+	pNE = new THREE.Vector3(OUTLINE_BOUNDS.y, OUTLINE_BOUNDS.w, 0);
+
 	var pN = pNE.clone(); // northest map corner in the camera view
 	if(pNW.dot(eN) > pNE.dot(eN)){pN.copy(pNW);}
 
 	var pS = pSE.clone(); // southest map corner in the camera view
 	if(pSW.dot(eS) > pSE.dot(eS)){pS.copy(pSW);}
 
-	var pE = pNE.clone() // eastest 
+	var pE = pNE.clone() // eastest
 	if(pSE.dot(eE) > pNE.dot(eE)){pE.copy(pSE);}
 
-	var pW = pNW.clone() // westest 
+	var pW = pNW.clone() // westest
 	if(pSW.dot(eW) > pNW.dot(eW)){pW.copy(pSW);}
 
 	var eqsysh = new THREE.Matrix3();
@@ -196,7 +208,7 @@ function updateCam(){
 		CSE.copy(linePlaneIntersect(campos, PSE, ez, 0));
 		CSW.copy(linePlaneIntersect(campos, PSW, ez, 0));
 		camview.geometry.verticesNeedUpdate = true;
-	}	
+	}
 }
 
 if(DEBUG>=2){
