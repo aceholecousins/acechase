@@ -8,7 +8,7 @@
 </style>
 */
 
-ControllerSvg = {};
+let ControllerSvg = {};
 (function(ctx){
 
 ctx.init = function(){
@@ -167,3 +167,4 @@ ctx.setAmmo = function(value){
 }
 
 })(ControllerSvg);
+export{ControllerSvg as default}

@@ -1,5 +1,6 @@
+import Controller from "./controller.js"
 
-AirConsoleInterface = {};
+let AirConsoleInterface = {};
 (function(ctx){
 
 var airConsole
@@ -106,3 +107,4 @@ ctx.changeProperty = function(key, value){
 }
 
 })(AirConsoleInterface);
+export{AirConsoleInterface as default}

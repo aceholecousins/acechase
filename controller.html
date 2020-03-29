@@ -5,12 +5,6 @@
 	<script src="src/utils/tools.js"></script>
 	<script src="src/jslibs/rate-limiter.js"></script>
 
-	<script src="src/airconsolecontroller/airconsoleinterface.js"></script>
-	<script src="src/airconsolecontroller/controllersvg.js"></script>
-	<script src="src/airconsolecontroller/controllertouchcallbacks.js"></script>
-	<script src="src/airconsolecontroller/touch.js"></script>
-	<script src="src/airconsolecontroller/controller.js"></script>
-
 	<style>
 	:root {
 	  --main-color: red;
@@ -42,7 +36,12 @@
 	</style>
 
 </head>
-<body onLoad="Controller.init()">
+<body>
+
+	<script type="module">
+		import Controller from "/src/airconsolecontroller/controller.js"
+		document.body.onload = Controller.init();
+	</script>
 
 	<div id="svgdefs"></div>
 

@@ -14,7 +14,7 @@
 </script>
 */
 
-Touch = {}
+let Touch = {}
 
 Touch.callbacks = {}
 
@@ -111,3 +111,5 @@ Touch.init = function(){
 	window.addEventListener('touchend', Touch.onTouchUp, {passive: false});
 	window.addEventListener('touchcancel', Touch.onTouchUp, {passive: false});
 }
+
+export{Touch as default}

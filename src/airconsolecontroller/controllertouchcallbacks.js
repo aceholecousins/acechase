@@ -1,5 +1,8 @@
 
-ControllerTouchCallbacks = {};
+import AirConsoleInterface from "./airconsoleinterface.js"
+import Controller from "./controller.js"
+
+let ControllerTouchCallbacks = {};
 (function(ctx){
 
 ctx.menuLeft = function(){
@@ -101,3 +104,4 @@ ctx.touchPalette = function(x, y){
 }
 
 })(ControllerTouchCallbacks);
+export{ControllerTouchCallbacks as default}

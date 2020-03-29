@@ -1,5 +1,9 @@
+import AirConsoleInterface from "./airconsoleinterface.js"
+import Touch from "./touch.js"
+import ControllerTouchCallbacks from "./controllertouchcallbacks.js"
+import ControllerSvg from "./controllersvg.js"
 
-Controller = {};
+let Controller = {};
 (function(ctx){
 
 ctx.init = function(){
@@ -163,3 +167,4 @@ var onResize = function(){
 }
 
 })(Controller)
+export{Controller as default}
