@@ -4,6 +4,18 @@ Scene = {}
 Scene.renderer = new THREE.WebGLRenderer();
 Scene.graphicsScene = new THREE.Scene();
 
+Scene.renderer.domElement.requestPointerLock =
+    Scene.renderer.domElement.requestPointerLock ||
+    Scene.renderer.domElement.mozRequestPointerLock ||
+    Scene.renderer.domElement.webkitRequestPointerLock;
+            
+Scene.renderer.domElement.onclick = function () {
+    if (DEBUG < 2) {
+    Scene.renderer.domElement.requestPointerLock();
+    ScreenControl.enterFullScreen();
+    }
+};
+
 Scene.init = function() {
     Scene.renderer.setPixelRatio(RESOLUTION);
     Scene.renderer.setSize(window.innerWidth, window.innerHeight);

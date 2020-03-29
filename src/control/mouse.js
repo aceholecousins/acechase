@@ -24,18 +24,6 @@ class Mouse extends GameController {
         document.addEventListener("mousedown", this.handleMouseDown.bind(this), true);
         document.addEventListener("mouseup", this.handleMouseUp.bind(this), true);
         document.addEventListener("onscroll", this.handleOnScroll.bind(this), true);
-
-        Scene.renderer.domElement.requestPointerLock =
-	        Scene.renderer.domElement.requestPointerLock ||
-	        Scene.renderer.domElement.mozRequestPointerLock ||
-            Scene.renderer.domElement.webkitRequestPointerLock;
-            
-        Scene.renderer.domElement.onclick = function () {
-            if (DEBUG < 2) {
-            Scene.renderer.domElement.requestPointerLock();
-            ScreenControl.enterFullScreen();
-            }
-        };
     }
 
     update() {
