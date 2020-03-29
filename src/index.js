@@ -84,7 +84,7 @@ function addPlayer(multiplayer){
 	get("name_" + playerIndex).value = names[randint(names.length)];
 
 	ctlSelect(playerIndex, "kb");
-	
+
 	get("gpidx_" + playerIndex).dataset.code = playerIndex;
 	get("gpidx_" + playerIndex).innerHTML = playerIndex;
 	GamepadManager.fillButtonText(get("gplr_" + playerIndex), 'a+0');
@@ -96,7 +96,7 @@ function addPlayer(multiplayer){
 	get("kbl_" + playerIndex).dataset.code = 65;
 	get("kbl_" + playerIndex).innerHTML = keyNames[65];
 	get("kbr_" + playerIndex).dataset.code = 68;
-	get("kbr_" + playerIndex).innerHTML = keyNames[68];	
+	get("kbr_" + playerIndex).innerHTML = keyNames[68];
 	get("kbu_" + playerIndex).dataset.code = 69;
 	get("kbu_" + playerIndex).innerHTML = keyNames[69];
 	get("kbd_" + playerIndex).dataset.code = 83;
@@ -125,7 +125,7 @@ function checkZeroPlayers(){ // deactivate the start button if there are no play
 		get("gogogobutton").onclick = startgame;
 		get("addplayerbutton").style.boxShadow = '';
 		ADDPLAYER_BLINK = false;
-	}	
+	}
 }
 
 //////////////////////
@@ -154,7 +154,7 @@ function ctlSelect(index, element){ // takes the player index and "gp/ms/kb/md"
 	get("kboptions_" + index).style.display = "none";
     get("mdoptions_" + index).style.display = "none";
 	get(element + "options_" + index).style.display = "inline";
-	
+
 	get("ctlgp_" + index).style.backgroundColor = "#f0f8ff";
 	get("ctlms_" + index).style.backgroundColor = "#f0f8ff";
 	get("ctlkb_" + index).style.backgroundColor = "#f0f8ff";
@@ -170,7 +170,7 @@ function spmpSelect(spmp){ // sp for singleplayer, mp for multiplayer
 		get("sp").style.backgroundColor = "skyblue";
 		get("multiplayercfg").style.display = "none";
 		get("mp").style.backgroundColor = "#f0f8ff";
-		SINGLEMULTI = 1;	
+		SINGLEMULTI = 1;
 	}
 	else if(spmp == "mp"){
 		get("singleplayercfg").style.display = "none";
@@ -249,9 +249,9 @@ function startgame(){
 	while(url.slice(-1) == "/"){url = url.substring(0, url.length-1);}
 
 	url = url + "/screen.html" + urltail;
-	
+
 	GamepadManager.stop();
-	
+
 	window.location.href = url;
 }
 
@@ -295,7 +295,7 @@ function config2string(complete){ // incomplete only contains stuff necessary fo
 	for(var i=-1; i<get("mpdisparea").childNodes.length; i++){ // -1 for the single player
 		if( i==-1 && SINGLEMULTI == 2 && !complete ){continue;}
 		if( i>-1 && SINGLEMULTI == 1 && !complete ){break;}
-		
+
 		var index;
 		if( i==-1 ){
 			index = 0;
@@ -403,7 +403,7 @@ function string2config(string, warning){ // string must be complete
 
 			get("gpidx_" + index).dataset.code = part[++ip];
 			get("gpidx_" + index).innerHTML = part[ip];
-			selectItem(get("gprelabs_" + index), part[++ip]);			
+			selectItem(get("gprelabs_" + index), part[++ip]);
 			GamepadManager.fillButtonText(get("gplr_" + index), part[++ip]);
 			GamepadManager.fillButtonText(get("gpud_" + index), part[++ip]);
 			GamepadManager.fillButtonText(get("gpthrust_" + index), part[++ip]);
@@ -429,7 +429,7 @@ function string2config(string, warning){ // string must be complete
 			selectItem(get("msrelabs_" + index), part[++ip]);
 			selectItem(get("msthrustfire_" + index), part[++ip]);
 			selectItem(get("msspcl_" + index), part[++ip]);
-			
+
 			get("mdleftright_" + index).checked = part[++ip] == '1';
 			get("mdupdown_" + index).checked = part[++ip] == '1';
 			setValueIfDefined(get("mdsensitivity_" + index), part[++ip]);
@@ -438,8 +438,9 @@ function string2config(string, warning){ // string must be complete
 
 }
 
+/*
 function loadSinglePlayerMission(missionName) {
-	let mapPath = "maps/" + missionName + ".svg";
+	let mapPath = missionName;
 	let hs = getCookie(mapPath);
 	if(hs != ""){
 		let award = medal(mapPath, hs*1);
@@ -450,4 +451,4 @@ function loadSinglePlayerMission(missionName) {
 		get(missionName + "hs").innerHTML = Math.floor(hs/60) + ":" + pad(Math.floor(hs%60),2) + "." + pad(Math.round(1000*(hs%1)),3);
 	}
 }
-
+*/

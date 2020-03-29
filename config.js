@@ -6,7 +6,7 @@ var CFGVERSION = 2; // version of the config string pattern
 var GAME_MODE = "D"; // R for race or time trial (depending on num of players), D for deathmatch, X for shooting range
 var GAME_LEVEL = 0; // for different levels of the same game mode
 
-var MAP = 'maps/hackerland.svg';
+var MAP = 'hackerland';
 var MAP_SCALING = 1.0;
 
 var HOVER_RADIUS = 0.4;

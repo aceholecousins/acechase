@@ -314,13 +314,13 @@ function endRound(){ // display results
 					SCORETABLE.centeredLine("Highscore!", hovers[i].color);
 					highscore = hovers[i].racetime;
 				}
-
+				/*
 				var award = medal(MAP, hovers[i].racetime);
 				if(award == "bronze"){SCORETABLE.centeredLine("Bronze.", new THREE.Color("firebrick"));}
 				if(award == "silver"){SCORETABLE.centeredLine("Silver!", new THREE.Color("silver"));}
 				if(award == "gold"){SCORETABLE.centeredLine("Gold!!!", new THREE.Color("gold"));}
 				if(award == "diamond"){SCORETABLE.centeredLine("DIAMOND!!!1", new THREE.Color("azure"));}
-
+				*/
 			}
 
 			SCORETABLE.line(["Highscore",
