@@ -194,10 +194,12 @@ function explosion(position, color, scale=1.0){
 	effect.spin.x = 0//(Math.random()-0.5)*6;
 	effect.spin.y = 0//(Math.random()-0.5)*6;
 	effect.spin.z = 0//(Math.random()-0.5)*6;
-	effect.spawn();
+
 	effect.strength = 1.5;
 	effect.decay = 3.3;
 	effect.growth = 10*scale;
+
+	effect.spawn();
 
 	var smokeTarget = new THREE.Color(0xbbbbbb)
 
@@ -208,6 +210,10 @@ function explosion(position, color, scale=1.0){
 		this.mesh.material.uniforms.smokeColor.value.copy(color).lerp(smokeTarget, 1.0-cappedStrength)
 		this.mesh.material.uniforms.smokeEmissiveness.value = 0.7*cappedStrength
 		this.mesh.material.uniforms.opacity.value = Math.pow(cappedStrength, 0.25)
+
+		snapxOld += (Math.random()-0.5)*this.strength
+		snapyOld += (Math.random()-0.5)*this.strength
+		camDeltaZ = 2.5*(Math.random()-0.5)*this.strength
 	}
 
 	// shockwave
@@ -312,5 +318,9 @@ function explosion(position, color, scale=1.0){
 		effect.mesh.rotation.y = -Math.atan(vz/vr);
 		effect.mesh.rotation.z = phi;
 	}
+
+	// light up environment
+
+	HEMISPHERE_LIGHT.groundColor.add(color)
 
 }

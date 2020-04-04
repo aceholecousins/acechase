@@ -21,6 +21,8 @@ Scene.renderer.domElement.onclick = function () {
 	}
 };
 
+var HEMISPHERE_LIGHT
+
 Scene.init = function() {
 	Scene.renderer.setPixelRatio(RESOLUTION);
 	Scene.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,8 +30,10 @@ Scene.init = function() {
 	document.body.appendChild(Scene.renderer.domElement); // creates canvas on page into which the scene will be rendered
 
 	if(DEPRICATED){
-		ambientLight = new THREE.AmbientLight(0x555555);
-		Scene.graphicsScene.add(ambientLight);
+		HEMISPHERE_LIGHT = new THREE.HemisphereLight(0x2A2A2A, 0x000000, 2.0)
+		HEMISPHERE_LIGHT.position.set(0, 0, 1)
+
+		Scene.graphicsScene.add(HEMISPHERE_LIGHT)
 
 		sunLight = new THREE.DirectionalLight(0xeeeeee, 0.8);
 		sunLight.position.set(-1, 1, 1).normalize();

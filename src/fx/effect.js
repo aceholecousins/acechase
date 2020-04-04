@@ -59,6 +59,8 @@ Effect.prototype.update = function(){ // reduce effect strength and delete if st
 	}
 }
 
+black = new THREE.Color(0x000000)
+
 function updateAllEffects(){
 	for(var i=0; i<EFFECT_LIST.length; i++){
 		if(EFFECT_LIST[i] == null){ // has been despawned already
@@ -73,4 +75,6 @@ function updateAllEffects(){
 			}
 		}
 	}
+
+	HEMISPHERE_LIGHT.groundColor.lerp(black, 0.05)
 }

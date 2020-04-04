@@ -71,6 +71,7 @@ function linePlaneIntersect(p1, p2, n, d){
 
 snapxOld = 0
 snapyOld = 0
+camDeltaZ = 0
 
 function updateCam(){
 
@@ -86,6 +87,7 @@ function updateCam(){
 
 	var snapx = snapxOld*0.9 + snapxTarget*0.1;
 	var snapy = snapyOld*0.9 + snapyTarget*0.1;
+	camDeltaZ *= 0.9
 
 	snapxOld = snapx
 	snapyOld = snapy
@@ -163,6 +165,7 @@ function updateCam(){
 		rhs.set(eW.dot(pW), eE.dot(pE), ev.dot(pNSintersect));
 		campos.copy(rhs.applyMatrix3(mvinv));
 	}
+	campos.z += camDeltaZ
 	var lookat = new THREE.Vector3().addVectors(campos, dir);
 
 	if(DEBUG<2){
