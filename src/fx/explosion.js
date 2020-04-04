@@ -1,86 +1,129 @@
 
 // depends on Effects.js
 
-// source of fire texture: https://tpfto.wordpress.com/2012/02/
-// source of smoke sprite: https://hifi-public.s3.amazonaws.com/alan/Particles/Particle-Sprite-Smoke-1.png
+EXPLOSION_DEBUG = false
 
-// fireball
+// smokeball
 
-//TODO: the explosion is not yet super sexy somehow
-var fireballTexture = loadTexture('media/textures/fireball.png');
+var smokeballNormalmap = loadTexture('media/textures/smokeball_normal_lq.png');
+smokeballNormalmap.minFilter = THREE.LinearFilter // mip mapping causes a seam in the pacific
+var smokeballAOmap = loadTexture('media/textures/smokeball_ao_hc_mq.png');
+smokeballAOmap.minFilter = THREE.LinearFilter
 
+var smokeballVertexShader = `
+varying vec3 vLocalPosition;
+varying vec3 vGlobalPosition;
+varying vec3 vViewPosition;
 
-var fireballVertexShader = `
-	varying vec3 pos;
-	varying vec3 nml;
+#include <common>
 
-	void main() {
-		pos = position;
-		nml = normal;
-	  gl_Position = projectionMatrix *
-		        modelViewMatrix *
-		        vec4(position,1.0);
-	}`;
-
-var fireballFragmentShader = `
-	#define PI 3.141592654
-
-	varying vec3 pos;
-	varying vec3 nml;
-	uniform sampler2D firetex;
-	uniform float strength;
-	uniform vec3 color;
-
-	float TANH(float x){return (1.0-exp(-2.0*x))/(1.0+exp(-2.0*x));}
-
-	void main(){
-		float psi = atan(pos.y, pos.x);
-		float phi = asin(pos.z/length(pos));
-		vec3 rgb = texture2D(firetex, vec2(psi/2.0/PI+0.5, phi/PI+0.5)).rgb;
-
-		float process = 1.0-strength;
-		if(process<0.0){process = 0.0;}
-		if(process>1.0){process = 1.0;}
-		float qcore = rgb.g; // how much the current pixel is core
-		float qsmoke = 1.0-rgb.r; // how much the current pixel is smoke
-		float qmeat = 1.0-qcore-qsmoke; // how much the current pixel is meat
-
-		vec3 csmoke = color * exp(-5.0*process); // color for smoke
-		float tsmoke = 1.0-exp(-5.0*(1.0-process)); // transparency for smoke
-		vec3 ccore = mix(vec3(1.0,1.0,1.0), color, process); // color for core
-		float tcore = 0.5-TANH((process-0.7)*5.0)*0.5; // transparency for core
-		vec3 cmeat = mix(vec3(1.0,1.0,1.0), color, 1.0-exp(-15.0*process)); // color for meat
-		float tmeat = 0.5-TANH((process-0.55)*10.0)*0.5; // transparency for meat
-
-		gl_FragColor = qcore * vec4(ccore,tcore) + qsmoke * vec4(csmoke,tsmoke) + qmeat * vec4(cmeat,tmeat);
-		//gl_FragColor = vec4(rgb, 1.0);
-	}`;
+void main() {
+	#include <begin_vertex>
+	#include <project_vertex>
+	vLocalPosition = position;
+	vGlobalPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+	vViewPosition = - mvPosition.xyz;
+}`;
 
 
-var FIREBALL_MESH;
-LOADING_LIST.addItem('fireballmesh');
 
-OBJ_LOADER.load( 'media/objects/potatoe.obj', function (object) {
-	FIREBALL_MESH = object.children[0];
-	FIREBALL_MESH.scale.x = FIREBALL_MESH.scale.y = FIREBALL_MESH.scale.z = 0.0001;
-	LOADING_LIST.checkItem('fireballmesh');
+var smokeballFragmentShader = `
+uniform float coreGlowStrength;
+uniform vec3 coreColor;
+uniform vec3 smokeColor;
+uniform float smokeEmissiveness;
+uniform float opacity;
 
-	var fireballMaterial = new THREE.ShaderMaterial({ // uniforms do not get cloned (only linked) so this was necessary
-		uniforms: {
-			firetex:	{ type: "t", value: fireballTexture},
-			strength:	{ type: "f", value: 1.0},
-			color:		{ type: "c", value: new THREE.Color( 0xa0a0a0 )}
-		},
-		vertexShader:   fireballVertexShader,
-		fragmentShader: fireballFragmentShader,
-		transparent:	true,
-		alphaTest:      0.01,
+uniform sampler2D smokeNormal;
+uniform sampler2D smokeAO;
+
+uniform mat3 normalMatrix;
+uniform mat4 modelMatrix;
+#include <common>
+
+#include <bsdfs>
+#include <lights_pars_begin>
+#include <lights_phong_pars_fragment>
+
+varying vec3 vLocalPosition;
+varying vec3 vGlobalPosition;
+
+float map(float value, float min1, float max1, float min2, float max2) {
+	return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
+void main() {
+
+	float psi = atan(-vLocalPosition.x, vLocalPosition.y);
+	float phi = asin(vLocalPosition.z/length(vLocalPosition));
+	vec2 sphereUV = vec2(psi/2.0/PI+0.5, phi/PI+0.5);
+	vec3 localNormal = normalize(texture2D(smokeNormal, sphereUV).rgb * 2.0 - 1.0);
+	vec3 normal = normalize(normalMatrix * localNormal);
+	float ao = texture2D(smokeAO, sphereUV).r;
+
+	vec3 modelPos = modelMatrix[3].xyz;
+	vec3 cameraPos = cameraPosition;
+
+	float coreMask = saturate(
+		coreGlowStrength *
+		pow(
+			dot(
+				normalize(modelPos-vGlobalPosition),
+				normalize(modelPos-cameraPos)
+			),
+			8.0
+		) * normal.z * map(ao, 0.0, 1.0, 2.0, 0.5)
+	);
+	float smokeMask = 1.0-coreMask;
+
+
+	vec4 diffuseColor = vec4( ao*smokeColor, opacity );
+	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+
+	vec3 specular = vec3(0.0, 0.0, 0.0);
+	float shininess = 0.0;
+	float specularStrength = 0.0;
+
+	#include <lights_phong_fragment>
+	#include <lights_fragment_begin>
+	#include <lights_fragment_end>
+
+	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular;
+
+	vec3 smokeMix = smokeEmissiveness * smokeColor + (1.0-smokeEmissiveness) * outgoingLight;
+
+	gl_FragColor = vec4( smokeMask * smokeMix + coreMask * coreColor, diffuseColor.a );
+}`;
+
+
+var SMOKEBALL_MESH;
+
+loadCollada( 'media/objects/cloud.dae', function (object) {
+	SMOKEBALL_MESH = object.children[0];
+	if(EXPLOSION_DEBUG && false){
+		SMOKEBALL_MESH.scale.x = SMOKEBALL_MESH.scale.y = SMOKEBALL_MESH.scale.z = 10
+	}
+	else{
+		SMOKEBALL_MESH.scale.x = SMOKEBALL_MESH.scale.y = SMOKEBALL_MESH.scale.z = 0.0001
+	}
+
+	uniforms = THREE.UniformsLib['lights']
+	uniforms.smokeNormal = { type: "t", value: smokeballNormalmap }
+	uniforms.smokeAO = { type: "t", value: smokeballAOmap }
+
+	var smokeballMaterial = new THREE.ShaderMaterial({ // uniforms do not get cloned (only linked) so this was necessary
+		uniforms: uniforms,
+		vertexShader: smokeballVertexShader,
+		fragmentShader: smokeballFragmentShader,
+		transparent: true,
+		alphaTest: 0.01,
+		lights: true
 	});
 
-	FIREBALL_MESH.material = fireballMaterial;
-	FIREBALL_MESH.renderOrder = RENDER_ORDER.explosion;
+	SMOKEBALL_MESH.material = smokeballMaterial;
+	SMOKEBALL_MESH.renderOrder = RENDER_ORDER.explosion;
 
-	//Scene.graphicsScene.add( FIREBALL_MESH );
+	Scene.graphicsScene.add( SMOKEBALL_MESH );
 });
 
 // shockwave
@@ -129,27 +172,43 @@ STAR_MESH.renderOrder = RENDER_ORDER.smoke;
 
 function explosion(position, color, scale=1.0){
 
-	// fireball
+	// smokeball
 
 	var effect = new Effect();
-	effect.type = 'fireball';
-	effect.mesh = FIREBALL_MESH.clone();
+	effect.type = 'smokeball';
+	effect.mesh = SMOKEBALL_MESH.clone();
 	effect.mesh.position.copy(position);
-	effect.mesh.renderOrder = FIREBALL_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
-	effect.mesh.material = FIREBALL_MESH.material.clone(); // so we can change the color without changing the color of all fireballs
-	effect.mesh.material.uniforms.color = { type: "c", value: new THREE.Color( color )}; // new object necessary
-	effect.mesh.material.uniforms.strength = { type: "f", value: 1.0}; // new object necessary
-	effect.mesh.material.uniforms.firetex = { type: "t", value: fireballTexture}; // TODO: Should work without this and did before but doesnt anymore
+	effect.mesh.renderOrder = SMOKEBALL_MESH.renderOrder; // TODO: maybe remove if fixed in three.js
+	effect.mesh.material = SMOKEBALL_MESH.material.clone(); // so we can change the color without changing the color of all smokeballs
+	effect.mesh.material.uniforms.strength = { type: "f", value: 1.1};
+	effect.mesh.material.uniforms.coreColor = { type: "c", value: new THREE.Color(0xffffff)};
+	effect.mesh.material.uniforms.coreGlowStrength = { type: "f", value: 1.0};
+	effect.mesh.material.uniforms.smokeColor = { type: "c", value: new THREE.Color( color )};
+	effect.mesh.material.uniforms.smokeEmissiveness = { type: "f", value: 1.0};
+	effect.mesh.material.uniforms.smokeNormal = { type: "t", value: smokeballNormalmap};
+	effect.mesh.material.uniforms.smokeAO = { type: "t", value: smokeballAOmap};
+	effect.mesh.material.uniforms.opacity = { type: "f", value: 1.0};
 	effect.mesh.rotation.x = Math.random()*1000;
 	effect.mesh.rotation.y = Math.random()*1000;
 	effect.mesh.rotation.z = Math.random()*1000;
-	effect.spin.x = (Math.random()-0.5)*6;
-	effect.spin.y = (Math.random()-0.5)*6;
-	effect.spin.z = (Math.random()-0.5)*6;
+	effect.spin.x = 0//(Math.random()-0.5)*6;
+	effect.spin.y = 0//(Math.random()-0.5)*6;
+	effect.spin.z = 0//(Math.random()-0.5)*6;
 	effect.spawn();
-	effect.strength = 1.1;
-	effect.decay = 2;
+	effect.strength = 1.5;
+	effect.decay = 3.3;
 	effect.growth = 10*scale;
+
+	var smokeTarget = new THREE.Color(0xbbbbbb)
+
+	effect.specialUpdate = function(){
+		var cappedStrength = THREE.Math.clamp(this.strength, 0.0, 1.0)
+		this.mesh.material.uniforms.coreGlowStrength.value = cappedStrength + 0.5
+		this.mesh.material.uniforms.coreColor.value.setRGB(1.0, 1.0, 1.0).lerp(color, 1.0-cappedStrength)
+		this.mesh.material.uniforms.smokeColor.value.copy(color).lerp(smokeTarget, 1.0-cappedStrength)
+		this.mesh.material.uniforms.smokeEmissiveness.value = 0.7*cappedStrength
+		this.mesh.material.uniforms.opacity.value = Math.pow(cappedStrength, 0.25)
+	}
 
 	// shockwave
 
@@ -177,11 +236,11 @@ function explosion(position, color, scale=1.0){
 	effect.spawn();
 	effect.strength = 5;
 	effect.decay = 10;
-	effect.growth = 15*scale;
+	effect.growth = 25*scale;
 
 	// little crumbs
 
-	for(var i=0; i<20; i++){
+	for(var i=0; i<30; i++){
 		effect = new Effect();
 		effect.type = 'crumb';
 		effect.mesh = CRUMB_MESH.clone();
@@ -192,7 +251,7 @@ function explosion(position, color, scale=1.0){
 		effect.strength = 1.5;
 		effect.decay = 0.3;
 		var phi=Math.random()*2*3.1416;
-		var vr=Math.random()*10+5;
+		var vr=Math.random()*15+5;
 		var vz=Math.random()*10+5;
 		effect.velocity = new THREE.Vector3(Math.cos(phi)*vr,Math.sin(phi)*vr,vz);
 		effect.acceleration = new THREE.Vector3(0,0,-30);
@@ -201,7 +260,7 @@ function explosion(position, color, scale=1.0){
 		effect.mesh.rotation.z = Math.random()*1000;
 		effect.spin.z = Math.random()*20;
 
-		if(i<=4){ // those become smoking crumbs!
+		if(i<=10){ // those become smoking crumbs!
 			effect.mesh.material.color.copy(color);
 			effect.mesh.scale.x = Math.random()*0.2+0.1;
 			effect.mesh.scale.y = Math.random()*0.2+0.3;
@@ -210,7 +269,7 @@ function explosion(position, color, scale=1.0){
 			vz*=2;
 
 			effect.update = function(){ // create smoke traces
-				if(FRAME_COUNTER % 4 == 0){
+				if(FRAME_COUNTER % 7 == 0){
 					var subeffect = new Effect();
 					subeffect.type = 'smoke';
 					subeffect.mesh = SMOKE_MESH.clone();

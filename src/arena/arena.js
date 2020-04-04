@@ -58,16 +58,6 @@ function findAccessiblePosition(minCoastDistance){ // minCoastDistance must be n
 	return new THREE.Vector2(x,y);
 }
 
-// recoursively apply THREE.ObjectSpaceNormalMap to normalMapType
-function fixNormalsRec(group){
-	if(group.type == "Mesh"){
-		group.material.normalMapType = THREE.ObjectSpaceNormalMap
-	}
-	for(var i=0; i<group.children.length; i++){
-		fixNormalsRec(group.children[i])
-	}
-}
-
 function loadMapConfig(configFile, ondone){
 	LOADING_LIST.addItem('mapconfig');
 
@@ -84,19 +74,6 @@ function loadMapConfig(configFile, ondone){
 			ondone()
 		}
 	)
-}
-
-function loadCollada(arena, filename){
-	LOADING_LIST.addItem('mapscene');
-
-	var loader = new THREE.ColladaLoader()
-	loader.load( filename, function(collada) {
-		fixNormalsRec(collada.scene)
-		arena.mesh = collada.scene
-		arena.mesh.scale.set(MAP_SCALING, MAP_SCALING, MAP_SCALING);
-		Scene.graphicsScene.add( arena.mesh );
-		LOADING_LIST.checkItem('mapscene');
-	})
 }
 
 function loadBounds(arena, boundarySvgFile, ondone){
@@ -281,7 +258,11 @@ function Arena(modelDaeFile, boundarySvgFile, configFile){
 	this.type = 'arena';
 
 	loadMapConfig(configFile, function(){
-		loadCollada(this, modelDaeFile)
+		loadCollada(modelDaeFile, function(mesh){
+			this.mesh = mesh
+			this.mesh.scale.set(MAP_SCALING, MAP_SCALING, MAP_SCALING);
+			Scene.graphicsScene.add( this.mesh );
+		})
 		loadBounds(this, boundarySvgFile, function(){
 			initWater()
 		})

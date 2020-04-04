@@ -204,6 +204,7 @@ PHYSICS_WORLD.on('impact', function(event){
 var OBJ_LOADER = new THREE.OBJLoader();
 var MTL_LOADER = new THREE.MTLLoader();
 function loadObjMtl( url, mtlurl, onLoad){
+
 	MTL_LOADER.load( mtlurl, function( materials ) {
 		materials.preload();
 		var objLoader = new THREE.OBJLoader();
@@ -211,6 +212,7 @@ function loadObjMtl( url, mtlurl, onLoad){
 		objLoader.load( url, onLoad );
 	});
 };
+
 var TEXTURE_LOADER = new THREE.TextureLoader();
 function loadTexture(filename){ // will automatically do CHECKLIST stuff
 	LOADING_LIST.addItem(filename);
@@ -218,6 +220,27 @@ function loadTexture(filename){ // will automatically do CHECKLIST stuff
 		function(){
 			LOADING_LIST.checkItem(filename);
 		});
+}
+
+// recoursively apply THREE.ObjectSpaceNormalMap to normalMapType
+function fixNormalsRec(group){
+	if(group.type == "Mesh"){
+		group.material.normalMapType = THREE.ObjectSpaceNormalMap
+	}
+	for(var i=0; i<group.children.length; i++){
+		fixNormalsRec(group.children[i])
+	}
+}
+
+var DAE_LOADER = new THREE.ColladaLoader()
+function loadCollada(filename, onLoad){
+	LOADING_LIST.addItem(filename);
+
+	DAE_LOADER.load( filename, function(collada) {
+		fixNormalsRec(collada.scene)
+		onLoad(collada.scene)
+		LOADING_LIST.checkItem(filename);
+	})
 }
 
 // renderorder for transparent objects, they are otherwise sorted by z position

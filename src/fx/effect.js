@@ -12,6 +12,7 @@ function Effect(){
 	this.acceleration = new THREE.Vector3(0,0,0);
 	this.growth = 0.0;
 	this.spin = new THREE.Vector3(0,0,0);
+	this.specialUpdate = null;
 }
 
 Effect.prototype.spawn = function(){ // create effect
@@ -28,24 +29,30 @@ Effect.prototype.despawn = function(){ // delete effect
 }
 
 Effect.prototype.update = function(){ // reduce effect strength and delete if strength is zero
-	this.strength -= this.decay*DT;
-	this.mesh.position.x += this.velocity.x*DT;
-	this.mesh.position.y += this.velocity.y*DT;
-	this.mesh.position.z += this.velocity.z*DT;
-	this.velocity.x += this.acceleration.x*DT;
-	this.velocity.y += this.acceleration.y*DT;
-	this.velocity.z += this.acceleration.z*DT;
-	this.mesh.scale.x += this.growth*DT;
-	this.mesh.scale.y += this.growth*DT;
-	this.mesh.scale.z += this.growth*DT;
-	this.mesh.rotation.x += this.spin.x*DT; // this is not what physics does but it's just effects so what
-	this.mesh.rotation.y += this.spin.y*DT;
-	this.mesh.rotation.z += this.spin.z*DT;
+	dt = DT
+	if(EXPLOSION_DEBUG){dt *= 0.1}
+
+	this.strength -= this.decay*dt;
+	this.mesh.position.x += this.velocity.x*dt;
+	this.mesh.position.y += this.velocity.y*dt;
+	this.mesh.position.z += this.velocity.z*dt;
+	this.velocity.x += this.acceleration.x*dt;
+	this.velocity.y += this.acceleration.y*dt;
+	this.velocity.z += this.acceleration.z*dt;
+	this.mesh.scale.x += this.growth*dt;
+	this.mesh.scale.y += this.growth*dt;
+	this.mesh.scale.z += this.growth*dt;
+	this.mesh.rotation.x += this.spin.x*dt; // this is not what physics does but it's just effects so what
+	this.mesh.rotation.y += this.spin.y*dt;
+	this.mesh.rotation.z += this.spin.z*dt;
 	this.mesh.material.transparent = true;
 	this.mesh.material.alphaTest = 0.01;
 	this.mesh.material.opacity = this.strength; // set transparency according to strength
 	if(this.mesh.material.hasOwnProperty("uniforms")){
 		this.mesh.material.uniforms.strength.value = this.strength;
+	}
+	if(this.specialUpdate != null){
+		this.specialUpdate()
 	}
 	if(this.strength <= 0 || this.mesh.position.z<-1){
 		this.despawn();
