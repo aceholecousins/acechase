@@ -16,6 +16,17 @@ EventChannel.prototype.fire = function(event) {
 	})
 }
 
+EventChannel.prototype.fetch = function(request) {
+	responses = []
+	this.handlers.forEach(function(handler) {
+		response = handler(request)
+		if(response !== undefined){
+			responses.push(response)
+		}
+	})
+	return responses
+}
+
 var broker = {}
 broker.newChannel = function(name){
 	if(broker.hasOwnProperty(name)){
@@ -26,15 +37,30 @@ broker.newChannel = function(name){
 	}
 }
 
+//* <- remove a slash here for running the test below in nodejs
+
 export {EventChannel, broker}
 
-/*
+/*/
+
 broker.newChannel("myChannel")
+
 broker.myChannel.addHandler(function(event){
 	console.log(event)
 })
+
 broker.myChannel.fire("Event1!")
 // broker.newChannel("myChannel") // error
 delete broker.myChannel
 // broker.myChannel.fire("Event2!") // error
-*/
+
+broker.newChannel("requester")
+
+broker.requester.addHandler(() => 5)
+broker.requester.addHandler(() => 7)
+
+answers = broker.requester.fetch()
+
+console.log(answers) // [5, 7]
+
+/**/
