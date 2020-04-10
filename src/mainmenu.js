@@ -35,9 +35,9 @@ MainMenu = {};
 		center = getMapForIndex(index);
 		right = getMapForIndex(index + 1);
 
-		document.getElementById("leftmenuitem").src = left.thumbnail;
-		document.getElementById("centermenuitem").src = center.thumbnail;
-		document.getElementById("rightmenuitem").src = right.thumbnail;
+		document.getElementById("leftmenuitem").src = left.getThumbnail();
+		document.getElementById("centermenuitem").src = center.getThumbnail();
+		document.getElementById("rightmenuitem").src = right.getThumbnail();
 
 		document.getElementById("descriptionmenuitem").innerHTML = center.description;
 	}
