@@ -66,6 +66,9 @@ function sfxLoadedCallback(bufferList) {
 }
 
 SOUNDTRACK_LIST = [
+	{file:'media/music/CrystalsphereOhnelangsamenTeil_lq.ogg',
+	 attr:'Sebastian Kreck - Crystalsphere',
+	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
 	{file:'media/music/nutcracker.mp3',
 	 attr:'Sebastian Kreck - Nutcracker',
 	 link:'https://www.youtube.com/channel/UCSpw9xiOR8xLsXaF4_kaVBw'},
